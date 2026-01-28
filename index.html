@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mason Co. Daily Timesheet</title>
+    <title>Mason Co. Payroll</title>
     <style>
         * {
             box-sizing: border-box;
@@ -12,477 +12,818 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
             min-height: 100vh;
-            padding: 16px;
-            color: #fff;
+            color: #e2e8f0;
         }
 
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 24px;
-            padding: 20px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        header p {
-            color: rgba(255,255,255,0.6);
-            font-size: 0.9rem;
-        }
-
-        .card {
-            background: rgba(255,255,255,0.08);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .card-title {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: rgba(255,255,255,0.5);
-            margin-bottom: 12px;
-        }
-
-        label {
-            display: block;
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.7);
-            margin-bottom: 6px;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 10px;
-            background: rgba(255,255,255,0.05);
-            color: #fff;
-            font-size: 1rem;
-            margin-bottom: 12px;
-            transition: border-color 0.2s;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #4a9eff;
-        }
-
-        select {
-            cursor: pointer;
-        }
-
-        select option {
-            background: #1a1a2e;
-            color: #fff;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .worker-grid {
-            display: grid;
-            gap: 8px;
-        }
-
-        .worker-row {
+        /* Login Screen */
+        .login-screen {
+            min-height: 100vh;
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 10px 14px;
-            background: rgba(255,255,255,0.03);
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.08);
+            justify-content: center;
+            padding: 20px;
         }
 
-        .worker-row.selected {
-            background: rgba(74, 158, 255, 0.15);
-            border-color: rgba(74, 158, 255, 0.4);
-        }
-
-        .worker-checkbox {
-            width: 22px;
-            height: 22px;
-            cursor: pointer;
-            accent-color: #4a9eff;
-        }
-
-        .worker-name {
-            flex: 1;
-            font-size: 0.95rem;
-        }
-
-        .worker-hours {
-            width: 70px;
-            padding: 10px;
+        .login-box {
+            background: #1e293b;
+            padding: 40px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 360px;
             text-align: center;
-            margin-bottom: 0;
+            border: 1px solid #334155;
         }
 
-        .worker-hours:disabled {
-            opacity: 0.3;
+        .login-box h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
         }
 
-        .equipment-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
+        .login-box p {
+            color: #94a3b8;
+            margin-bottom: 24px;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-size: 1rem;
             margin-bottom: 12px;
         }
 
-        .equipment-tag {
-            padding: 10px 16px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.2s;
+        .login-box input:focus {
+            outline: none;
+            border-color: #3b82f6;
         }
 
-        .equipment-tag.selected {
-            background: rgba(74, 158, 255, 0.2);
-            border-color: #4a9eff;
-            color: #4a9eff;
-        }
-
-        .btn {
+        .login-box button {
             width: 100%;
-            padding: 16px;
+            padding: 14px;
+            background: #3b82f6;
+            color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, opacity 0.2s;
-            margin-bottom: 10px;
+            transition: background 0.2s;
         }
 
-        .btn:active {
-            transform: scale(0.98);
+        .login-box button:hover {
+            background: #2563eb;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #4a9eff 0%, #006eff 100%);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #34d399 0%, #059669 100%);
-            color: white;
-        }
-
-        .preview-section {
+        .login-error {
+            color: #f87171;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
             display: none;
         }
 
-        .preview-section.show {
+        /* Main App */
+        .app {
+            display: none;
+        }
+
+        .app.show {
             display: block;
         }
 
-        .preview-box {
-            background: rgba(0,0,0,0.3);
-            border-radius: 10px;
-            padding: 16px;
-            font-family: monospace;
+        .header {
+            background: #1e293b;
+            padding: 16px 24px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .header h1 {
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .date-input {
+            padding: 10px 14px;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-size: 1rem;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-secondary {
+            background: #334155;
+            color: #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .btn-logout {
+            background: transparent;
+            color: #94a3b8;
+            padding: 10px;
+        }
+
+        .btn-logout:hover {
+            color: #f87171;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Summary Bar */
+        .summary-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background: #1e293b;
+            padding: 16px 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+
+        .summary-card .label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .summary-card .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .summary-card .value.green {
+            color: #10b981;
+        }
+
+        .summary-card .value.blue {
+            color: #3b82f6;
+        }
+
+        .summary-card .value.yellow {
+            color: #f59e0b;
+        }
+
+        /* Timesheet Grid */
+        .timesheet-container {
+            background: #1e293b;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            overflow: hidden;
+        }
+
+        .timesheet-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .timesheet-header h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .legend {
+            display: flex;
+            gap: 16px;
             font-size: 0.85rem;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            margin-bottom: 16px;
-            max-height: 300px;
-            overflow-y: auto;
+            color: #94a3b8;
+        }
+
+        .legend span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.direct {
+            background: #10b981;
+        }
+
+        .legend-dot.indirect {
+            background: #f59e0b;
+        }
+
+        .timesheet-scroll {
+            overflow-x: auto;
+        }
+
+        .timesheet-grid {
+            display: grid;
+            grid-template-columns: 140px repeat(13, 1fr);
+            min-width: 900px;
+        }
+
+        .grid-header {
+            background: #334155;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #475569;
+        }
+
+        .grid-header.job-col {
+            text-align: left;
+            padding-left: 16px;
+        }
+
+        .grid-header .rate {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            font-weight: 400;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .grid-row {
+            display: contents;
+        }
+
+        .grid-row:hover .grid-cell {
+            background: #253349;
+        }
+
+        .grid-cell {
+            padding: 8px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .grid-cell.job-cell {
+            justify-content: flex-start;
+            padding-left: 16px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .grid-cell.job-cell.indirect {
+            color: #f59e0b;
+        }
+
+        .grid-cell.job-cell.direct {
+            color: #10b981;
+        }
+
+        .hour-input {
+            width: 100%;
+            max-width: 50px;
+            padding: 8px 4px;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        .hour-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: #1e293b;
+        }
+
+        .hour-input::placeholder {
+            color: #475569;
+        }
+
+        /* Totals Row */
+        .totals-row .grid-cell {
+            background: #334155;
+            font-weight: 600;
+            border-bottom: none;
+        }
+
+        .totals-row .total-value {
+            color: #10b981;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            padding: 16px 20px;
+            border-top: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
         .action-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            display: flex;
+            gap: 12px;
         }
 
-        .action-buttons .btn {
-            margin-bottom: 0;
+        /* Preview Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: #1e293b;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.1rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .modal-close:hover {
+            color: #e2e8f0;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .preview-box {
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            color: #e2e8f0;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #334155;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        /* Toast */
         .toast {
             position: fixed;
-            bottom: 20px;
+            bottom: 24px;
             left: 50%;
             transform: translateX(-50%);
-            background: #34d399;
-            color: #000;
-            padding: 14px 24px;
-            border-radius: 10px;
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
             font-weight: 600;
             opacity: 0;
             transition: opacity 0.3s;
-            z-index: 100;
+            z-index: 200;
         }
 
         .toast.show {
             opacity: 1;
         }
 
-        .foreman-field {
-            margin-bottom: 0;
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 12px 16px;
+            }
+
+            .main-content {
+                padding: 16px;
+            }
+
+            .summary-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .timesheet-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
             <h1>🧱 Mason Co.</h1>
-            <p>Daily Timesheet</p>
+            <p>Payroll System</p>
+            <div class="login-error" id="loginError">Incorrect password. Try again.</div>
+            <input type="password" id="passwordInput" placeholder="Enter password" onkeypress="if(event.key === 'Enter') attemptLogin()">
+            <button onclick="attemptLogin()">Login</button>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app" id="app">
+        <header class="header">
+            <h1>🧱 Mason Co. Payroll</h1>
+            <div class="header-controls">
+                <input type="date" class="date-input" id="selectedDate">
+                <button class="btn btn-logout" onclick="logout()">Logout</button>
+            </div>
         </header>
 
-        <div class="card">
-            <div class="card-title">Basic Info</div>
-            <label for="foreman">Foreman Name</label>
-            <input type="text" id="foreman" placeholder="Enter your name" class="foreman-field">
-            
-            <label for="date">Date</label>
-            <input type="date" id="date">
-            
-            <label for="jobsite">Job Site</label>
-            <select id="jobsite">
-                <option value="">Select job site...</option>
-                <option value="Baseyard">Baseyard</option>
-                <option value="Office">Office</option>
-                <option value="P/U Skidsteer">P/U Skidsteer</option>
-                <option value="Asphalt Plant">Asphalt Plant</option>
-                <option value="Airport Job">Airport Job</option>
-                <option value="Jays Driveway">Jay's Driveway</option>
-                <option value="Schow">Schow</option>
-                <option value="Braun">Braun</option>
-                <option value="Punua">Punua</option>
-                <option value="McPhearson">McPhearson</option>
-            </select>
-        </div>
-
-        <div class="card">
-            <div class="card-title">Workers & Hours</div>
-            <p style="font-size: 0.85rem; color: rgba(255,255,255,0.5); margin-bottom: 12px;">Check workers present and enter their hours</p>
-            <div class="worker-grid" id="workerGrid">
-                <!-- Workers will be populated by JS -->
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-title">Equipment Used</div>
-            <div class="equipment-tags" id="equipmentTags">
-                <span class="equipment-tag" data-equip="Skidsteer">Skidsteer</span>
-                <span class="equipment-tag" data-equip="Excavator">Excavator</span>
-                <span class="equipment-tag" data-equip="Mixer">Mixer</span>
-                <span class="equipment-tag" data-equip="Dump Truck">Dump Truck</span>
-                <span class="equipment-tag" data-equip="Forklift">Forklift</span>
-                <span class="equipment-tag" data-equip="Compactor">Compactor</span>
-                <span class="equipment-tag" data-equip="Saw">Saw</span>
-                <span class="equipment-tag" data-equip="Scaffolding">Scaffolding</span>
-            </div>
-            <input type="text" id="otherEquipment" placeholder="Other equipment (optional)">
-        </div>
-
-        <div class="card">
-            <div class="card-title">Notes</div>
-            <textarea id="notes" placeholder="Any notes about the day's work, issues, progress, etc."></textarea>
-        </div>
-
-        <button class="btn btn-primary" onclick="generatePreview()">Preview Timesheet</button>
-
-        <div class="preview-section" id="previewSection">
-            <div class="card">
-                <div class="card-title">Preview</div>
-                <div class="preview-box" id="previewBox"></div>
-                <div class="action-buttons">
-                    <button class="btn btn-secondary" onclick="copyToClipboard()">📋 Copy</button>
-                    <button class="btn btn-success" onclick="sendText()">💬 Text</button>
+        <div class="main-content">
+            <!-- Summary Cards -->
+            <div class="summary-bar">
+                <div class="summary-card">
+                    <div class="label">Total Hours</div>
+                    <div class="value blue" id="totalHours">0</div>
                 </div>
-                <button class="btn btn-secondary" style="margin-top: 10px;" onclick="sendEmail()">📧 Email</button>
+                <div class="summary-card">
+                    <div class="label">Direct Labor</div>
+                    <div class="value green" id="directLabor">$0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Indirect Labor</div>
+                    <div class="value yellow" id="indirectLabor">$0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Total Labor Cost</div>
+                    <div class="value" id="totalLabor">$0</div>
+                </div>
+            </div>
+
+            <!-- Timesheet Grid -->
+            <div class="timesheet-container">
+                <div class="timesheet-header">
+                    <h2 id="dateDisplay">Thursday, January 29, 2026</h2>
+                    <div class="legend">
+                        <span><div class="legend-dot indirect"></div> Indirect (Overhead)</span>
+                        <span><div class="legend-dot direct"></div> Direct (Billable)</span>
+                    </div>
+                </div>
+
+                <div class="timesheet-scroll">
+                    <div class="timesheet-grid" id="timesheetGrid">
+                        <!-- Grid will be populated by JS -->
+                    </div>
+                </div>
+
+                <div class="action-bar">
+                    <span style="color: #94a3b8; font-size: 0.9rem;">Tip: Use Tab to move between cells</span>
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+                        <button class="btn btn-success" onclick="generateReport()">📋 Copy Report</button>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
 
-        <button class="btn btn-secondary" onclick="clearForm()">Clear Form</button>
+    <!-- Preview Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Daily Timesheet Report</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="preview-box" id="previewBox"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                <button class="btn btn-success" onclick="copyReport()">📋 Copy to Clipboard</button>
+            </div>
+        </div>
     </div>
 
     <div class="toast" id="toast">Copied to clipboard!</div>
 
     <script>
+        // ===== CONFIGURATION =====
+        const PASSWORD = 'mason2026';
+
         const workers = [
-            'Jordan', 'Kamalei', 'Dave', 'Joe', 'Ian', 'Ray', 
-            'Jestin', 'Duke', 'Keahi', 'Ruben', 'Beau', 'Seth', 'Kawika'
+            { name: 'Jordan', rate: 120 },
+            { name: 'Kamalei', rate: 100 },
+            { name: 'Dave', rate: 114 },
+            { name: 'Joe', rate: 114 },
+            { name: 'Ian', rate: 100 },
+            { name: 'Ray', rate: 100 },
+            { name: 'Jestin', rate: 63 },
+            { name: 'Duke', rate: 58 },
+            { name: 'Keahi', rate: 52 },
+            { name: 'Ruben', rate: 52 },
+            { name: 'Beau', rate: 87.5 },
+            { name: 'Seth', rate: 40 },
+            { name: 'Kawika', rate: 35 }
         ];
 
-        const selectedEquipment = new Set();
+        const jobSites = [
+            { name: 'Baseyard', type: 'indirect' },
+            { name: 'Office', type: 'indirect' },
+            { name: 'Asphalt Plant', type: 'direct' },
+            { name: 'Airport Job', type: 'direct' },
+            { name: 'Jays Driveway', type: 'direct' },
+            { name: 'Schow', type: 'direct' },
+            { name: 'Braun', type: 'direct' },
+            { name: 'Punua', type: 'direct' },
+            { name: 'McPhearson', type: 'direct' },
+            { name: 'Dillon', type: 'direct' },
+            { name: 'Erickson', type: 'direct' }
+        ];
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set today's date
-            document.getElementById('date').valueAsDate = new Date();
-            
-            // Populate workers
-            const grid = document.getElementById('workerGrid');
-            workers.forEach(worker => {
-                const row = document.createElement('div');
-                row.className = 'worker-row';
-                row.innerHTML = `
-                    <input type="checkbox" class="worker-checkbox" id="check_${worker}" onchange="toggleWorker('${worker}')">
-                    <label class="worker-name" for="check_${worker}">${worker}</label>
-                    <input type="number" class="worker-hours" id="hours_${worker}" placeholder="Hrs" min="0" max="24" step="0.5" disabled>
-                `;
-                grid.appendChild(row);
-            });
-
-            // Equipment tag listeners
-            document.querySelectorAll('.equipment-tag').forEach(tag => {
-                tag.addEventListener('click', function() {
-                    const equip = this.dataset.equip;
-                    if (selectedEquipment.has(equip)) {
-                        selectedEquipment.delete(equip);
-                        this.classList.remove('selected');
-                    } else {
-                        selectedEquipment.add(equip);
-                        this.classList.add('selected');
-                    }
-                });
-            });
-        });
-
-        function toggleWorker(worker) {
-            const checkbox = document.getElementById(`check_${worker}`);
-            const hoursInput = document.getElementById(`hours_${worker}`);
-            const row = checkbox.closest('.worker-row');
-            
-            if (checkbox.checked) {
-                hoursInput.disabled = false;
-                hoursInput.focus();
-                row.classList.add('selected');
+        // ===== LOGIN =====
+        function attemptLogin() {
+            const input = document.getElementById('passwordInput').value;
+            if (input === PASSWORD) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('app').classList.add('show');
+                initApp();
             } else {
-                hoursInput.disabled = true;
-                hoursInput.value = '';
-                row.classList.remove('selected');
+                document.getElementById('loginError').style.display = 'block';
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
             }
         }
 
-        function generatePreview() {
-            const foreman = document.getElementById('foreman').value || 'Not specified';
-            const date = document.getElementById('date').value;
-            const jobsite = document.getElementById('jobsite').value || 'Not specified';
-            const notes = document.getElementById('notes').value || 'None';
-            const otherEquip = document.getElementById('otherEquipment').value;
+        function logout() {
+            document.getElementById('app').classList.remove('show');
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('loginError').style.display = 'none';
+        }
 
-            // Format date nicely
-            const dateObj = new Date(date + 'T00:00:00');
-            const formattedDate = dateObj.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+        // ===== APP INIT =====
+        function initApp() {
+            // Set today's date
+            const today = new Date();
+            document.getElementById('selectedDate').valueAsDate = today;
+            updateDateDisplay();
+
+            // Build the grid
+            buildGrid();
+
+            // Listen for date changes
+            document.getElementById('selectedDate').addEventListener('change', updateDateDisplay);
+        }
+
+        function updateDateDisplay() {
+            const dateInput = document.getElementById('selectedDate').value;
+            const date = new Date(dateInput + 'T00:00:00');
+            const formatted = date.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('dateDisplay').textContent = formatted;
+        }
+
+        function buildGrid() {
+            const grid = document.getElementById('timesheetGrid');
+            grid.innerHTML = '';
+
+            // Header row
+            let headerHTML = '<div class="grid-header job-col">Job Site</div>';
+            workers.forEach(w => {
+                headerHTML += `<div class="grid-header">${w.name}<span class="rate">$${w.rate}/hr</span></div>`;
+            });
+            grid.innerHTML = headerHTML;
+
+            // Job rows
+            jobSites.forEach(job => {
+                const row = document.createElement('div');
+                row.className = 'grid-row';
+
+                let rowHTML = `<div class="grid-cell job-cell ${job.type}">${job.name}</div>`;
+                workers.forEach(w => {
+                    const inputId = `${job.name.replace(/[^a-zA-Z]/g, '')}_${w.name}`;
+                    rowHTML += `<div class="grid-cell">
+                        <input type="number" class="hour-input" id="${inputId}" 
+                               data-worker="${w.name}" data-job="${job.name}" data-type="${job.type}" data-rate="${w.rate}"
+                               placeholder="-" min="0" max="24" step="0.5" oninput="calculateTotals()">
+                    </div>`;
+                });
+
+                row.innerHTML = rowHTML;
+                grid.appendChild(row);
             });
 
-            // Get selected workers and hours
-            let workerLines = [];
-            workers.forEach(worker => {
-                const checkbox = document.getElementById(`check_${worker}`);
-                const hours = document.getElementById(`hours_${worker}`).value;
-                if (checkbox.checked && hours) {
-                    workerLines.push(`  • ${worker}: ${hours} hrs`);
+            // Totals row
+            const totalsRow = document.createElement('div');
+            totalsRow.className = 'grid-row totals-row';
+            let totalsHTML = '<div class="grid-cell job-cell">TOTALS</div>';
+            workers.forEach(w => {
+                totalsHTML += `<div class="grid-cell"><span class="total-value" id="total_${w.name}">0</span></div>`;
+            });
+            totalsRow.innerHTML = totalsHTML;
+            grid.appendChild(totalsRow);
+        }
+
+        function calculateTotals() {
+            let totalHours = 0;
+            let directCost = 0;
+            let indirectCost = 0;
+
+            // Calculate per-worker totals
+            workers.forEach(w => {
+                let workerTotal = 0;
+                document.querySelectorAll(`input[data-worker="${w.name}"]`).forEach(input => {
+                    const hours = parseFloat(input.value) || 0;
+                    workerTotal += hours;
+
+                    if (input.dataset.type === 'direct') {
+                        directCost += hours * w.rate;
+                    } else {
+                        indirectCost += hours * w.rate;
+                    }
+                });
+                document.getElementById(`total_${w.name}`).textContent = workerTotal || '0';
+                totalHours += workerTotal;
+            });
+
+            // Update summary cards
+            document.getElementById('totalHours').textContent = totalHours;
+            document.getElementById('directLabor').textContent = '$' + directCost.toLocaleString();
+            document.getElementById('indirectLabor').textContent = '$' + indirectCost.toLocaleString();
+            document.getElementById('totalLabor').textContent = '$' + (directCost + indirectCost).toLocaleString();
+        }
+
+        function clearAll() {
+            document.querySelectorAll('.hour-input').forEach(input => {
+                input.value = '';
+            });
+            calculateTotals();
+        }
+
+        function generateReport() {
+            const dateInput = document.getElementById('selectedDate').value;
+            const date = new Date(dateInput + 'T00:00:00');
+            const formatted = date.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            let report = `MASON CO. DAILY PAYROLL\n`;
+            report += `${'═'.repeat(40)}\n`;
+            report += `Date: ${formatted}\n\n`;
+
+            // Group by job site
+            let hasData = false;
+            jobSites.forEach(job => {
+                let jobLines = [];
+                workers.forEach(w => {
+                    const inputId = `${job.name.replace(/[^a-zA-Z]/g, '')}_${w.name}`;
+                    const hours = parseFloat(document.getElementById(inputId).value) || 0;
+                    if (hours > 0) {
+                        jobLines.push(`  ${w.name}: ${hours} hrs`);
+                        hasData = true;
+                    }
+                });
+
+                if (jobLines.length > 0) {
+                    const typeLabel = job.type === 'indirect' ? ' (Indirect)' : '';
+                    report += `${job.name}${typeLabel}\n`;
+                    report += jobLines.join('\n') + '\n\n';
                 }
             });
 
-            // Get equipment
-            let equipmentList = [...selectedEquipment];
-            if (otherEquip) equipmentList.push(otherEquip);
-            const equipmentStr = equipmentList.length > 0 ? equipmentList.join(', ') : 'None';
+            if (!hasData) {
+                report += `No hours entered.\n\n`;
+            }
 
-            const preview = `
-═══════════════════════════
-  MASON CO. DAILY TIMESHEET
-═══════════════════════════
+            // Worker totals
+            report += `${'─'.repeat(40)}\n`;
+            report += `WORKER TOTALS\n`;
+            workers.forEach(w => {
+                const total = parseFloat(document.getElementById(`total_${w.name}`).textContent) || 0;
+                if (total > 0) {
+                    report += `  ${w.name}: ${total} hrs\n`;
+                }
+            });
 
-📅 Date: ${formattedDate}
-👷 Foreman: ${foreman}
-📍 Job Site: ${jobsite}
+            // Summary
+            report += `\n${'─'.repeat(40)}\n`;
+            report += `SUMMARY\n`;
+            report += `  Total Hours: ${document.getElementById('totalHours').textContent}\n`;
+            report += `  Direct Labor: ${document.getElementById('directLabor').textContent}\n`;
+            report += `  Indirect Labor: ${document.getElementById('indirectLabor').textContent}\n`;
+            report += `  Total Labor Cost: ${document.getElementById('totalLabor').textContent}\n`;
+            report += `${'═'.repeat(40)}`;
 
-WORKERS & HOURS:
-${workerLines.length > 0 ? workerLines.join('\n') : '  No workers entered'}
-
-🔧 Equipment: ${equipmentStr}
-
-📝 Notes:
-${notes}
-
-═══════════════════════════
-            `.trim();
-
-            document.getElementById('previewBox').textContent = preview;
-            document.getElementById('previewSection').classList.add('show');
-            document.getElementById('previewSection').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('previewBox').textContent = report;
+            document.getElementById('modalOverlay').classList.add('show');
         }
 
-        function copyToClipboard() {
-            const text = document.getElementById('previewBox').textContent;
-            navigator.clipboard.writeText(text).then(() => {
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('show');
+        }
+
+        function copyReport() {
+            const report = document.getElementById('previewBox').textContent;
+            navigator.clipboard.writeText(report).then(() => {
                 showToast('Copied to clipboard!');
+                closeModal();
             });
-        }
-
-        function sendText() {
-            const text = encodeURIComponent(document.getElementById('previewBox').textContent);
-            window.location.href = `sms:?body=${text}`;
-        }
-
-        function sendEmail() {
-            const date = document.getElementById('date').value;
-            const jobsite = document.getElementById('jobsite').value || 'Job Site';
-            const subject = encodeURIComponent(`Timesheet - ${jobsite} - ${date}`);
-            const body = encodeURIComponent(document.getElementById('previewBox').textContent);
-            window.location.href = `mailto:?subject=${subject}&body=${body}`;
-        }
-
-        function clearForm() {
-            document.getElementById('foreman').value = '';
-            document.getElementById('date').valueAsDate = new Date();
-            document.getElementById('jobsite').value = '';
-            document.getElementById('notes').value = '';
-            document.getElementById('otherEquipment').value = '';
-            
-            workers.forEach(worker => {
-                document.getElementById(`check_${worker}`).checked = false;
-                document.getElementById(`hours_${worker}`).value = '';
-                document.getElementById(`hours_${worker}`).disabled = true;
-                document.getElementById(`check_${worker}`).closest('.worker-row').classList.remove('selected');
-            });
-
-            selectedEquipment.clear();
-            document.querySelectorAll('.equipment-tag').forEach(tag => {
-                tag.classList.remove('selected');
-            });
-
-            document.getElementById('previewSection').classList.remove('show');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function showToast(message) {
@@ -491,6 +832,11 @@ ${notes}
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 2000);
         }
+
+        // Close modal on overlay click
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
     </script>
 </body>
 </html>
