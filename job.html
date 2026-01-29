@@ -336,6 +336,58 @@
             color: #f97316;
         }
 
+        /* Worker Rates Grid */
+        .worker-rates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .worker-rate-item {
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .worker-rate-item .worker-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .worker-rate-item .rate-input-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .worker-rate-item .rate-input-group span {
+            color: #999;
+        }
+
+        .worker-rate-item input {
+            width: 70px;
+            padding: 6px 8px;
+            border: 1px solid #404040;
+            border-radius: 6px;
+            background: #2d2d2d;
+            color: #fff;
+            font-size: 0.9rem;
+            text-align: right;
+        }
+
+        .worker-rate-item input:focus {
+            outline: none;
+            border-color: #f97316;
+        }
+
+        .worker-rate-item .default-rate {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
         /* Line Items (Additional Labor, Materials) */
         .line-items {
             display: flex;
@@ -743,6 +795,16 @@
         <div class="tab-content" id="laborTab">
             <div class="section">
                 <div class="section-header">
+                    <h3>Worker Rates for This Job</h3>
+                    <span style="color: #999; font-size: 0.85rem;">Custom rates override defaults</span>
+                </div>
+                <div class="section-body">
+                    <div class="worker-rates-grid" id="workerRatesGrid"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
                     <h3>Payroll Labor</h3>
                     <span style="color: #999; font-size: 0.85rem;">Auto-pulled from timesheet</span>
                 </div>
@@ -912,15 +974,29 @@
         const JSONBIN_API_KEY = '$2a$10$vgUvy.chZeKckQe2eTD36uOX/mfrhx8GKudyoZqZsjWkbtaam8/Nm';
 
         // Workers and rates
+        const defaultWorkerRates = {
+            'Jordan': 120, 'Kamalei': 100, 'Dave': 114, 'Joe': 114,
+            'Ian': 100, 'Ray': 100, 'Jestin': 63, 'Duke': 58,
+            'Keahi': 52, 'Ruben': 52, 'Beau': 87.5, 'Seth': 40, 'Kawika': 35
+        };
+
         const workers = [
-            { name: 'Jordan', rate: 120 }, { name: 'Kamalei', rate: 100 },
-            { name: 'Dave', rate: 114 }, { name: 'Joe', rate: 114 },
-            { name: 'Ian', rate: 100 }, { name: 'Ray', rate: 100 },
-            { name: 'Jestin', rate: 63 }, { name: 'Duke', rate: 58 },
-            { name: 'Keahi', rate: 52 }, { name: 'Ruben', rate: 52 },
-            { name: 'Beau', rate: 87.5 }, { name: 'Seth', rate: 40 },
-            { name: 'Kawika', rate: 35 }
+            { name: 'Jordan' }, { name: 'Kamalei' },
+            { name: 'Dave' }, { name: 'Joe' },
+            { name: 'Ian' }, { name: 'Ray' },
+            { name: 'Jestin' }, { name: 'Duke' },
+            { name: 'Keahi' }, { name: 'Ruben' },
+            { name: 'Beau' }, { name: 'Seth' },
+            { name: 'Kawika' }
         ];
+
+        // Get worker rate for this job (or default)
+        function getWorkerRate(workerName) {
+            if (currentJob && currentJob.workerRates && currentJob.workerRates[workerName] !== undefined) {
+                return currentJob.workerRates[workerName];
+            }
+            return defaultWorkerRates[workerName] || 0;
+        }
 
         // Equipment
         const equipment = [
@@ -1028,11 +1104,53 @@
             renderHeader();
             renderJobInfo();
             renderDraws();
+            renderWorkerRates();
             renderLabor();
             renderAdditionalLabor();
             renderEquipment();
             renderMaterials();
             calculateSummary();
+        }
+
+        // Worker Rates
+        function renderWorkerRates() {
+            const container = document.getElementById('workerRatesGrid');
+            if (!currentJob.workerRates) currentJob.workerRates = {};
+            
+            container.innerHTML = workers.map(w => {
+                const defaultRate = defaultWorkerRates[w.name] || 0;
+                const customRate = currentJob.workerRates[w.name];
+                const displayRate = customRate !== undefined ? customRate : '';
+                
+                return `
+                    <div class="worker-rate-item">
+                        <span class="worker-name">${w.name}</span>
+                        <div class="rate-input-group">
+                            <span>$</span>
+                            <input type="number" value="${displayRate}" placeholder="${defaultRate}" 
+                                   onchange="updateWorkerRate('${w.name}', this.value)" step="0.5">
+                            <span>/hr</span>
+                        </div>
+                        <span class="default-rate">Default: $${defaultRate}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateWorkerRate(workerName, value) {
+            if (!currentJob.workerRates) currentJob.workerRates = {};
+            
+            if (value === '' || value === null) {
+                // Clear custom rate, use default
+                delete currentJob.workerRates[workerName];
+            } else {
+                currentJob.workerRates[workerName] = parseFloat(value) || 0;
+            }
+            
+            // Recalculate labor with new rates
+            renderLabor();
+            calculateSummary();
+            scheduleAutoSave();
         }
 
         // Header
@@ -1177,13 +1295,11 @@
                         Object.entries(day).forEach(([inputId, hours]) => {
                             if (inputId.startsWith(payrollKey + '_')) {
                                 const workerName = inputId.split('_').pop();
-                                const worker = workers.find(w => w.name === workerName);
-                                if (worker) {
-                                    const cost = hours * worker.rate;
-                                    weekTotal += cost;
-                                    if (!dayData[dayKey]) dayData[dayKey] = {};
-                                    dayData[dayKey][workerName] = { hours, cost };
-                                }
+                                const rate = getWorkerRate(workerName);
+                                const cost = hours * rate;
+                                weekTotal += cost;
+                                if (!dayData[dayKey]) dayData[dayKey] = {};
+                                dayData[dayKey][workerName] = { hours, cost, rate };
                             }
                         });
                     }
@@ -1469,8 +1585,8 @@
                             Object.entries(dayData).forEach(([inputId, hours]) => {
                                 if (inputId.startsWith(payrollKey + '_')) {
                                     const workerName = inputId.split('_').pop();
-                                    const worker = workers.find(w => w.name === workerName);
-                                    if (worker) total += hours * worker.rate;
+                                    const rate = getWorkerRate(workerName);
+                                    total += hours * rate;
                                 }
                             });
                         }
@@ -1592,4 +1708,3 @@
     </script>
 </body>
 </html>
-
