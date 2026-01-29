@@ -222,6 +222,7 @@
 
         .grid-header.job-col { text-align: left; padding-left: 14px; }
         .grid-header .rate { font-size: 0.65rem; color: #999; font-weight: 400; display: block; margin-top: 2px; }
+        .grid-header .rate.hidden { display: none; }
 
         .grid-row { display: contents; }
         .grid-row:hover .grid-cell { background: #353535; }
@@ -419,6 +420,7 @@
         <div class="header-left">
             <a href="index.html" class="btn btn-back">← Menu</a>
             <h1>⏱️ Payroll</h1>
+            <button class="btn btn-secondary" id="toggleRatesBtn" onclick="toggleRates()" style="padding: 6px 12px; font-size: 0.8rem;">👁️ Hide Rates</button>
         </div>
         <div class="save-status" id="saveStatus">
             <span>●</span> All changes saved
@@ -514,15 +516,47 @@
         const JSONBIN_BIN_ID = '697a7070d0ea881f408e6063';
         const JSONBIN_API_KEY = '$2a$10$vgUvy.chZeKckQe2eTD36uOX/mfrhx8GKudyoZqZsjWkbtaam8/Nm';
 
+        // Default worker rates (can be overridden per job)
+        const defaultWorkerRates = {
+            'Jordan': 120, 'Kamalei': 100, 'Dave': 114, 'Joe': 114,
+            'Ian': 100, 'Ray': 100, 'Jestin': 63, 'Duke': 58,
+            'Keahi': 52, 'Ruben': 52, 'Beau': 87.5, 'Seth': 40, 'Kawika': 35
+        };
+
         const workers = [
-            { name: 'Jordan', rate: 120 }, { name: 'Kamalei', rate: 100 },
-            { name: 'Dave', rate: 114 }, { name: 'Joe', rate: 114 },
-            { name: 'Ian', rate: 100 }, { name: 'Ray', rate: 100 },
-            { name: 'Jestin', rate: 63 }, { name: 'Duke', rate: 58 },
-            { name: 'Keahi', rate: 52 }, { name: 'Ruben', rate: 52 },
-            { name: 'Beau', rate: 87.5 }, { name: 'Seth', rate: 40 },
-            { name: 'Kawika', rate: 35 }
+            { name: 'Jordan' }, { name: 'Kamalei' },
+            { name: 'Dave' }, { name: 'Joe' },
+            { name: 'Ian' }, { name: 'Ray' },
+            { name: 'Jestin' }, { name: 'Duke' },
+            { name: 'Keahi' }, { name: 'Ruben' },
+            { name: 'Beau' }, { name: 'Seth' },
+            { name: 'Kawika' }
         ];
+
+        let showRates = true;
+
+        function toggleRates() {
+            showRates = !showRates;
+            document.querySelectorAll('.grid-header .rate').forEach(el => {
+                el.classList.toggle('hidden', !showRates);
+            });
+            document.getElementById('toggleRatesBtn').textContent = showRates ? '👁️ Hide Rates' : '👁️ Show Rates';
+        }
+
+        // Get worker rate for a specific job (or default)
+        function getWorkerRate(workerName, jobName) {
+            // Find the job in allData.jobs by payrollName
+            if (allData.jobs) {
+                const job = Object.values(allData.jobs).find(j => 
+                    j.payrollName === jobName || j.name === jobName
+                );
+                if (job && job.workerRates && job.workerRates[workerName] !== undefined) {
+                    return job.workerRates[workerName];
+                }
+            }
+            // Fall back to default rate
+            return defaultWorkerRates[workerName] || 0;
+        }
 
         // Permanent indirect job sites (always shown)
         const permanentJobSites = [
@@ -690,7 +724,10 @@
         function buildGrid() {
             const grid = document.getElementById('timesheetGrid');
             let html = '<div class="grid-header job-col">Job Site</div>';
-            workers.forEach(w => html += `<div class="grid-header">${w.name}<span class="rate">$${w.rate}/hr</span></div>`);
+            workers.forEach(w => {
+                const defaultRate = defaultWorkerRates[w.name] || 0;
+                html += `<div class="grid-header">${w.name}<span class="rate ${showRates ? '' : 'hidden'}">$${defaultRate}/hr</span></div>`;
+            });
 
             jobSites.forEach(job => {
                 const jobKey = job.name.replace(/[^a-zA-Z]/g, '');
@@ -706,7 +743,8 @@
                 html += `<div class="grid-row"><div class="grid-cell job-cell ${job.type}">${jobCellContent}</div>`;
                 workers.forEach(w => {
                     const inputId = `${jobKey}_${w.name}`;
-                    html += `<div class="grid-cell"><input type="number" class="hour-input" id="${inputId}" data-worker="${w.name}" data-job="${job.name}" data-type="${job.type}" data-rate="${w.rate}" placeholder="-" min="0" max="24" step="0.5" oninput="onInput()"></div>`;
+                    const rate = getWorkerRate(w.name, job.name);
+                    html += `<div class="grid-cell"><input type="number" class="hour-input" id="${inputId}" data-worker="${w.name}" data-job="${job.name}" data-type="${job.type}" data-rate="${rate}" placeholder="-" min="0" max="24" step="0.5" oninput="onInput()"></div>`;
                 });
                 html += `</div>`;
             });
@@ -784,8 +822,12 @@
                     Object.entries(dayData).forEach(([inputId, hours]) => {
                         const parts = inputId.split('_');
                         const workerName = parts[parts.length - 1];
-                        const worker = workers.find(w => w.name === workerName);
-                        if (worker) weekTotal += hours * worker.rate;
+                        const jobKey = parts.slice(0, -1).join('_');
+                        // Find job name from jobKey
+                        const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKey);
+                        const jobName = job ? job.name : jobKey;
+                        const rate = getWorkerRate(workerName, jobName);
+                        weekTotal += hours * rate;
                     });
                 }
             });
@@ -833,8 +875,11 @@
                             totalHours += hours;
                             const parts = inputId.split('_');
                             const workerName = parts[parts.length - 1];
-                            const worker = workers.find(w => w.name === workerName);
-                            if (worker) totalCost += hours * worker.rate;
+                            const jobKey = parts.slice(0, -1).join('_');
+                            const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKey);
+                            const jobName = job ? job.name : jobKey;
+                            const rate = getWorkerRate(workerName, jobName);
+                            totalCost += hours * rate;
                         });
                     }
                 });
