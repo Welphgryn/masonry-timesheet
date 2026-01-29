@@ -207,7 +207,6 @@
 
         .timesheet-grid {
             display: grid;
-            grid-template-columns: 130px repeat(13, 1fr);
             min-width: 850px;
         }
 
@@ -403,6 +402,26 @@
             font-size: 1.2rem;
         }
 
+        .no-data-message {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .no-data-message h3 {
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .no-data-message a {
+            color: #f97316;
+            text-decoration: none;
+        }
+
+        .no-data-message a:hover {
+            text-decoration: underline;
+        }
+
         @media (max-width: 768px) {
             .header { padding: 12px 16px; }
             .main-content { padding: 16px; }
@@ -516,25 +535,80 @@
         const JSONBIN_BIN_ID = '697a7070d0ea881f408e6063';
         const JSONBIN_API_KEY = '$2a$10$vgUvy.chZeKckQe2eTD36uOX/mfrhx8GKudyoZqZsjWkbtaam8/Nm';
 
-        // Default worker rates (can be overridden per job)
-        const defaultWorkerRates = {
-            'Jordan': 120, 'Kamalei': 100, 'Dave': 114, 'Joe': 114,
-            'Ian': 100, 'Ray': 100, 'Jestin': 63, 'Duke': 58,
-            'Keahi': 52, 'Ruben': 52, 'Beau': 87.5, 'Seth': 40, 'Kawika': 35
-        };
+        // Dynamic workers list - populated from allData.employees
+        let workers = [];
 
-        const workers = [
-            { name: 'Jordan' }, { name: 'Kamalei' },
-            { name: 'Dave' }, { name: 'Joe' },
-            { name: 'Ian' }, { name: 'Ray' },
-            { name: 'Jestin' }, { name: 'Duke' },
-            { name: 'Keahi' }, { name: 'Ruben' },
-            { name: 'Beau' }, { name: 'Seth' },
-            { name: 'Kawika' }
+        // Permanent indirect job sites (always shown)
+        const permanentJobSites = [
+            { name: 'Baseyard', type: 'indirect', id: null },
+            { name: 'Office', type: 'indirect', id: null }
         ];
 
+        // Will be populated from JSONbin
+        let jobSites = [];
+        let allData = {};
+        let currentWeekStart = null;
+        let selectedDayIndex = 0;
+        let saveTimeout = null;
         let showRates = true;
 
+        // ============================================
+        // SEED DATA - Initial employees and jobs
+        // ============================================
+        const seedEmployees = {
+            'jordan': { id: 'jordan', name: 'Jordan', rate: 120, status: 'active', sortOrder: 1, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'kamalei': { id: 'kamalei', name: 'Kamalei', rate: 100, status: 'active', sortOrder: 2, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'dave': { id: 'dave', name: 'Dave', rate: 114, status: 'active', sortOrder: 3, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'joe': { id: 'joe', name: 'Joe', rate: 114, status: 'active', sortOrder: 4, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'ian': { id: 'ian', name: 'Ian', rate: 100, status: 'active', sortOrder: 5, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'ray': { id: 'ray', name: 'Ray', rate: 100, status: 'active', sortOrder: 6, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'jestin': { id: 'jestin', name: 'Jestin', rate: 63, status: 'active', sortOrder: 7, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'duke': { id: 'duke', name: 'Duke', rate: 58, status: 'active', sortOrder: 8, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'keahi': { id: 'keahi', name: 'Keahi', rate: 52, status: 'active', sortOrder: 9, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'ruben': { id: 'ruben', name: 'Ruben', rate: 52, status: 'active', sortOrder: 10, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'beau': { id: 'beau', name: 'Beau', rate: 87.5, status: 'active', sortOrder: 11, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'seth': { id: 'seth', name: 'Seth', rate: 40, status: 'active', sortOrder: 12, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'kawika': { id: 'kawika', name: 'Kawika', rate: 35, status: 'active', sortOrder: 13, created: new Date().toISOString(), modified: new Date().toISOString() }
+        };
+
+        const seedJobs = {
+            'asphalt-plant': { id: 'asphalt-plant', name: 'Asphalt Plant', payrollName: 'Asphalt Plant', status: 'active', jobType: 'hourly', created: new Date().toISOString(), modified: new Date().toISOString() },
+            'airport-job': { id: 'airport-job', name: 'Airport Job', payrollName: 'Airport Job', status: 'active', jobType: 'hourly', created: new Date().toISOString(), modified: new Date().toISOString() },
+            'jays-driveway': { id: 'jays-driveway', name: 'Jays Driveway', payrollName: 'Jays Driveway', status: 'active', jobType: 'hourly', created: new Date().toISOString(), modified: new Date().toISOString() },
+            'schow': { id: 'schow', name: 'Schow', payrollName: 'Schow', status: 'active', jobType: 'hourly', created: new Date().toISOString(), modified: new Date().toISOString() },
+            'braun': { id: 'braun', name: 'Braun', payrollName: 'Braun', status: 'active', jobType: 'hourly', created: new Date().toISOString(), modified: new Date().toISOString() },
+            'punua': { id: 'punua', name: 'Punua', payrollName: 'Punua', status: 'active', jobType: 'hourly', created: new Date().toISOString(), modified: new Date().toISOString() },
+            'mcphearson': { id: 'mcphearson', name: 'McPhearson', payrollName: 'McPhearson', status: 'active', jobType: 'hourly', created: new Date().toISOString(), modified: new Date().toISOString() },
+            'dillon': { id: 'dillon', name: 'Dillon', payrollName: 'Dillon', status: 'active', jobType: 'hourly', created: new Date().toISOString(), modified: new Date().toISOString() },
+            'erickson': { id: 'erickson', name: 'Erickson', payrollName: 'Erickson', status: 'active', jobType: 'hourly', created: new Date().toISOString(), modified: new Date().toISOString() }
+        };
+
+        // Check if we need to seed data
+        async function checkAndSeedData() {
+            let needsSave = false;
+
+            // Seed employees if empty or doesn't exist
+            if (!allData.employees || Object.keys(allData.employees).length === 0) {
+                console.log('Seeding employees...');
+                allData.employees = seedEmployees;
+                needsSave = true;
+            }
+
+            // Seed jobs if empty or only has test data
+            if (!allData.jobs || Object.keys(allData.jobs).length === 0 || 
+                (Object.keys(allData.jobs).length === 1 && allData.jobs['test2'])) {
+                console.log('Seeding jobs...');
+                allData.jobs = seedJobs;
+                needsSave = true;
+            }
+
+            if (needsSave) {
+                await saveAllData();
+                console.log('Seed data saved!');
+            }
+        }
+
+        // Toggle rates visibility
         function toggleRates() {
             showRates = !showRates;
             document.querySelectorAll('.grid-header .rate').forEach(el => {
@@ -543,9 +617,9 @@
             document.getElementById('toggleRatesBtn').textContent = showRates ? '👁️ Hide Rates' : '👁️ Show Rates';
         }
 
-        // Get worker rate for a specific job (or default)
+        // Get worker rate for a specific job (or default from employee record)
         function getWorkerRate(workerName, jobName) {
-            // Find the job in allData.jobs by payrollName
+            // First check if job has custom rate for this worker
             if (allData.jobs) {
                 const job = Object.values(allData.jobs).find(j => 
                     j.payrollName === jobName || j.name === jobName
@@ -554,43 +628,33 @@
                     return job.workerRates[workerName];
                 }
             }
-            // Fall back to default rate
-            return defaultWorkerRates[workerName] || 0;
+            
+            // Fall back to employee's default rate
+            if (allData.employees) {
+                const employee = Object.values(allData.employees).find(e => e.name === workerName);
+                if (employee) {
+                    return employee.rate || 0;
+                }
+            }
+            
+            return 0;
         }
 
-        // Permanent indirect job sites (always shown)
-        const permanentJobSites = [
-            { name: 'Baseyard', type: 'indirect', id: null },
-            { name: 'Office', type: 'indirect', id: null }
-        ];
-
-        // Will be populated from JSONbin jobs
-        let jobSites = [];
-        let allData = {};
-        let currentWeekStart = null;
-        let selectedDayIndex = 0;
-        let saveTimeout = null;
-
-        // Init
-        loadAllData().then(() => {
-            const today = new Date();
-            currentWeekStart = getWeekStart(today);
-            const days = getWeekDays(currentWeekStart);
-            const todayKey = today.toISOString().split('T')[0];
-            selectedDayIndex = days.findIndex(d => d.key === todayKey);
-            if (selectedDayIndex === -1) selectedDayIndex = 0;
-
-            // Build job sites from permanent + active jobs
-            buildJobSites();
-            buildGrid();
-            updateWeekDisplay();
-            buildDayTabs();
-            loadDayData();
-            calculateWeekTotal();
+        // Build workers list from employees
+        function buildWorkerList() {
+            workers = [];
             
-            // Hide loading overlay
-            document.getElementById('loadingOverlay').classList.add('hidden');
-        });
+            if (allData.employees) {
+                // Get active employees, sorted by sortOrder
+                const activeEmployees = Object.values(allData.employees)
+                    .filter(e => e.status === 'active')
+                    .sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999));
+                
+                activeEmployees.forEach(emp => {
+                    workers.push({ name: emp.name, rate: emp.rate });
+                });
+            }
+        }
 
         // Build job sites from permanent sites + active jobs from JSONbin
         function buildJobSites() {
@@ -599,7 +663,7 @@
             // Add active jobs from JSONbin
             if (allData.jobs) {
                 Object.values(allData.jobs).forEach(job => {
-                    // Only include active jobs (not completed, on-hold, or bidding)
+                    // Only include active jobs
                     if (job.status === 'active') {
                         jobSites.push({
                             name: job.payrollName || job.name,
@@ -611,6 +675,44 @@
             }
         }
 
+        // Init
+        loadAllData().then(async () => {
+            // Check and seed data if needed
+            await checkAndSeedData();
+            
+            // Build dynamic lists
+            buildWorkerList();
+            buildJobSites();
+            
+            // Check if we have data to display
+            if (workers.length === 0) {
+                document.getElementById('timesheetGrid').innerHTML = `
+                    <div class="no-data-message">
+                        <h3>No Active Employees</h3>
+                        <p>Add employees in the <a href="employees.html">Employees</a> page to start tracking payroll.</p>
+                    </div>
+                `;
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                return;
+            }
+            
+            const today = new Date();
+            currentWeekStart = getWeekStart(today);
+            const days = getWeekDays(currentWeekStart);
+            const todayKey = today.toISOString().split('T')[0];
+            selectedDayIndex = days.findIndex(d => d.key === todayKey);
+            if (selectedDayIndex === -1) selectedDayIndex = 0;
+
+            buildGrid();
+            updateWeekDisplay();
+            buildDayTabs();
+            loadDayData();
+            calculateWeekTotal();
+            
+            // Hide loading overlay
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        });
+
         // Storage
         async function loadAllData() {
             updateSaveStatus('loading');
@@ -621,10 +723,11 @@
                 const data = await response.json();
                 allData = data.record || {};
                 if (!allData.jobs) allData.jobs = {};
+                if (!allData.employees) allData.employees = {};
                 updateSaveStatus('saved');
             } catch (e) {
                 console.log('Error loading:', e);
-                allData = { jobs: {} };
+                allData = { jobs: {}, employees: {} };
                 updateSaveStatus('saved');
             }
         }
@@ -723,10 +826,12 @@
         // Grid
         function buildGrid() {
             const grid = document.getElementById('timesheetGrid');
+            const numCols = workers.length + 1; // +1 for job site column
+            grid.style.gridTemplateColumns = `130px repeat(${workers.length}, 1fr)`;
+            
             let html = '<div class="grid-header job-col">Job Site</div>';
             workers.forEach(w => {
-                const defaultRate = defaultWorkerRates[w.name] || 0;
-                html += `<div class="grid-header">${w.name}<span class="rate ${showRates ? '' : 'hidden'}">$${defaultRate}/hr</span></div>`;
+                html += `<div class="grid-header">${w.name}<span class="rate ${showRates ? '' : 'hidden'}">$${w.rate}/hr</span></div>`;
             });
 
             jobSites.forEach(job => {
@@ -802,10 +907,12 @@
                 document.querySelectorAll(`input[data-worker="${w.name}"]`).forEach(input => {
                     const hours = parseFloat(input.value) || 0;
                     workerTotal += hours;
-                    if (input.dataset.type === 'direct') directCost += hours * parseFloat(input.dataset.rate);
-                    else indirectCost += hours * parseFloat(input.dataset.rate);
+                    const rate = getWorkerRate(w.name, input.dataset.job);
+                    if (input.dataset.type === 'direct') directCost += hours * rate;
+                    else indirectCost += hours * rate;
                 });
-                document.getElementById(`total_${w.name}`).textContent = workerTotal || '0';
+                const totalEl = document.getElementById(`total_${w.name}`);
+                if (totalEl) totalEl.textContent = workerTotal || '0';
                 totalHours += workerTotal;
             });
             document.getElementById('dayHours').textContent = totalHours;
@@ -857,7 +964,7 @@
 
         function renderHistory() {
             const container = document.getElementById('historyList');
-            const weeks = Object.keys(allData).filter(k => k !== 'bids' && k !== 'jobs' && k.match(/^\d{4}-\d{2}-\d{2}$/)).sort().reverse();
+            const weeks = Object.keys(allData).filter(k => k !== 'bids' && k !== 'jobs' && k !== 'employees' && k.match(/^\d{4}-\d{2}-\d{2}$/)).sort().reverse();
             if (weeks.length === 0) {
                 container.innerHTML = '<div class="no-history">No payroll history yet.</div>';
                 return;
@@ -937,11 +1044,9 @@
                     entries.forEach(e => {
                         report += `    ${e.worker}: ${e.hours} hrs\n`;
                         weekTotalHours += e.hours;
-                        const worker = workers.find(w => w.name === e.worker);
-                        if (worker) {
-                            if (job?.type === 'indirect') weekIndirectCost += e.hours * worker.rate;
-                            else weekDirectCost += e.hours * worker.rate;
-                        }
+                        const rate = getWorkerRate(e.worker, jobName);
+                        if (job?.type === 'indirect') weekIndirectCost += e.hours * rate;
+                        else weekDirectCost += e.hours * rate;
                     });
                 });
                 report += '\n';
