@@ -1,1 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spencer's Masonry - Jobs</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        .header {
+            background: #f97316;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h1 {
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-back {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        .btn-back:hover { background: rgba(255,255,255,0.3); }
+
+        .btn-primary { background: #f97316; color: white; }
+        .btn-primary:hover { background: #ea580c; }
+
+        .btn-secondary { background: #404040; color: #fff; }
+        .btn-secondary:hover { background: #525252; }
+
+        .btn-success { background: #16a34a; color: white; }
+        .btn-success:hover { background: #15803d; }
+
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+
+        .main-content {
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-header h2 {
+            font-size: 1.3rem;
+            color: #f97316;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .filter-tab {
+            padding: 10px 20px;
+            background: #2d2d2d;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            color: #999;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-tab:hover { border-color: #f97316; color: #fff; }
+        .filter-tab.active { background: #f97316; border-color: #f97316; color: white; }
+
+        .filter-tab .count {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-left: 6px;
+        }
+
+        .jobs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .job-card {
+            background: #2d2d2d;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .job-card:hover {
+            border-color: #f97316;
+            background: #353535;
+            transform: translateX(4px);
+        }
+
+        .job-info { display: flex; flex-direction: column; gap: 6px; }
+
+        .job-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .job-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .job-status.active { background: rgba(22, 163, 74, 0.2); color: #16a34a; }
+        .job-status.completed { background: rgba(107, 114, 128, 0.2); color: #9ca3af; }
+        .job-status.on-hold { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+        .job-status.bidding { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+
+        .job-type.contract { background: rgba(167, 139, 250, 0.2); color: #a78bfa; }
+        .job-type.hourly { background: rgba(244, 114, 182, 0.2); color: #f472b6; }
+
+        .job-client {
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        .job-meta {
+            font-size: 0.8rem;
+            color: #666;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .job-stats {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            min-width: 120px;
+        }
+
+        .job-total {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #f97316;
+        }
+
+        .job-labor {
+            font-size: 0.85rem;
+            color: #16a34a;
+        }
+
+        .job-balance {
+            font-size: 0.8rem;
+            color: #a78bfa;
+        }
+
+        .job-balance.owed {
+            color: #f472b6;
+        }
+
+        .job-sf {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .job-arrow {
+            color: #666;
+            font-size: 1.2rem;
+            align-self: center;
+        }
+
+        .job-card:hover .job-arrow { color: #f97316; }
+
+        .no-jobs {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .no-jobs-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .no-jobs h3 {
+            font-size: 1.1rem;
+            color: #999;
+            margin-bottom: 8px;
+        }
+
+        .no-jobs p {
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: #2d2d2d;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #404040;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #404040;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #353535;
+        }
+
+        .modal-header h3 { font-size: 1.1rem; color: #f97316; }
+        .modal-close { background: none; border: none; color: #999; font-size: 1.5rem; cursor: pointer; }
+        .modal-close:hover { color: #fff; }
+
+        .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+
+        .form-group { margin-bottom: 16px; }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: #999;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #f97316;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder { color: #525252; }
+
+        .form-group textarea { resize: vertical; min-height: 80px; }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .form-hint {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .contract-field {
+            display: none;
+        }
+
+        .contract-field.show {
+            display: block;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #404040;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            background: #353535;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #16a34a;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 200;
+        }
+
+        .toast.error { background: #dc2626; }
+        .toast.show { opacity: 1; }
+
+        .summary-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: #2d2d2d;
+            padding: 14px 18px;
+            border-radius: 10px;
+            border: 1px solid #404040;
+        }
+
+        .summary-card .label { font-size: 0.75rem; color: #999; text-transform: uppercase; margin-bottom: 4px; }
+        .summary-card .value { font-size: 1.3rem; font-weight: 700; }
+        .summary-card .value.orange { color: #f97316; }
+        .summary-card .value.green { color: #16a34a; }
+        .summary-card .value.purple { color: #a78bfa; }
+        .summary-card .value.pink { color: #f472b6; }
+
+        @media (max-width: 768px) {
+            .header { padding: 12px 16px; }
+            .main-content { padding: 16px; }
+            .job-card { grid-template-columns: 1fr; }
+            .job-stats { align-items: flex-start; flex-direction: row; gap: 16px; flex-wrap: wrap; }
+            .form-row { grid-template-columns: 1fr; }
+            .page-header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="index.html" class="btn btn-back">← Menu</a>
+            <h1>📋 Jobs</h1>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h2>Job Management</h2>
+            <button class="btn btn-primary" onclick="openCreateModal()">+ New Job</button>
+        </div>
+
+        <div class="summary-bar">
+            <div class="summary-card">
+                <div class="label">Active Jobs</div>
+                <div class="value orange" id="activeCount">0</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">Total Labor</div>
+                <div class="value green" id="totalLabor">$0</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">Contract Balance</div>
+                <div class="value purple" id="contractBalance">$0</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">Hourly Owed</div>
+                <div class="value pink" id="hourlyOwed">$0</div>
+            </div>
+        </div>
+
+        <div class="filter-tabs" id="filterTabs">
+            <button class="filter-tab active" data-filter="active">Active <span class="count" id="countActive">0</span></button>
+            <button class="filter-tab" data-filter="completed">Completed <span class="count" id="countCompleted">0</span></button>
+            <button class="filter-tab" data-filter="on-hold">On Hold <span class="count" id="countOnHold">0</span></button>
+            <button class="filter-tab" data-filter="bidding">Bidding <span class="count" id="countBidding">0</span></button>
+            <button class="filter-tab" data-filter="all">All <span class="count" id="countAll">0</span></button>
+        </div>
+
+        <div class="jobs-list" id="jobsList"></div>
+    </div>
+
+    <!-- Create/Edit Job Modal -->
+    <div class="modal-overlay" id="jobModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">New Job</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editJobId">
+                
+                <div class="form-group">
+                    <label>Job Name *</label>
+                    <input type="text" id="jobName" placeholder="e.g., KR1 Tent Slab">
+                </div>
+
+                <div class="form-group">
+                    <label>Payroll Name</label>
+                    <input type="text" id="payrollName" placeholder="e.g., KR1 Tent Slab">
+                    <div class="form-hint">Must match job name in payroll timesheet</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Client Name</label>
+                    <input type="text" id="clientName" placeholder="e.g., Karl Richardson">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="jobStatus">
+                            <option value="active">Active</option>
+                            <option value="bidding">Bidding</option>
+                            <option value="on-hold">On Hold</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="jobType" onchange="toggleContractField()">
+                            <option value="contract">Contract</option>
+                            <option value="hourly">Hourly</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group contract-field" id="contractAmountField">
+                    <label>Contract Amount</label>
+                    <input type="number" id="contractAmount" placeholder="e.g., 189038">
+                    <div class="form-hint">Total contract value for this job</div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Square Footage</label>
+                        <input type="number" id="squareFootage" placeholder="e.g., 7006">
+                    </div>
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" id="startDate">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Address</label>
+                    <input type="text" id="jobAddress" placeholder="e.g., 123 Kapaa Dr, Kapaa HI 96746">
+                </div>
+
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="jobNotes" placeholder="Any additional notes..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-success" onclick="saveJob()">Save Job</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Saved!</div>
+
+    <script>
+        // Config
+        const JSONBIN_BIN_ID = '697a7070d0ea881f408e6063';
+        const JSONBIN_API_KEY = '$2a$10$vgUvy.chZeKckQe2eTD36uOX/mfrhx8GKudyoZqZsjWkbtaam8/Nm';
+
+        let allData = {};
+        let currentFilter = 'active';
+
+        // Init
+        loadAllData();
+
+        // Filter tabs
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentFilter = tab.dataset.filter;
+                renderJobs();
+            });
+        });
+
+        // Storage
+        async function loadAllData() {
+            try {
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+                    headers: { 'X-Access-Key': JSONBIN_API_KEY }
+                });
+                const data = await response.json();
+                allData = data.record || {};
+                if (!allData.jobs) allData.jobs = {};
+                renderJobs();
+                updateSummary();
+            } catch (e) {
+                console.log('Error loading:', e);
+                allData = { jobs: {} };
+                renderJobs();
+            }
+        }
+
+        async function saveAllData() {
+            try {
+                await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-Access-Key': JSONBIN_API_KEY },
+                    body: JSON.stringify(allData)
+                });
+                return true;
+            } catch (e) {
+                console.error('Save failed:', e);
+                return false;
+            }
+        }
+
+        // Render jobs
+        function renderJobs() {
+            const container = document.getElementById('jobsList');
+            const jobs = Object.values(allData.jobs || {});
+            
+            // Update counts
+            const counts = { active: 0, completed: 0, 'on-hold': 0, bidding: 0, all: jobs.length };
+            jobs.forEach(j => { if (counts[j.status] !== undefined) counts[j.status]++; });
+            document.getElementById('countActive').textContent = counts.active;
+            document.getElementById('countCompleted').textContent = counts.completed;
+            document.getElementById('countOnHold').textContent = counts['on-hold'];
+            document.getElementById('countBidding').textContent = counts.bidding;
+            document.getElementById('countAll').textContent = counts.all;
+
+            // Filter
+            const filtered = currentFilter === 'all' ? jobs : jobs.filter(j => j.status === currentFilter);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="no-jobs">
+                        <div class="no-jobs-icon">📋</div>
+                        <h3>No ${currentFilter === 'all' ? '' : currentFilter} jobs</h3>
+                        <p>Create a new job to get started</p>
+                        <button class="btn btn-primary" onclick="openCreateModal()">+ New Job</button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort by modified date (most recent first)
+            filtered.sort((a, b) => new Date(b.modified || 0) - new Date(a.modified || 0));
+
+            container.innerHTML = filtered.map(job => {
+                const laborTotal = calculateJobLabor(job);
+                const jobTotal = calculateJobTotal(job, laborTotal);
+                const totalDraws = calculateTotalDraws(job);
+                const costPerSf = job.squareFootage ? (jobTotal / job.squareFootage).toFixed(2) : null;
+                
+                // Calculate balance/owed based on job type
+                let balanceText = '';
+                let balanceClass = '';
+                if (job.jobType === 'contract' && job.contractAmount) {
+                    const remaining = job.contractAmount - totalDraws;
+                    balanceText = `Balance: $${remaining.toLocaleString()}`;
+                    balanceClass = '';
+                } else if (job.jobType === 'hourly' || !job.jobType) {
+                    const owed = jobTotal - totalDraws;
+                    if (owed > 0) {
+                        balanceText = `Owed: $${owed.toLocaleString()}`;
+                        balanceClass = 'owed';
+                    }
+                }
+
+                return `
+                    <div class="job-card" onclick="openJob('${job.id}')">
+                        <div class="job-info">
+                            <div class="job-name">
+                                ${job.name}
+                                <span class="job-badge job-status ${job.status}">${formatStatus(job.status)}</span>
+                                <span class="job-badge job-type ${job.jobType || 'hourly'}">${(job.jobType || 'hourly').toUpperCase()}</span>
+                            </div>
+                            <div class="job-client">${job.client || 'No client specified'}</div>
+                            <div class="job-meta">
+                                <span>${job.squareFootage ? job.squareFootage.toLocaleString() + ' SF' : 'No SF'}</span>
+                                <span>${job.startDate ? formatDate(job.startDate) : 'No start date'}</span>
+                                ${totalDraws > 0 ? `<span>Draws: $${totalDraws.toLocaleString()}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="job-stats">
+                            <div class="job-total">${job.jobType === 'contract' && job.contractAmount ? '$' + job.contractAmount.toLocaleString() : '$' + jobTotal.toLocaleString()}</div>
+                            <div class="job-labor">Labor: $${laborTotal.toLocaleString()}</div>
+                            ${balanceText ? `<div class="job-balance ${balanceClass}">${balanceText}</div>` : ''}
+                            ${costPerSf ? `<div class="job-sf">$${costPerSf}/SF</div>` : ''}
+                        </div>
+                        <div class="job-arrow">→</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateSummary() {
+            const jobs = Object.values(allData.jobs || {});
+            const activeJobs = jobs.filter(j => j.status === 'active');
+            
+            let totalLabor = 0;
+            let contractBalance = 0;
+            let hourlyOwed = 0;
+            
+            activeJobs.forEach(job => {
+                const labor = calculateJobLabor(job);
+                totalLabor += labor;
+                
+                const jobTotal = calculateJobTotal(job, labor);
+                const totalDraws = calculateTotalDraws(job);
+                
+                if (job.jobType === 'contract' && job.contractAmount) {
+                    contractBalance += (job.contractAmount - totalDraws);
+                } else {
+                    hourlyOwed += (jobTotal - totalDraws);
+                }
+            });
+
+            document.getElementById('activeCount').textContent = activeJobs.length;
+            document.getElementById('totalLabor').textContent = '$' + totalLabor.toLocaleString();
+            document.getElementById('contractBalance').textContent = '$' + contractBalance.toLocaleString();
+            document.getElementById('hourlyOwed').textContent = '$' + hourlyOwed.toLocaleString();
+        }
+
+        // Calculate total draws for a job
+        function calculateTotalDraws(job) {
+            if (!job.draws || !Array.isArray(job.draws)) return 0;
+            return job.draws.reduce((sum, draw) => sum + (draw.amount || 0), 0);
+        }
+
+        // Calculate job labor from payroll data
+        function calculateJobLabor(job) {
+            if (!job.payrollName) return 0;
+            
+            const payrollKey = job.payrollName.replace(/[^a-zA-Z]/g, '');
+            let total = 0;
+            
+            // Workers and rates (same as payroll.html)
+            const workers = [
+                { name: 'Jordan', rate: 120 }, { name: 'Kamalei', rate: 100 },
+                { name: 'Dave', rate: 114 }, { name: 'Joe', rate: 114 },
+                { name: 'Ian', rate: 100 }, { name: 'Ray', rate: 100 },
+                { name: 'Jestin', rate: 63 }, { name: 'Duke', rate: 58 },
+                { name: 'Keahi', rate: 52 }, { name: 'Ruben', rate: 52 },
+                { name: 'Beau', rate: 87.5 }, { name: 'Seth', rate: 40 },
+                { name: 'Kawika', rate: 35 }
+            ];
+
+            // Scan all weeks for this job's hours
+            Object.keys(allData).forEach(key => {
+                if (key.match(/^\d{4}-\d{2}-\d{2}$/) && key !== 'jobs') {
+                    const weekData = allData[key];
+                    Object.values(weekData).forEach(dayData => {
+                        if (typeof dayData === 'object') {
+                            Object.entries(dayData).forEach(([inputId, hours]) => {
+                                if (inputId.startsWith(payrollKey + '_')) {
+                                    const workerName = inputId.split('_').pop();
+                                    const worker = workers.find(w => w.name === workerName);
+                                    if (worker) total += hours * worker.rate;
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+
+            // Add additional labor
+            if (job.additionalLabor) {
+                job.additionalLabor.forEach(item => total += item.amount || 0);
+            }
+
+            return total;
+        }
+
+        // Calculate total job cost with overhead, profit, tax
+        function calculateJobTotal(job, laborTotal) {
+            const materialsTotal = (job.materials || []).reduce((sum, m) => sum + (m.amount || 0), 0);
+            const equipmentTotal = calculateEquipmentTotal(job);
+            
+            const subtotal = laborTotal + materialsTotal + equipmentTotal;
+            const overhead = subtotal * ((job.overheadPercent || 18) / 100);
+            const afterOverhead = subtotal + overhead;
+            const profit = afterOverhead * ((job.profitPercent || 10) / 100);
+            const afterProfit = afterOverhead + profit;
+            const geTax = afterProfit * ((job.geTaxPercent || 4.712) / 100);
+            
+            return Math.round(afterProfit + geTax);
+        }
+
+        function calculateEquipmentTotal(job) {
+            if (!job.equipment) return 0;
+            
+            const rates = {
+                'TL12': 200, '290 Excavator': 290, '290 Skid': 200, '145 Mini Ex': 195,
+                '240 Skid': 180, '197 Skid': 200, 'Masons': 900, 'Pump': 500,
+                '450 Truck': 200, '650 Truck': 900, '750 Truck': 650
+            };
+            
+            let total = 0;
+            Object.entries(job.equipment).forEach(([machine, hours]) => {
+                total += (hours || 0) * (rates[machine] || 0);
+            });
+            return total;
+        }
+
+        // Helpers
+        function formatStatus(status) {
+            return status.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        }
+
+        function formatDate(dateStr) {
+            const d = new Date(dateStr + 'T00:00:00');
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function generateId(name) {
+            return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        }
+
+        // Toggle contract amount field
+        function toggleContractField() {
+            const jobType = document.getElementById('jobType').value;
+            const contractField = document.getElementById('contractAmountField');
+            if (jobType === 'contract') {
+                contractField.classList.add('show');
+            } else {
+                contractField.classList.remove('show');
+            }
+        }
+
+        // Modal
+        function openCreateModal() {
+            document.getElementById('modalTitle').textContent = 'New Job';
+            document.getElementById('editJobId').value = '';
+            document.getElementById('jobName').value = '';
+            document.getElementById('payrollName').value = '';
+            document.getElementById('clientName').value = '';
+            document.getElementById('squareFootage').value = '';
+            document.getElementById('jobStatus').value = 'active';
+            document.getElementById('jobType').value = 'contract';
+            document.getElementById('contractAmount').value = '';
+            document.getElementById('startDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('jobAddress').value = '';
+            document.getElementById('jobNotes').value = '';
+            toggleContractField();
+            document.getElementById('jobModal').classList.add('show');
+        }
+
+        function openEditModal(jobId) {
+            const job = allData.jobs[jobId];
+            if (!job) return;
+
+            document.getElementById('modalTitle').textContent = 'Edit Job';
+            document.getElementById('editJobId').value = jobId;
+            document.getElementById('jobName').value = job.name || '';
+            document.getElementById('payrollName').value = job.payrollName || '';
+            document.getElementById('clientName').value = job.client || '';
+            document.getElementById('squareFootage').value = job.squareFootage || '';
+            document.getElementById('jobStatus').value = job.status || 'active';
+            document.getElementById('jobType').value = job.jobType || 'contract';
+            document.getElementById('contractAmount').value = job.contractAmount || '';
+            document.getElementById('startDate').value = job.startDate || '';
+            document.getElementById('jobAddress').value = job.address || '';
+            document.getElementById('jobNotes').value = job.notes || '';
+            toggleContractField();
+            document.getElementById('jobModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('jobModal').classList.remove('show');
+        }
+
+        async function saveJob() {
+            const name = document.getElementById('jobName').value.trim();
+            if (!name) {
+                showToast('Job name is required', true);
+                return;
+            }
+
+            const editId = document.getElementById('editJobId').value;
+            const id = editId || generateId(name);
+            
+            // Check for duplicate ID if creating new
+            if (!editId && allData.jobs[id]) {
+                showToast('A job with this name already exists', true);
+                return;
+            }
+
+            const jobType = document.getElementById('jobType').value;
+
+            const job = {
+                id: id,
+                name: name,
+                payrollName: document.getElementById('payrollName').value.trim() || name,
+                client: document.getElementById('clientName').value.trim(),
+                squareFootage: parseInt(document.getElementById('squareFootage').value) || 0,
+                status: document.getElementById('jobStatus').value,
+                jobType: jobType,
+                contractAmount: jobType === 'contract' ? (parseFloat(document.getElementById('contractAmount').value) || 0) : 0,
+                startDate: document.getElementById('startDate').value,
+                address: document.getElementById('jobAddress').value.trim(),
+                notes: document.getElementById('jobNotes').value.trim(),
+                overheadPercent: allData.jobs[id]?.overheadPercent || 18,
+                profitPercent: allData.jobs[id]?.profitPercent || 10,
+                geTaxPercent: allData.jobs[id]?.geTaxPercent || 4.712,
+                additionalLabor: allData.jobs[id]?.additionalLabor || [],
+                equipment: allData.jobs[id]?.equipment || {},
+                materials: allData.jobs[id]?.materials || [],
+                draws: allData.jobs[id]?.draws || [],
+                created: allData.jobs[id]?.created || new Date().toISOString(),
+                modified: new Date().toISOString()
+            };
+
+            allData.jobs[id] = job;
+            
+            const success = await saveAllData();
+            if (success) {
+                showToast(editId ? 'Job updated!' : 'Job created!');
+                closeModal();
+                renderJobs();
+                updateSummary();
+            } else {
+                showToast('Failed to save', true);
+            }
+        }
+
+        // Navigate to job billing sheet
+        function openJob(jobId) {
+            window.location.href = `job.html?id=${jobId}`;
+        }
+
+        // Toast
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = 'toast' + (isError ? ' error' : '');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // Close modal on overlay click
+        document.getElementById('jobModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+    </script>
+</body>
+</html>
 
