@@ -5,795 +5,124 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spencer's Masonry - Bid Calculator</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #1a1a1a;
-            min-height: 100vh;
-            color: #ffffff;
-        }
-
-        /* Login Screen */
-        .login-screen {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-        }
-
-        .login-box {
-            background: #ffffff;
-            padding: 40px;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 360px;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        }
-
-        .login-box h1 {
-            font-size: 1.6rem;
-            margin-bottom: 4px;
-            color: #f97316;
-        }
-
-        .login-box p {
-            color: #999;
-            margin-bottom: 24px;
-            font-size: 0.9rem;
-        }
-
-        .login-box input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e5e5e5;
-            border-radius: 8px;
-            background: #fafafa;
-            color: #333;
-            font-size: 1rem;
-            margin-bottom: 12px;
-        }
-
-        .login-box input:focus {
-            outline: none;
-            border-color: #f97316;
-        }
-
-        .login-box button {
-            width: 100%;
-            padding: 14px;
-            background: #f97316;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .login-box button:hover {
-            background: #ea580c;
-        }
-
-        .login-error {
-            color: #dc2626;
-            font-size: 0.9rem;
-            margin-bottom: 12px;
-            display: none;
-        }
-
-        /* Main App */
-        .app {
-            display: none;
-        }
-
-        .app.show {
-            display: block;
-        }
-
-        .header {
-            background: #f97316;
-            padding: 16px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            box-shadow: 0 2px 10px rgba(249, 115, 22, 0.3);
-        }
-
-        .header h1 {
-            font-size: 1.2rem;
-            color: white;
-        }
-
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-primary {
-            background: #f97316;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #ea580c;
-        }
-
-        .btn-success {
-            background: #16a34a;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #15803d;
-        }
-
-        .btn-secondary {
-            background: #404040;
-            color: #ffffff;
-        }
-
-        .btn-secondary:hover {
-            background: #525252;
-        }
-
-        .btn-logout {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            padding: 10px 16px;
-        }
-
-        .btn-logout:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 0.85rem;
-        }
-
-        .btn-danger {
-            background: #dc2626;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #b91c1c;
-        }
-
-        /* Main Content */
-        .main-content {
-            padding: 24px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        /* Cards */
-        .card {
-            background: #2d2d2d;
-            border-radius: 12px;
-            border: 1px solid #404040;
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-
-        .card-header {
-            background: #353535;
-            padding: 14px 20px;
-            border-bottom: 1px solid #404040;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .card-header h2 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #f97316;
-        }
-
-        .card-body {
-            padding: 20px;
-        }
-
-        /* Form Elements */
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .form-group label {
-            font-size: 0.85rem;
-            color: #999;
-        }
-
-        .form-group input,
-        .form-group select {
-            padding: 12px 14px;
-            border: 1px solid #404040;
-            border-radius: 8px;
-            background: #1a1a1a;
-            color: #fff;
-            font-size: 1rem;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #f97316;
-        }
-
-        .form-group input::placeholder {
-            color: #666;
-        }
-
-        /* Task/Material Rows */
-        .item-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr auto;
-            gap: 12px;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #353535;
-        }
-
-        .item-row:last-child {
-            border-bottom: none;
-        }
-
-        .item-row input,
-        .item-row select {
-            padding: 10px 12px;
-            border: 1px solid #404040;
-            border-radius: 6px;
-            background: #1a1a1a;
-            color: #fff;
-            font-size: 0.9rem;
-        }
-
-        .item-row input:focus,
-        .item-row select:focus {
-            outline: none;
-            border-color: #f97316;
-        }
-
-        .item-row .cost {
-            color: #16a34a;
-            font-weight: 600;
-            text-align: right;
-        }
-
-        .item-row .remove-btn {
-            background: none;
-            border: none;
-            color: #666;
-            cursor: pointer;
-            padding: 8px;
-            font-size: 1.2rem;
-        }
-
-        .item-row .remove-btn:hover {
-            color: #dc2626;
-        }
-
-        .item-header {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr auto;
-            gap: 12px;
-            padding: 0 0 10px 0;
-            border-bottom: 1px solid #404040;
-            margin-bottom: 10px;
-            font-size: 0.8rem;
-            color: #999;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .item-header span:nth-child(4) {
-            text-align: right;
-        }
-
-        .add-row-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px;
-            background: #353535;
-            border: 1px dashed #525252;
-            border-radius: 8px;
-            color: #999;
-            cursor: pointer;
-            width: 100%;
-            justify-content: center;
-            margin-top: 12px;
-            transition: all 0.2s;
-        }
-
-        .add-row-btn:hover {
-            background: #404040;
-            border-color: #f97316;
-            color: #f97316;
-        }
-
-        /* Equipment Section */
-        .equipment-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr auto;
-            gap: 12px;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #353535;
-        }
-
-        /* Summary Section */
-        .summary-card {
-            background: linear-gradient(135deg, #2d2d2d 0%, #353535 100%);
-            border: 2px solid #f97316;
-        }
-
-        .summary-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-        }
-
-        .summary-left {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .summary-line {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #404040;
-        }
-
-        .summary-line.subtotal {
-            font-weight: 600;
-            color: #f97316;
-        }
-
-        .summary-line.total {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #16a34a;
-            border-bottom: none;
-            padding-top: 12px;
-            border-top: 2px solid #f97316;
-        }
-
-        .summary-line .label {
-            color: #999;
-        }
-
-        .summary-line .value {
-            font-weight: 600;
-        }
-
-        .summary-right {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: #1a1a1a;
-            border-radius: 12px;
-            padding: 24px;
-        }
-
-        .price-per-sqft {
-            text-align: center;
-        }
-
-        .price-per-sqft .amount {
-            font-size: 3rem;
-            font-weight: 700;
-            color: #f97316;
-        }
-
-        .price-per-sqft .unit {
-            font-size: 1rem;
-            color: #999;
-        }
-
-        .sqft-input-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 16px;
-        }
-
-        .sqft-input-group input {
-            width: 100px;
-            padding: 8px 12px;
-            border: 1px solid #404040;
-            border-radius: 6px;
-            background: #2d2d2d;
-            color: #fff;
-            text-align: center;
-        }
-
-        .sqft-input-group span {
-            color: #999;
-        }
-
-        /* Action Buttons */
-        .action-bar {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            flex-wrap: wrap;
-        }
-
-        /* Modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 100;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .modal-overlay.show {
-            display: flex;
-        }
-
-        .modal {
-            background: #2d2d2d;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid #404040;
-        }
-
-        .modal-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid #404040;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #353535;
-        }
-
-        .modal-header h3 {
-            font-size: 1.1rem;
-            color: #f97316;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: #999;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        .modal-close:hover {
-            color: #fff;
-        }
-
-        .modal-body {
-            padding: 20px;
-            overflow-y: auto;
-            flex: 1;
-        }
-
-        .preview-box {
-            background: #1a1a1a;
-            border-radius: 8px;
-            padding: 16px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85rem;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            color: #e5e5e5;
-        }
-
-        .modal-footer {
-            padding: 16px 20px;
-            border-top: 1px solid #404040;
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            background: #353535;
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #16a34a;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: 200;
-        }
-
-        .toast.show {
-            opacity: 1;
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            background: #2d2d2d;
-            padding: 0 24px;
-            gap: 4px;
-            border-bottom: 1px solid #404040;
-        }
-
-        .tab {
-            padding: 14px 24px;
-            background: transparent;
-            border: none;
-            color: #999;
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .tab:hover {
-            color: #fff;
-        }
-
-        .tab.active {
-            color: #f97316;
-            border-bottom-color: #f97316;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* History List */
-        .history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .history-card {
-            background: #2d2d2d;
-            border: 1px solid #404040;
-            border-radius: 12px;
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.2s;
-        }
-
-        .history-card:hover {
-            border-color: #f97316;
-            background: #353535;
-        }
-
-        .history-info {
-            flex: 1;
-            cursor: pointer;
-        }
-
-        .history-info h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: #fff;
-        }
-
-        .history-info p {
-            font-size: 0.85rem;
-            color: #999;
-        }
-
-        .history-stats {
-            text-align: right;
-            margin-right: 16px;
-        }
-
-        .history-stats .total {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #16a34a;
-        }
-
-        .history-stats .sqft {
-            font-size: 0.85rem;
-            color: #f97316;
-        }
-
-        .history-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .delete-btn {
-            background: none;
-            border: none;
-            color: #666;
-            cursor: pointer;
-            padding: 8px;
-            font-size: 1.3rem;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
-
-        .delete-btn:hover {
-            color: #dc2626;
-            background: rgba(220, 38, 38, 0.1);
-        }
-
-        .no-history {
-            text-align: center;
-            padding: 60px 20px;
-            color: #666;
-        }
-
-        .no-history p {
-            margin-bottom: 16px;
-        }
-
-        .quick-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .quick-btn {
-            flex: 1;
-            min-width: 120px;
-            padding: 16px 20px;
-            background: #1a1a1a;
-            border: 2px solid #404040;
-            border-radius: 10px;
-            color: #fff;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .quick-btn:hover {
-            border-color: #f97316;
-            background: #2d2d2d;
-            color: #f97316;
-        }
-
-        .quick-btn:active {
-            transform: scale(0.98);
-        }
-
-        .quick-note {
-            font-size: 0.85rem;
-            color: #666;
-            text-align: center;
-        }
-
-        /* Responsive */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a1a; min-height: 100vh; color: #ffffff; }
+        .header { background: #f97316; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; box-shadow: 0 2px 10px rgba(249, 115, 22, 0.3); }
+        .header h1 { font-size: 1.2rem; color: white; }
+        .header-controls { display: flex; align-items: center; gap: 12px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-primary { background: #f97316; color: white; }
+        .btn-primary:hover { background: #ea580c; }
+        .btn-success { background: #16a34a; color: white; }
+        .btn-success:hover { background: #15803d; }
+        .btn-secondary { background: #404040; color: #ffffff; }
+        .btn-secondary:hover { background: #525252; }
+        .btn-back { background: rgba(255,255,255,0.2); color: white; padding: 10px 16px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; }
+        .btn-back:hover { background: rgba(255,255,255,0.3); }
+        .btn-small { padding: 6px 12px; font-size: 0.85rem; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+        .main-content { padding: 24px; max-width: 1200px; margin: 0 auto; }
+        .card { background: #2d2d2d; border-radius: 12px; border: 1px solid #404040; margin-bottom: 20px; overflow: hidden; }
+        .card-header { background: #353535; padding: 14px 20px; border-bottom: 1px solid #404040; display: flex; justify-content: space-between; align-items: center; }
+        .card-header h2 { font-size: 1rem; font-weight: 600; color: #f97316; }
+        .card-body { padding: 20px; }
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 0.85rem; color: #999; }
+        .form-group input, .form-group select { padding: 12px 14px; border: 1px solid #404040; border-radius: 8px; background: #1a1a1a; color: #fff; font-size: 1rem; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #f97316; }
+        .form-group input::placeholder { color: #666; }
+        .item-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid #353535; }
+        .item-row:last-child { border-bottom: none; }
+        .item-row input, .item-row select { padding: 10px 12px; border: 1px solid #404040; border-radius: 6px; background: #1a1a1a; color: #fff; font-size: 0.9rem; }
+        .item-row input:focus, .item-row select:focus { outline: none; border-color: #f97316; }
+        .item-row .cost { color: #16a34a; font-weight: 600; text-align: right; }
+        .item-row .remove-btn { background: none; border: none; color: #666; cursor: pointer; padding: 8px; font-size: 1.2rem; }
+        .item-row .remove-btn:hover { color: #dc2626; }
+        .item-header { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 12px; padding: 0 0 10px 0; border-bottom: 1px solid #404040; margin-bottom: 10px; font-size: 0.8rem; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
+        .item-header span:nth-child(4) { text-align: right; }
+        .add-row-btn { display: flex; align-items: center; gap: 8px; padding: 12px; background: #353535; border: 1px dashed #525252; border-radius: 8px; color: #999; cursor: pointer; width: 100%; justify-content: center; margin-top: 12px; transition: all 0.2s; }
+        .add-row-btn:hover { background: #404040; border-color: #f97316; color: #f97316; }
+        .summary-card { background: linear-gradient(135deg, #2d2d2d 0%, #353535 100%); border: 2px solid #f97316; }
+        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .summary-left { display: flex; flex-direction: column; gap: 12px; }
+        .summary-line { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #404040; }
+        .summary-line.subtotal { font-weight: 600; color: #f97316; }
+        .summary-line.total { font-size: 1.3rem; font-weight: 700; color: #16a34a; border-bottom: none; padding-top: 12px; border-top: 2px solid #f97316; }
+        .summary-line .label { color: #999; }
+        .summary-line .value { font-weight: 600; }
+        .summary-right { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #1a1a1a; border-radius: 12px; padding: 24px; }
+        .price-per-sqft { text-align: center; }
+        .price-per-sqft .amount { font-size: 3rem; font-weight: 700; color: #f97316; }
+        .price-per-sqft .unit { font-size: 1rem; color: #999; }
+        .action-bar { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: #2d2d2d; border-radius: 16px; width: 100%; max-width: 600px; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; border: 1px solid #404040; }
+        .modal-header { padding: 16px 20px; border-bottom: 1px solid #404040; display: flex; justify-content: space-between; align-items: center; background: #353535; }
+        .modal-header h3 { font-size: 1.1rem; color: #f97316; }
+        .modal-close { background: none; border: none; color: #999; font-size: 1.5rem; cursor: pointer; }
+        .modal-close:hover { color: #fff; }
+        .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+        .preview-box { background: #1a1a1a; border-radius: 8px; padding: 16px; font-family: 'Courier New', monospace; font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; color: #e5e5e5; }
+        .modal-footer { padding: 16px 20px; border-top: 1px solid #404040; display: flex; gap: 12px; justify-content: flex-end; background: #353535; }
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #16a34a; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 600; opacity: 0; transition: opacity 0.3s; z-index: 200; }
+        .toast.show { opacity: 1; }
+        .tabs { display: flex; background: #2d2d2d; padding: 0 24px; gap: 4px; border-bottom: 1px solid #404040; }
+        .tab { padding: 14px 24px; background: transparent; border: none; color: #999; font-size: 0.95rem; font-weight: 500; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; }
+        .tab:hover { color: #fff; }
+        .tab.active { color: #f97316; border-bottom-color: #f97316; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .history-list { display: flex; flex-direction: column; gap: 12px; }
+        .history-card { background: #2d2d2d; border: 1px solid #404040; border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
+        .history-card:hover { border-color: #f97316; background: #353535; }
+        .history-info { flex: 1; cursor: pointer; }
+        .history-info h3 { font-size: 1rem; font-weight: 600; margin-bottom: 4px; color: #fff; }
+        .history-info p { font-size: 0.85rem; color: #999; }
+        .history-stats { text-align: right; margin-right: 16px; }
+        .history-stats .total { font-size: 1.2rem; font-weight: 700; color: #16a34a; }
+        .history-stats .sqft { font-size: 0.85rem; color: #f97316; }
+        .history-actions { display: flex; gap: 8px; }
+        .delete-btn { background: none; border: none; color: #666; cursor: pointer; padding: 8px; font-size: 1.3rem; border-radius: 6px; transition: all 0.2s; }
+        .delete-btn:hover { color: #dc2626; background: rgba(220, 38, 38, 0.1); }
+        .no-history { text-align: center; padding: 60px 20px; color: #666; }
+        .no-history p { margin-bottom: 16px; }
+        .quick-buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+        .quick-btn { flex: 1; min-width: 120px; padding: 16px 20px; background: #1a1a1a; border: 2px solid #404040; border-radius: 10px; color: #fff; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .quick-btn:hover { border-color: #f97316; background: #2d2d2d; color: #f97316; }
+        .quick-btn:active { transform: scale(0.98); }
+        .quick-note { font-size: 0.85rem; color: #666; text-align: center; }
         @media (max-width: 768px) {
-            .header {
-                padding: 12px 16px;
-            }
-
-            .main-content {
-                padding: 16px;
-            }
-
-            .item-row,
-            .item-header,
-            .equipment-row {
-                grid-template-columns: 1fr;
-                gap: 8px;
-            }
-
-            .item-header {
-                display: none;
-            }
-
-            .item-row input,
-            .item-row select {
-                width: 100%;
-            }
-
-            .item-row .cost {
-                text-align: left;
-            }
-
-            .summary-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
+            .header { padding: 12px 16px; }
+            .main-content { padding: 16px; }
+            .item-row, .item-header { grid-template-columns: 1fr; gap: 8px; }
+            .item-header { display: none; }
+            .item-row input, .item-row select { width: 100%; }
+            .item-row .cost { text-align: left; }
+            .summary-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
-    <div class="login-screen" id="loginScreen">
-        <div class="login-box">
-            <h1>🧱 Spencer's Masonry</h1>
-            <p>Bid Calculator</p>
-            <div class="login-error" id="loginError">Incorrect password. Try again.</div>
-            <input type="password" id="passwordInput" placeholder="Enter password" onkeypress="if(event.key === 'Enter') attemptLogin()">
-            <button onclick="attemptLogin()">Login</button>
+    <header class="header">
+        <h1>🧱 Spencer's Masonry - Bid Calculator</h1>
+        <div class="header-controls">
+            <a href="index.html" class="btn btn-back">← Back to Menu</a>
         </div>
+    </header>
+
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('calculator')">Calculator</button>
+        <button class="tab" onclick="switchTab('history')">Saved Bids</button>
     </div>
 
-    <!-- Main App -->
-    <div class="app" id="app">
-        <header class="header">
-            <h1>🧱 Spencer's Masonry - Bid Calculator</h1>
-            <div class="header-controls">
-                <button class="btn btn-logout" onclick="logout()">Logout</button>
-            </div>
-        </header>
-
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('calculator')">Calculator</button>
-            <button class="tab" onclick="switchTab('history')">Saved Bids</button>
-        </div>
-
-        <div class="main-content">
-            <!-- Calculator Tab -->
-            <div class="tab-content active" id="calculatorTab">
-            <!-- Quick Start Buttons -->
+    <div class="main-content">
+        <div class="tab-content active" id="calculatorTab">
             <div class="card">
-                <div class="card-header">
-                    <h2>⚡ Quick Start - Select Square Footage</h2>
-                </div>
+                <div class="card-header"><h2>⚡ Quick Start - Select Square Footage</h2></div>
                 <div class="card-body">
                     <div class="quick-buttons">
                         <button class="quick-btn" onclick="autoPopulate(5000)">5,000 sq ft</button>
@@ -807,157 +136,68 @@
                 </div>
             </div>
 
-            <!-- Job Info -->
             <div class="card">
-                <div class="card-header">
-                    <h2>📋 Job Information</h2>
-                </div>
+                <div class="card-header"><h2>📋 Job Information</h2></div>
                 <div class="card-body">
                     <div class="form-row">
-                        <div class="form-group">
-                            <label>Job Name</label>
-                            <input type="text" id="jobName" placeholder="e.g., KR1 Tent Slab" oninput="calculate()">
-                        </div>
-                        <div class="form-group">
-                            <label>Client</label>
-                            <input type="text" id="clientName" placeholder="e.g., John Smith" oninput="calculate()">
-                        </div>
-                        <div class="form-group">
-                            <label>Square Footage</label>
-                            <input type="number" id="squareFootage" placeholder="e.g., 7000" oninput="calculate()">
-                        </div>
-                        <div class="form-group">
-                            <label>Avg Labor Rate ($/hr)</label>
-                            <input type="number" id="laborRate" value="85" placeholder="85" oninput="updateLaborRate()">
-                        </div>
+                        <div class="form-group"><label>Job Name</label><input type="text" id="jobName" placeholder="e.g., KR1 Tent Slab" oninput="calculate()"></div>
+                        <div class="form-group"><label>Client</label><input type="text" id="clientName" placeholder="e.g., John Smith" oninput="calculate()"></div>
+                        <div class="form-group"><label>Square Footage</label><input type="number" id="squareFootage" placeholder="e.g., 7000" oninput="calculate()"></div>
+                        <div class="form-group"><label>Avg Labor Rate ($/hr)</label><input type="number" id="laborRate" value="85" placeholder="85" oninput="updateLaborRate()"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Labor Tasks -->
             <div class="card">
-                <div class="card-header">
-                    <h2>👷 Labor Tasks</h2>
-                </div>
+                <div class="card-header"><h2>👷 Labor Tasks</h2></div>
                 <div class="card-body">
-                    <div class="item-header">
-                        <span>Task</span>
-                        <span>Hours</span>
-                        <span>Crew Size</span>
-                        <span>Cost</span>
-                        <span></span>
-                    </div>
-                    <div id="taskList">
-                        <!-- Tasks populated by JS -->
-                    </div>
+                    <div class="item-header"><span>Task</span><span>Hours</span><span>Crew Size</span><span>Cost</span><span></span></div>
+                    <div id="taskList"></div>
                     <button class="add-row-btn" onclick="addTask()">+ Add Task</button>
                 </div>
             </div>
 
-            <!-- Equipment -->
             <div class="card">
-                <div class="card-header">
-                    <h2>🚜 Equipment</h2>
-                </div>
+                <div class="card-header"><h2>🚜 Equipment</h2></div>
                 <div class="card-body">
-                    <div class="item-header">
-                        <span>Equipment</span>
-                        <span>Hours</span>
-                        <span>Rate/Hr</span>
-                        <span>Cost</span>
-                        <span></span>
-                    </div>
-                    <div id="equipmentList">
-                        <!-- Equipment populated by JS -->
-                    </div>
+                    <div class="item-header"><span>Equipment</span><span>Hours</span><span>Rate/Hr</span><span>Cost</span><span></span></div>
+                    <div id="equipmentList"></div>
                     <button class="add-row-btn" onclick="addEquipment()">+ Add Equipment</button>
                 </div>
             </div>
 
-            <!-- Materials -->
             <div class="card">
-                <div class="card-header">
-                    <h2>🧱 Materials</h2>
-                </div>
+                <div class="card-header"><h2>🧱 Materials</h2></div>
                 <div class="card-body">
-                    <div class="item-header">
-                        <span>Material</span>
-                        <span>Quantity</span>
-                        <span>Unit Price</span>
-                        <span>Cost</span>
-                        <span></span>
-                    </div>
-                    <div id="materialList">
-                        <!-- Materials populated by JS -->
-                    </div>
+                    <div class="item-header"><span>Material</span><span>Quantity</span><span>Unit Price</span><span>Cost</span><span></span></div>
+                    <div id="materialList"></div>
                     <button class="add-row-btn" onclick="addMaterial()">+ Add Material</button>
                 </div>
             </div>
 
-            <!-- Additional Costs -->
             <div class="card">
-                <div class="card-header">
-                    <h2>📝 Additional Costs</h2>
-                </div>
+                <div class="card-header"><h2>📝 Additional Costs</h2></div>
                 <div class="card-body">
-                    <div class="item-header">
-                        <span>Description</span>
-                        <span></span>
-                        <span></span>
-                        <span>Cost</span>
-                        <span></span>
-                    </div>
-                    <div id="additionalList">
-                        <!-- Additional costs populated by JS -->
-                    </div>
+                    <div class="item-header"><span>Description</span><span></span><span></span><span>Cost</span><span></span></div>
+                    <div id="additionalList"></div>
                     <button class="add-row-btn" onclick="addAdditional()">+ Add Cost</button>
                 </div>
             </div>
 
-            <!-- Summary -->
             <div class="card summary-card">
-                <div class="card-header">
-                    <h2>💰 Bid Summary</h2>
-                </div>
+                <div class="card-header"><h2>💰 Bid Summary</h2></div>
                 <div class="card-body">
                     <div class="summary-grid">
                         <div class="summary-left">
-                            <div class="summary-line">
-                                <span class="label">Labor</span>
-                                <span class="value" id="sumLabor">$0</span>
-                            </div>
-                            <div class="summary-line">
-                                <span class="label">Equipment</span>
-                                <span class="value" id="sumEquipment">$0</span>
-                            </div>
-                            <div class="summary-line">
-                                <span class="label">Materials</span>
-                                <span class="value" id="sumMaterials">$0</span>
-                            </div>
-                            <div class="summary-line">
-                                <span class="label">Additional Costs</span>
-                                <span class="value" id="sumAdditional">$0</span>
-                            </div>
-                            <div class="summary-line subtotal">
-                                <span class="label">Subtotal</span>
-                                <span class="value" id="sumSubtotal">$0</span>
-                            </div>
-                            <div class="summary-line">
-                                <span class="label">Overhead (18%)</span>
-                                <span class="value" id="sumOverhead">$0</span>
-                            </div>
-                            <div class="summary-line">
-                                <span class="label">Profit (10%)</span>
-                                <span class="value" id="sumProfit">$0</span>
-                            </div>
-                            <div class="summary-line">
-                                <span class="label">GE Tax (4.712%)</span>
-                                <span class="value" id="sumTax">$0</span>
-                            </div>
-                            <div class="summary-line total">
-                                <span class="label">TOTAL BID</span>
-                                <span class="value" id="sumTotal">$0</span>
-                            </div>
+                            <div class="summary-line"><span class="label">Labor</span><span class="value" id="sumLabor">$0</span></div>
+                            <div class="summary-line"><span class="label">Equipment</span><span class="value" id="sumEquipment">$0</span></div>
+                            <div class="summary-line"><span class="label">Materials</span><span class="value" id="sumMaterials">$0</span></div>
+                            <div class="summary-line"><span class="label">Additional Costs</span><span class="value" id="sumAdditional">$0</span></div>
+                            <div class="summary-line subtotal"><span class="label">Subtotal</span><span class="value" id="sumSubtotal">$0</span></div>
+                            <div class="summary-line"><span class="label">Overhead (18%)</span><span class="value" id="sumOverhead">$0</span></div>
+                            <div class="summary-line"><span class="label">Profit (10%)</span><span class="value" id="sumProfit">$0</span></div>
+                            <div class="summary-line"><span class="label">GE Tax (4.712%)</span><span class="value" id="sumTax">$0</span></div>
+                            <div class="summary-line total"><span class="label">TOTAL BID</span><span class="value" id="sumTotal">$0</span></div>
                         </div>
                         <div class="summary-right">
                             <div class="price-per-sqft">
@@ -969,34 +209,23 @@
                 </div>
             </div>
 
-            <!-- Actions -->
             <div class="action-bar">
                 <button class="btn btn-secondary" onclick="clearAll()">🆕 New Bid</button>
                 <button class="btn btn-primary" onclick="saveBid()">💾 Save Bid</button>
                 <button class="btn btn-success" onclick="generateBidSheet()">📋 Copy Bid Sheet</button>
             </div>
-            </div>
+        </div>
 
-            <!-- History Tab -->
-            <div class="tab-content" id="historyTab">
-                <h2 style="margin-bottom: 20px; color: #f97316;">Saved Bids</h2>
-                <div class="history-list" id="bidHistoryList">
-                    <!-- Populated by JS -->
-                </div>
-            </div>
+        <div class="tab-content" id="historyTab">
+            <h2 style="margin-bottom: 20px; color: #f97316;">Saved Bids</h2>
+            <div class="history-list" id="bidHistoryList"></div>
         </div>
     </div>
 
-    <!-- Modal -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
-            <div class="modal-header">
-                <h3>Bid Sheet</h3>
-                <button class="modal-close" onclick="closeModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="preview-box" id="previewBox"></div>
-            </div>
+            <div class="modal-header"><h3>Bid Sheet</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+            <div class="modal-body"><div class="preview-box" id="previewBox"></div></div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeModal()">Close</button>
                 <button class="btn btn-success" onclick="copyBidSheet()">📋 Copy to Clipboard</button>
@@ -1007,349 +236,74 @@
     <div class="toast" id="toast">Copied!</div>
 
     <script>
-        // ===== CONFIGURATION =====
-        const PASSWORD = 'mason2026';
-        let avgHourlyRate = 85; // Average labor rate for crew estimates (adjustable)
+        let avgHourlyRate = 85;
         const JSONBIN_BIN_ID = '697a7070d0ea881f408e6063';
-        const JSONBIN_API_KEY = '$2a$10$vgUvy.chZeKckQe2eTD36uOX/mfrhx8GKudyoZqZsjWkbtaam8/Nm';
+        const JSONBIN_API_KEY = '\$2a\$10\$vgUvy.chZeKckQe2eTD36uOX/mfrhx8GKudyoZqZsjWkbtaam8/Nm';
         const STORAGE_KEY_BIDS = 'bids';
         
-        function updateLaborRate() {
-            avgHourlyRate = parseFloat(document.getElementById('laborRate').value) || 85;
-            renderTasks();
-            calculate();
-        }
+        function updateLaborRate() { avgHourlyRate = parseFloat(document.getElementById('laborRate').value) || 85; renderTasks(); calculate(); }
 
-        const PRESET_TASKS = [
-            'Setup',
-            'Form & Rebar',
-            'Grade',
-            'Dig Footings',
-            'Pour',
-            'Strip',
-            'Finish',
-            'Yard Load/Unload',
-            'Mobilization'
-        ];
+        const PRESET_TASKS = ['Setup','Form & Rebar','Grade','Dig Footings','Pour','Strip','Finish','Yard Load/Unload','Mobilization'];
+        const PRESET_EQUIPMENT = [{name:'TL12 Skidsteer',rate:200},{name:'290 Excavator',rate:200},{name:'145 Excavator',rate:195},{name:'240 Excavator',rate:180},{name:'197 Excavator',rate:200},{name:'Concrete Pump',rate:900},{name:'Truck 450',rate:200},{name:'Truck 650',rate:900}];
+        const PRESET_MATERIALS = [{name:'Concrete (per yard)',price:338},{name:'Gatorbar',price:50},{name:'Rebar #4 (per bar)',price:15},{name:'Rebar #6 (per bar)',price:35},{name:'Forms',price:100},{name:'Gravel (per ton)',price:75},{name:'Tie Wire',price:50},{name:'Cure',price:400},{name:'Pins',price:50}];
 
-        const PRESET_EQUIPMENT = [
-            { name: 'TL12 Skidsteer', rate: 200 },
-            { name: '290 Excavator', rate: 200 },
-            { name: '145 Excavator', rate: 195 },
-            { name: '240 Excavator', rate: 180 },
-            { name: '197 Excavator', rate: 200 },
-            { name: 'Concrete Pump', rate: 900 },
-            { name: 'Truck 450', rate: 200 },
-            { name: 'Truck 650', rate: 900 }
-        ];
+        let tasks = [], equipment = [], materials = [], additionalCosts = [];
+        let taskIdCounter = 0, equipIdCounter = 0, matIdCounter = 0, addIdCounter = 0;
+        let savedBids = [], currentBidId = null;
 
-        const PRESET_MATERIALS = [
-            { name: 'Concrete (per yard)', price: 338 },
-            { name: 'Gatorbar', price: 50 },
-            { name: 'Rebar #4 (per bar)', price: 15 },
-            { name: 'Rebar #6 (per bar)', price: 35 },
-            { name: 'Forms', price: 100 },
-            { name: 'Gravel (per ton)', price: 75 },
-            { name: 'Tie Wire', price: 50 },
-            { name: 'Cure', price: 400 },
-            { name: 'Pins', price: 50 }
-        ];
-
-        // ===== STATE =====
-        let tasks = [];
-        let equipment = [];
-        let materials = [];
-        let additionalCosts = [];
-        let taskIdCounter = 0;
-        let equipIdCounter = 0;
-        let matIdCounter = 0;
-        let addIdCounter = 0;
-        let savedBids = [];
-        let currentBidId = null;
-
-        // ===== LOGIN =====
-        function attemptLogin() {
-            const input = document.getElementById('passwordInput').value;
-            if (input === PASSWORD) {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('app').classList.add('show');
-                initApp();
-            } else {
-                document.getElementById('loginError').style.display = 'block';
-                document.getElementById('passwordInput').value = '';
-                document.getElementById('passwordInput').focus();
-            }
-        }
-
-        function logout() {
-            document.getElementById('app').classList.remove('show');
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('passwordInput').value = '';
-            document.getElementById('loginError').style.display = 'none';
-        }
-
-        // ===== TABS =====
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            if (tab === 'calculator') {
-                document.querySelector('.tab:nth-child(1)').classList.add('active');
-                document.getElementById('calculatorTab').classList.add('active');
-            } else {
-                document.querySelector('.tab:nth-child(2)').classList.add('active');
-                document.getElementById('historyTab').classList.add('active');
-                renderHistory();
-            }
+            if (tab === 'calculator') { document.querySelector('.tab:nth-child(1)').classList.add('active'); document.getElementById('calculatorTab').classList.add('active'); }
+            else { document.querySelector('.tab:nth-child(2)').classList.add('active'); document.getElementById('historyTab').classList.add('active'); renderHistory(); }
         }
 
-        // ===== STORAGE (JSONbin) =====
-        async function loadAllData() {
-            try {
-                const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
-                    headers: {
-                        'X-Access-Key': JSONBIN_API_KEY
-                    }
-                });
-                const data = await response.json();
-                return data.record || {};
-            } catch (e) {
-                console.log('Error loading data:', e);
-                return {};
-            }
-        }
+        async function loadAllData() { try { const r = await fetch('https://api.jsonbin.io/v3/b/'+JSONBIN_BIN_ID+'/latest', {headers:{'X-Access-Key':JSONBIN_API_KEY}}); const d = await r.json(); return d.record || {}; } catch(e) { return {}; } }
+        async function saveAllData(data) { try { const r = await fetch('https://api.jsonbin.io/v3/b/'+JSONBIN_BIN_ID, {method:'PUT',headers:{'Content-Type':'application/json','X-Access-Key':JSONBIN_API_KEY},body:JSON.stringify(data)}); return r.ok; } catch(e) { return false; } }
+        async function loadBids() { const d = await loadAllData(); savedBids = d[STORAGE_KEY_BIDS] || []; }
+        async function saveBidsToCloud() { const d = await loadAllData(); d[STORAGE_KEY_BIDS] = savedBids; return await saveAllData(d); }
 
-        async function saveAllData(data) {
-            try {
-                const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Access-Key': JSONBIN_API_KEY
-                    },
-                    body: JSON.stringify(data)
-                });
-                return response.ok;
-            } catch (e) {
-                console.error('Save failed:', e);
-                return false;
-            }
-        }
+        async function initApp() { await loadBids(); addTask('Setup'); addTask('Form & Rebar'); addTask('Pour'); addTask('Strip'); addEquipment(); addMaterial('Concrete (per yard)', 338); addMaterial('Rebar #4 (per bar)', 15); addMaterial('Forms', 100); }
 
-        async function loadBids() {
-            const data = await loadAllData();
-            savedBids = data[STORAGE_KEY_BIDS] || [];
-        }
-
-        async function saveBidsToCloud() {
-            const data = await loadAllData();
-            data[STORAGE_KEY_BIDS] = savedBids;
-            return await saveAllData(data);
-        }
-
-        // ===== INIT =====
-        async function initApp() {
-            // Load saved bids from cloud
-            await loadBids();
-            
-            // Add some default rows
-            addTask('Setup');
-            addTask('Form & Rebar');
-            addTask('Pour');
-            addTask('Strip');
-            addEquipment();
-            addMaterial('Concrete (per yard)', 338);
-            addMaterial('Rebar #4 (per bar)', 15);
-            addMaterial('Forms', 100);
-        }
-
-        // ===== TASKS =====
-        function addTask(presetName = '') {
-            const id = taskIdCounter++;
-            tasks.push({ id, name: presetName, hours: 0, crewSize: 1 });
-            renderTasks();
-        }
-
-        function removeTask(id) {
-            tasks = tasks.filter(t => t.id !== id);
-            renderTasks();
-            calculate();
-        }
-
+        function addTask(presetName = '') { const id = taskIdCounter++; tasks.push({id, name: presetName, hours: 0, crewSize: 1}); renderTasks(); }
+        function removeTask(id) { tasks = tasks.filter(t => t.id !== id); renderTasks(); calculate(); }
         function renderTasks() {
-            const container = document.getElementById('taskList');
-            container.innerHTML = tasks.map(task => `
-                <div class="item-row">
-                    <select onchange="updateTask(${task.id}, 'name', this.value)">
-                        <option value="">Select task...</option>
-                        ${PRESET_TASKS.map(t => `<option value="${t}" ${task.name === t ? 'selected' : ''}>${t}</option>`).join('')}
-                        <option value="custom" ${task.name && !PRESET_TASKS.includes(task.name) ? 'selected' : ''}>Custom...</option>
-                    </select>
-                    <input type="number" placeholder="Hours" value="${task.hours || ''}" onchange="updateTask(${task.id}, 'hours', this.value)">
-                    <input type="number" placeholder="Crew" value="${task.crewSize || ''}" onchange="updateTask(${task.id}, 'crewSize', this.value)">
-                    <span class="cost">$${((task.hours || 0) * (task.crewSize || 1) * avgHourlyRate).toLocaleString()}</span>
-                    <button class="remove-btn" onclick="removeTask(${task.id})">×</button>
-                </div>
-            `).join('');
+            const c = document.getElementById('taskList');
+            c.innerHTML = tasks.map(t => '<div class="item-row"><select onchange="updateTask('+t.id+', \'name\', this.value)"><option value="">Select task...</option>'+PRESET_TASKS.map(p => '<option value="'+p+'" '+(t.name===p?'selected':'')+'>'+p+'</option>').join('')+'<option value="custom" '+(t.name && !PRESET_TASKS.includes(t.name)?'selected':'')+'>Custom...</option></select><input type="number" placeholder="Hours" value="'+(t.hours||'')+'" onchange="updateTask('+t.id+', \'hours\', this.value)"><input type="number" placeholder="Crew" value="'+(t.crewSize||'')+'" onchange="updateTask('+t.id+', \'crewSize\', this.value)"><span class="cost">$'+((t.hours||0)*(t.crewSize||1)*avgHourlyRate).toLocaleString()+'</span><button class="remove-btn" onclick="removeTask('+t.id+')">×</button></div>').join('');
         }
+        function updateTask(id, field, value) { const t = tasks.find(x => x.id === id); if(t) { t[field] = field === 'name' ? value : parseFloat(value) || 0; renderTasks(); calculate(); } }
 
-        function updateTask(id, field, value) {
-            const task = tasks.find(t => t.id === id);
-            if (task) {
-                task[field] = field === 'name' ? value : parseFloat(value) || 0;
-                renderTasks();
-                calculate();
-            }
-        }
-
-        // ===== EQUIPMENT =====
-        function addEquipment(presetName = '', presetRate = 0) {
-            const id = equipIdCounter++;
-            equipment.push({ id, name: presetName, hours: 0, rate: presetRate });
-            renderEquipment();
-        }
-
-        function removeEquipment(id) {
-            equipment = equipment.filter(e => e.id !== id);
-            renderEquipment();
-            calculate();
-        }
-
+        function addEquipment(presetName = '', presetRate = 0) { const id = equipIdCounter++; equipment.push({id, name: presetName, hours: 0, rate: presetRate}); renderEquipment(); }
+        function removeEquipment(id) { equipment = equipment.filter(e => e.id !== id); renderEquipment(); calculate(); }
         function renderEquipment() {
-            const container = document.getElementById('equipmentList');
-            container.innerHTML = equipment.map(eq => `
-                <div class="item-row">
-                    <select onchange="updateEquipmentFromPreset(${eq.id}, this.value)">
-                        <option value="">Select equipment...</option>
-                        ${PRESET_EQUIPMENT.map(e => `<option value="${e.name}|${e.rate}" ${eq.name === e.name ? 'selected' : ''}>${e.name}</option>`).join('')}
-                    </select>
-                    <input type="number" placeholder="Hours" value="${eq.hours || ''}" onchange="updateEquipment(${eq.id}, 'hours', this.value)">
-                    <input type="number" placeholder="$/hr" value="${eq.rate || ''}" onchange="updateEquipment(${eq.id}, 'rate', this.value)">
-                    <span class="cost">$${((eq.hours || 0) * (eq.rate || 0)).toLocaleString()}</span>
-                    <button class="remove-btn" onclick="removeEquipment(${eq.id})">×</button>
-                </div>
-            `).join('');
+            const c = document.getElementById('equipmentList');
+            c.innerHTML = equipment.map(e => '<div class="item-row"><select onchange="updateEquipmentFromPreset('+e.id+', this.value)"><option value="">Select equipment...</option>'+PRESET_EQUIPMENT.map(p => '<option value="'+p.name+'|'+p.rate+'" '+(e.name===p.name?'selected':'')+'>'+p.name+'</option>').join('')+'</select><input type="number" placeholder="Hours" value="'+(e.hours||'')+'" onchange="updateEquipment('+e.id+', \'hours\', this.value)"><input type="number" placeholder="$/hr" value="'+(e.rate||'')+'" onchange="updateEquipment('+e.id+', \'rate\', this.value)"><span class="cost">$'+((e.hours||0)*(e.rate||0)).toLocaleString()+'</span><button class="remove-btn" onclick="removeEquipment('+e.id+')">×</button></div>').join('');
         }
+        function updateEquipmentFromPreset(id, value) { const [name, rate] = value.split('|'); const e = equipment.find(x => x.id === id); if(e) { e.name = name; e.rate = parseFloat(rate) || 0; renderEquipment(); calculate(); } }
+        function updateEquipment(id, field, value) { const e = equipment.find(x => x.id === id); if(e) { e[field] = field === 'name' ? value : parseFloat(value) || 0; renderEquipment(); calculate(); } }
 
-        function updateEquipmentFromPreset(id, value) {
-            const [name, rate] = value.split('|');
-            const eq = equipment.find(e => e.id === id);
-            if (eq) {
-                eq.name = name;
-                eq.rate = parseFloat(rate) || 0;
-                renderEquipment();
-                calculate();
-            }
-        }
-
-        function updateEquipment(id, field, value) {
-            const eq = equipment.find(e => e.id === id);
-            if (eq) {
-                eq[field] = field === 'name' ? value : parseFloat(value) || 0;
-                renderEquipment();
-                calculate();
-            }
-        }
-
-        // ===== MATERIALS =====
-        function addMaterial(presetName = '', presetPrice = 0) {
-            const id = matIdCounter++;
-            materials.push({ id, name: presetName, quantity: 0, price: presetPrice });
-            renderMaterials();
-        }
-
-        function removeMaterial(id) {
-            materials = materials.filter(m => m.id !== id);
-            renderMaterials();
-            calculate();
-        }
-
+        function addMaterial(presetName = '', presetPrice = 0) { const id = matIdCounter++; materials.push({id, name: presetName, quantity: 0, price: presetPrice}); renderMaterials(); }
+        function removeMaterial(id) { materials = materials.filter(m => m.id !== id); renderMaterials(); calculate(); }
         function renderMaterials() {
-            const container = document.getElementById('materialList');
-            container.innerHTML = materials.map(mat => `
-                <div class="item-row">
-                    <select onchange="updateMaterialFromPreset(${mat.id}, this.value)">
-                        <option value="">Select material...</option>
-                        ${PRESET_MATERIALS.map(m => `<option value="${m.name}|${m.price}" ${mat.name === m.name ? 'selected' : ''}>${m.name}</option>`).join('')}
-                        <option value="custom|0">Custom...</option>
-                    </select>
-                    <input type="number" placeholder="Qty" value="${mat.quantity || ''}" onchange="updateMaterial(${mat.id}, 'quantity', this.value)">
-                    <input type="number" placeholder="$" value="${mat.price || ''}" onchange="updateMaterial(${mat.id}, 'price', this.value)">
-                    <span class="cost">$${((mat.quantity || 0) * (mat.price || 0)).toLocaleString()}</span>
-                    <button class="remove-btn" onclick="removeMaterial(${mat.id})">×</button>
-                </div>
-            `).join('');
+            const c = document.getElementById('materialList');
+            c.innerHTML = materials.map(m => '<div class="item-row"><select onchange="updateMaterialFromPreset('+m.id+', this.value)"><option value="">Select material...</option>'+PRESET_MATERIALS.map(p => '<option value="'+p.name+'|'+p.price+'" '+(m.name===p.name?'selected':'')+'>'+p.name+'</option>').join('')+'<option value="custom|0">Custom...</option></select><input type="number" placeholder="Qty" value="'+(m.quantity||'')+'" onchange="updateMaterial('+m.id+', \'quantity\', this.value)"><input type="number" placeholder="$" value="'+(m.price||'')+'" onchange="updateMaterial('+m.id+', \'price\', this.value)"><span class="cost">$'+((m.quantity||0)*(m.price||0)).toLocaleString()+'</span><button class="remove-btn" onclick="removeMaterial('+m.id+')">×</button></div>').join('');
         }
+        function updateMaterialFromPreset(id, value) { const [name, price] = value.split('|'); const m = materials.find(x => x.id === id); if(m) { m.name = name === 'custom' ? '' : name; m.price = parseFloat(price) || 0; renderMaterials(); calculate(); } }
+        function updateMaterial(id, field, value) { const m = materials.find(x => x.id === id); if(m) { m[field] = field === 'name' ? value : parseFloat(value) || 0; renderMaterials(); calculate(); } }
 
-        function updateMaterialFromPreset(id, value) {
-            const [name, price] = value.split('|');
-            const mat = materials.find(m => m.id === id);
-            if (mat) {
-                mat.name = name === 'custom' ? '' : name;
-                mat.price = parseFloat(price) || 0;
-                renderMaterials();
-                calculate();
-            }
-        }
-
-        function updateMaterial(id, field, value) {
-            const mat = materials.find(m => m.id === id);
-            if (mat) {
-                mat[field] = field === 'name' ? value : parseFloat(value) || 0;
-                renderMaterials();
-                calculate();
-            }
-        }
-
-        // ===== ADDITIONAL COSTS =====
-        function addAdditional() {
-            const id = addIdCounter++;
-            additionalCosts.push({ id, description: '', cost: 0 });
-            renderAdditional();
-        }
-
-        function removeAdditional(id) {
-            additionalCosts = additionalCosts.filter(a => a.id !== id);
-            renderAdditional();
-            calculate();
-        }
-
+        function addAdditional() { const id = addIdCounter++; additionalCosts.push({id, description: '', cost: 0}); renderAdditional(); }
+        function removeAdditional(id) { additionalCosts = additionalCosts.filter(a => a.id !== id); renderAdditional(); calculate(); }
         function renderAdditional() {
-            const container = document.getElementById('additionalList');
-            container.innerHTML = additionalCosts.map(add => `
-                <div class="item-row">
-                    <input type="text" placeholder="Description" value="${add.description}" onchange="updateAdditional(${add.id}, 'description', this.value)">
-                    <span></span>
-                    <span></span>
-                    <input type="number" placeholder="$" value="${add.cost || ''}" onchange="updateAdditional(${add.id}, 'cost', this.value)" style="text-align: right;">
-                    <button class="remove-btn" onclick="removeAdditional(${add.id})">×</button>
-                </div>
-            `).join('');
+            const c = document.getElementById('additionalList');
+            c.innerHTML = additionalCosts.map(a => '<div class="item-row"><input type="text" placeholder="Description" value="'+a.description+'" onchange="updateAdditional('+a.id+', \'description\', this.value)"><span></span><span></span><input type="number" placeholder="$" value="'+(a.cost||'')+'" onchange="updateAdditional('+a.id+', \'cost\', this.value)" style="text-align: right;"><button class="remove-btn" onclick="removeAdditional('+a.id+')">×</button></div>').join('');
         }
+        function updateAdditional(id, field, value) { const a = additionalCosts.find(x => x.id === id); if(a) { a[field] = field === 'description' ? value : parseFloat(value) || 0; calculate(); } }
 
-        function updateAdditional(id, field, value) {
-            const add = additionalCosts.find(a => a.id === id);
-            if (add) {
-                add[field] = field === 'description' ? value : parseFloat(value) || 0;
-                calculate();
-            }
-        }
-
-        // ===== CALCULATE =====
         function calculate() {
-            // Labor
-            const laborTotal = tasks.reduce((sum, t) => sum + ((t.hours || 0) * (t.crewSize || 1) * avgHourlyRate), 0);
-
-            // Equipment
-            const equipTotal = equipment.reduce((sum, e) => sum + ((e.hours || 0) * (e.rate || 0)), 0);
-
-            // Materials
-            const matTotal = materials.reduce((sum, m) => sum + ((m.quantity || 0) * (m.price || 0)), 0);
-
-            // Additional
-            const addTotal = additionalCosts.reduce((sum, a) => sum + (a.cost || 0), 0);
-
-            // Calculations
+            const laborTotal = tasks.reduce((s, t) => s + ((t.hours||0) * (t.crewSize||1) * avgHourlyRate), 0);
+            const equipTotal = equipment.reduce((s, e) => s + ((e.hours||0) * (e.rate||0)), 0);
+            const matTotal = materials.reduce((s, m) => s + ((m.quantity||0) * (m.price||0)), 0);
+            const addTotal = additionalCosts.reduce((s, a) => s + (a.cost||0), 0);
             const subtotal = laborTotal + equipTotal + matTotal + addTotal;
             const overhead = subtotal * 0.18;
             const subtotalWithOH = subtotal + overhead;
@@ -1357,12 +311,8 @@
             const subtotalWithProfit = subtotalWithOH + profit;
             const geTax = subtotalWithProfit * 0.04712;
             const total = subtotalWithProfit + geTax;
-
-            // Price per sq ft
             const sqft = parseFloat(document.getElementById('squareFootage').value) || 0;
             const pricePerSqft = sqft > 0 ? total / sqft : 0;
-
-            // Update display
             document.getElementById('sumLabor').textContent = '$' + laborTotal.toLocaleString();
             document.getElementById('sumEquipment').textContent = '$' + equipTotal.toLocaleString();
             document.getElementById('sumMaterials').textContent = '$' + matTotal.toLocaleString();
@@ -1375,410 +325,105 @@
             document.getElementById('pricePerSqft').textContent = '$' + pricePerSqft.toFixed(2);
         }
 
-        // ===== AUTO POPULATE =====
         function autoPopulate(sqft) {
-            // Target: $27 per sq ft
             const targetTotal = sqft * 27;
-            
-            // Work backwards from total to get subtotal
-            // Total = Subtotal + 18% OH + 10% profit on (subtotal+OH) + 4.712% GE tax on all
-            // Let S = subtotal
-            // After OH: S * 1.18
-            // After profit: S * 1.18 * 1.10 = S * 1.298
-            // After tax: S * 1.298 * 1.04712 = S * 1.3591
-            // So: S = targetTotal / 1.3591
             const subtotal = targetTotal / 1.3591;
-            
-            // Distribute subtotal across categories (rough percentages based on typical job)
-            // Labor: ~33%, Equipment: ~5%, Materials: ~55%, Additional: ~7%
-            const laborBudget = subtotal * 0.33;
-            const equipBudget = subtotal * 0.05;
-            const matBudget = subtotal * 0.55;
-            const addBudget = subtotal * 0.07;
-
-            // Clear existing
-            tasks = [];
-            equipment = [];
-            materials = [];
-            additionalCosts = [];
-            taskIdCounter = 0;
-            equipIdCounter = 0;
-            matIdCounter = 0;
-            addIdCounter = 0;
-
-            // Set square footage
+            const laborBudget = subtotal * 0.33, equipBudget = subtotal * 0.05, matBudget = subtotal * 0.55, addBudget = subtotal * 0.07;
+            tasks = []; equipment = []; materials = []; additionalCosts = [];
+            taskIdCounter = 0; equipIdCounter = 0; matIdCounter = 0; addIdCounter = 0;
             document.getElementById('squareFootage').value = sqft;
-
-            // Scale factors based on sqft (7000 is baseline)
             const scale = sqft / 7000;
-
-            // LABOR TASKS - distribute labor budget
-            // Total labor hours needed at $85/hr avg
             const totalLaborHours = laborBudget / avgHourlyRate;
-            
-            // Typical distribution of hours
-            const taskDistribution = [
-                { name: 'Setup', pct: 0.08 },
-                { name: 'Form & Rebar', pct: 0.30 },
-                { name: 'Grade', pct: 0.12 },
-                { name: 'Dig Footings', pct: 0.08 },
-                { name: 'Pour', pct: 0.22 },
-                { name: 'Strip', pct: 0.10 },
-                { name: 'Finish', pct: 0.05 },
-                { name: 'Yard Load/Unload', pct: 0.05 }
-            ];
-
-            taskDistribution.forEach(t => {
-                const id = taskIdCounter++;
-                const totalHrs = totalLaborHours * t.pct;
-                // Assume avg crew of 4, calculate hours
-                const crewSize = 4;
-                const hours = Math.round(totalHrs / crewSize);
-                tasks.push({ id, name: t.name, hours, crewSize });
-            });
-
-            // EQUIPMENT
-            const equipItems = [
-                { name: '290 Excavator', rate: 200, pct: 0.40 },
-                { name: 'TL12 Skidsteer', rate: 200, pct: 0.35 },
-                { name: 'Concrete Pump', rate: 900, pct: 0.25 }
-            ];
-
-            equipItems.forEach(e => {
-                const id = equipIdCounter++;
-                const budget = equipBudget * e.pct;
-                const hours = Math.round(budget / e.rate);
-                equipment.push({ id, name: e.name, hours, rate: e.rate });
-            });
-
-            // MATERIALS - scale based on sqft
-            // Concrete: ~1 yard per 80 sq ft for 4" slab
-            const concreteYards = Math.ceil(sqft / 80);
-            const concretePrice = 338;
-            const concreteCost = concreteYards * concretePrice;
-
-            // Remaining material budget after concrete
-            const remainingMatBudget = matBudget - concreteCost;
-
-            const matItems = [
-                { name: 'Concrete (per yard)', qty: concreteYards, price: concretePrice },
-                { name: 'Rebar #4 (per bar)', qty: Math.round(sqft / 25), price: 15 },
-                { name: 'Rebar #6 (per bar)', qty: Math.round(sqft / 50), price: 35 },
-                { name: 'Gatorbar', qty: Math.round(remainingMatBudget * 0.15 / 50), price: 50 },
-                { name: 'Forms', qty: Math.round(remainingMatBudget * 0.10 / 100), price: 100 },
-                { name: 'Gravel (per ton)', qty: Math.round(remainingMatBudget * 0.25 / 75), price: 75 },
-                { name: 'Cure', qty: Math.ceil(scale), price: 400 },
-                { name: 'Pins', qty: Math.round(remainingMatBudget * 0.05 / 50), price: 50 }
-            ];
-
-            matItems.forEach(m => {
-                const id = matIdCounter++;
-                materials.push({ id, name: m.name, quantity: m.qty, price: m.price });
-            });
-
-            // ADDITIONAL COSTS
-            const addItems = [
-                { description: 'Total Station', cost: Math.round(addBudget * 0.25) },
-                { description: 'Pour Crew (sub)', cost: Math.round(addBudget * 0.35) },
-                { description: 'Mobilization', cost: Math.round(addBudget * 0.20) },
-                { description: 'Misc/Contingency', cost: Math.round(addBudget * 0.20) }
-            ];
-
-            addItems.forEach(a => {
-                const id = addIdCounter++;
-                additionalCosts.push({ id, description: a.description, cost: a.cost });
-            });
-
-            // Render everything
-            renderTasks();
-            renderEquipment();
-            renderMaterials();
-            renderAdditional();
-            calculate();
-
-            showToast(`Auto-populated for ${sqft.toLocaleString()} sq ft @ ~$27/sq ft`);
+            [{name:'Setup',pct:0.08},{name:'Form & Rebar',pct:0.30},{name:'Grade',pct:0.12},{name:'Dig Footings',pct:0.08},{name:'Pour',pct:0.22},{name:'Strip',pct:0.10},{name:'Finish',pct:0.05},{name:'Yard Load/Unload',pct:0.05}].forEach(t => { const id = taskIdCounter++; tasks.push({id, name: t.name, hours: Math.round(totalLaborHours * t.pct / 4), crewSize: 4}); });
+            [{name:'290 Excavator',rate:200,pct:0.40},{name:'TL12 Skidsteer',rate:200,pct:0.35},{name:'Concrete Pump',rate:900,pct:0.25}].forEach(e => { const id = equipIdCounter++; equipment.push({id, name: e.name, hours: Math.round(equipBudget * e.pct / e.rate), rate: e.rate}); });
+            const concreteYards = Math.ceil(sqft / 80), concreteCost = concreteYards * 338, remainingMatBudget = matBudget - concreteCost;
+            [{name:'Concrete (per yard)',qty:concreteYards,price:338},{name:'Rebar #4 (per bar)',qty:Math.round(sqft/25),price:15},{name:'Rebar #6 (per bar)',qty:Math.round(sqft/50),price:35},{name:'Gatorbar',qty:Math.round(remainingMatBudget*0.15/50),price:50},{name:'Forms',qty:Math.round(remainingMatBudget*0.10/100),price:100},{name:'Gravel (per ton)',qty:Math.round(remainingMatBudget*0.25/75),price:75},{name:'Cure',qty:Math.ceil(scale),price:400},{name:'Pins',qty:Math.round(remainingMatBudget*0.05/50),price:50}].forEach(m => { const id = matIdCounter++; materials.push({id, name: m.name, quantity: m.qty, price: m.price}); });
+            [{description:'Total Station',cost:Math.round(addBudget*0.25)},{description:'Pour Crew (sub)',cost:Math.round(addBudget*0.35)},{description:'Mobilization',cost:Math.round(addBudget*0.20)},{description:'Misc/Contingency',cost:Math.round(addBudget*0.20)}].forEach(a => { const id = addIdCounter++; additionalCosts.push({id, description: a.description, cost: a.cost}); });
+            renderTasks(); renderEquipment(); renderMaterials(); renderAdditional(); calculate();
+            showToast('Auto-populated for ' + sqft.toLocaleString() + ' sq ft @ ~$27/sq ft');
         }
 
-        // ===== CLEAR =====
         function clearAll() {
-            if (confirm('Clear all and start a new bid?')) {
-                currentBidId = null;
-                document.getElementById('jobName').value = '';
-                document.getElementById('clientName').value = '';
-                document.getElementById('squareFootage').value = '';
-                tasks = [];
-                equipment = [];
-                materials = [];
-                additionalCosts = [];
-                taskIdCounter = 0;
-                equipIdCounter = 0;
-                matIdCounter = 0;
-                addIdCounter = 0;
-                renderTasks();
-                renderEquipment();
-                renderMaterials();
-                renderAdditional();
-                calculate();
-
-                // Re-add defaults
-                addTask('Setup');
-                addTask('Form & Rebar');
-                addTask('Pour');
-                addTask('Strip');
-                addEquipment();
-                addMaterial('Concrete (per yard)', 338);
-                addMaterial('Rebar #4 (per bar)', 15);
-                addMaterial('Forms', 100);
-            }
+            if (!confirm('Clear all and start a new bid?')) return;
+            currentBidId = null;
+            document.getElementById('jobName').value = '';
+            document.getElementById('clientName').value = '';
+            document.getElementById('squareFootage').value = '';
+            tasks = []; equipment = []; materials = []; additionalCosts = [];
+            taskIdCounter = 0; equipIdCounter = 0; matIdCounter = 0; addIdCounter = 0;
+            renderTasks(); renderEquipment(); renderMaterials(); renderAdditional(); calculate();
+            addTask('Setup'); addTask('Form & Rebar'); addTask('Pour'); addTask('Strip');
+            addEquipment(); addMaterial('Concrete (per yard)', 338); addMaterial('Rebar #4 (per bar)', 15); addMaterial('Forms', 100);
         }
 
-        // ===== SAVE BID =====
         async function saveBid() {
             const jobName = document.getElementById('jobName').value || 'Untitled Job';
             const clientName = document.getElementById('clientName').value || '';
             const sqft = document.getElementById('squareFootage').value || 0;
             const laborRate = document.getElementById('laborRate').value || 85;
-            
-            // Get totals from display
             const total = document.getElementById('sumTotal').textContent;
             const pricePerSqft = document.getElementById('pricePerSqft').textContent;
-
-            const bid = {
-                id: currentBidId || Date.now(),
-                jobName,
-                clientName,
-                sqft: parseInt(sqft),
-                laborRate: parseFloat(laborRate),
-                total,
-                pricePerSqft,
-                tasks: [...tasks],
-                equipment: [...equipment],
-                materials: [...materials],
-                additionalCosts: [...additionalCosts],
-                createdAt: currentBidId ? (savedBids.find(b => b.id === currentBidId)?.createdAt || new Date().toISOString()) : new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            };
-
-            // Update or add
-            if (currentBidId) {
-                const index = savedBids.findIndex(b => b.id === currentBidId);
-                if (index !== -1) {
-                    savedBids[index] = bid;
-                }
-            } else {
-                savedBids.unshift(bid);
-                currentBidId = bid.id;
-            }
-
-            // Save to cloud
+            const bid = { id: currentBidId || Date.now(), jobName, clientName, sqft: parseInt(sqft), laborRate: parseFloat(laborRate), total, pricePerSqft, tasks: [...tasks], equipment: [...equipment], materials: [...materials], additionalCosts: [...additionalCosts], createdAt: currentBidId ? (savedBids.find(b => b.id === currentBidId)?.createdAt || new Date().toISOString()) : new Date().toISOString(), updatedAt: new Date().toISOString() };
+            if (currentBidId) { const i = savedBids.findIndex(b => b.id === currentBidId); if (i !== -1) savedBids[i] = bid; }
+            else { savedBids.unshift(bid); currentBidId = bid.id; }
             const success = await saveBidsToCloud();
-            if (success) {
-                showToast('Bid saved!');
-            } else {
-                showToast('Save failed - try again');
-            }
+            showToast(success ? 'Bid saved!' : 'Save failed - try again');
         }
 
-        // ===== HISTORY =====
         function renderHistory() {
-            const container = document.getElementById('bidHistoryList');
-            
-            if (savedBids.length === 0) {
-                container.innerHTML = `
-                    <div class="no-history">
-                        <p>No saved bids yet.</p>
-                        <button class="btn btn-primary" onclick="switchTab('calculator')">Create Your First Bid</button>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = savedBids.map(bid => {
-                const date = new Date(bid.createdAt).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                });
-                return `
-                    <div class="history-card">
-                        <div class="history-info" onclick="loadBid(${bid.id})">
-                            <h3>${bid.jobName}</h3>
-                            <p>${bid.clientName ? bid.clientName + ' • ' : ''}${date}</p>
-                        </div>
-                        <div class="history-stats">
-                            <div class="total">${bid.total}</div>
-                            <div class="sqft">${bid.sqft ? bid.sqft.toLocaleString() + ' sq ft • ' : ''}${bid.pricePerSqft}/sf</div>
-                        </div>
-                        <div class="history-actions">
-                            <button class="delete-btn" onclick="deleteBid(${bid.id})" title="Delete bid">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            const c = document.getElementById('bidHistoryList');
+            if (savedBids.length === 0) { c.innerHTML = '<div class="no-history"><p>No saved bids yet.</p><button class="btn btn-primary" onclick="switchTab(\'calculator\')">Create Your First Bid</button></div>'; return; }
+            c.innerHTML = savedBids.map(b => { const date = new Date(b.createdAt).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}); return '<div class="history-card"><div class="history-info" onclick="loadBid('+b.id+')"><h3>'+b.jobName+'</h3><p>'+(b.clientName ? b.clientName+' • ' : '')+date+'</p></div><div class="history-stats"><div class="total">'+b.total+'</div><div class="sqft">'+(b.sqft ? b.sqft.toLocaleString()+' sq ft • ' : '')+b.pricePerSqft+'/sf</div></div><div class="history-actions"><button class="delete-btn" onclick="deleteBid('+b.id+')" title="Delete bid">🗑️</button></div></div>'; }).join('');
         }
 
         function loadBid(id) {
-            const bid = savedBids.find(b => b.id === id);
-            if (!bid) return;
-
-            // Set current bid ID
+            const b = savedBids.find(x => x.id === id); if (!b) return;
             currentBidId = id;
-
-            // Load job info
-            document.getElementById('jobName').value = bid.jobName || '';
-            document.getElementById('clientName').value = bid.clientName || '';
-            document.getElementById('squareFootage').value = bid.sqft || '';
-            document.getElementById('laborRate').value = bid.laborRate || 85;
-            avgHourlyRate = bid.laborRate || 85;
-
-            // Load arrays
-            tasks = bid.tasks || [];
-            equipment = bid.equipment || [];
-            materials = bid.materials || [];
-            additionalCosts = bid.additionalCosts || [];
-
-            // Update counters
+            document.getElementById('jobName').value = b.jobName || '';
+            document.getElementById('clientName').value = b.clientName || '';
+            document.getElementById('squareFootage').value = b.sqft || '';
+            document.getElementById('laborRate').value = b.laborRate || 85;
+            avgHourlyRate = b.laborRate || 85;
+            tasks = b.tasks || []; equipment = b.equipment || []; materials = b.materials || []; additionalCosts = b.additionalCosts || [];
             taskIdCounter = Math.max(...tasks.map(t => t.id), 0) + 1;
             equipIdCounter = Math.max(...equipment.map(e => e.id), 0) + 1;
             matIdCounter = Math.max(...materials.map(m => m.id), 0) + 1;
             addIdCounter = Math.max(...additionalCosts.map(a => a.id), 0) + 1;
-
-            // Render everything
-            renderTasks();
-            renderEquipment();
-            renderMaterials();
-            renderAdditional();
-            calculate();
-
-            // Switch to calculator tab
-            switchTab('calculator');
-            showToast('Bid loaded!');
+            renderTasks(); renderEquipment(); renderMaterials(); renderAdditional(); calculate();
+            switchTab('calculator'); showToast('Bid loaded!');
         }
 
         async function deleteBid(id) {
             if (!confirm('Delete this bid? This cannot be undone.')) return;
-
             savedBids = savedBids.filter(b => b.id !== id);
-            
-            // If we deleted the current bid, clear the form
-            if (currentBidId === id) {
-                currentBidId = null;
-            }
-
+            if (currentBidId === id) currentBidId = null;
             const success = await saveBidsToCloud();
-            if (success) {
-                renderHistory();
-                showToast('Bid deleted');
-            } else {
-                showToast('Delete failed - try again');
-            }
+            if (success) { renderHistory(); showToast('Bid deleted'); } else showToast('Delete failed - try again');
         }
 
-        // ===== GENERATE BID SHEET =====
         function generateBidSheet() {
             const jobName = document.getElementById('jobName').value || 'Untitled Job';
             const clientName = document.getElementById('clientName').value || 'N/A';
             const sqft = document.getElementById('squareFootage').value || '0';
-
-            let sheet = `SPENCER'S MASONRY\n`;
-            sheet += `PO BOX 267\n`;
-            sheet += `Kapaa, HI 96746\n`;
-            sheet += `808-482-0673\n`;
-            sheet += `${'═'.repeat(45)}\n\n`;
-            sheet += `BID ESTIMATE\n`;
-            sheet += `${'─'.repeat(45)}\n`;
-            sheet += `Job: ${jobName}\n`;
-            sheet += `Client: ${clientName}\n`;
-            sheet += `Square Footage: ${parseInt(sqft).toLocaleString()} sq ft\n\n`;
-
-            // Labor
+            let sheet = "SPENCER'S MASONRY\nPO BOX 267\nKapaa, HI 96746\n808-482-0673\n" + '═'.repeat(45) + "\n\nBID ESTIMATE\n" + '─'.repeat(45) + "\nJob: " + jobName + "\nClient: " + clientName + "\nSquare Footage: " + parseInt(sqft).toLocaleString() + " sq ft\n\n";
             const laborItems = tasks.filter(t => t.hours > 0);
-            if (laborItems.length > 0) {
-                sheet += `LABOR\n`;
-                laborItems.forEach(t => {
-                    const cost = (t.hours || 0) * (t.crewSize || 1) * avgHourlyRate;
-                    sheet += `  ${t.name}: ${t.hours} hrs × ${t.crewSize} crew = $${cost.toLocaleString()}\n`;
-                });
-                sheet += `\n`;
-            }
-
-            // Equipment
+            if (laborItems.length > 0) { sheet += "LABOR\n"; laborItems.forEach(t => { sheet += "  " + t.name + ": " + t.hours + " hrs × " + t.crewSize + " crew = $" + ((t.hours||0)*(t.crewSize||1)*avgHourlyRate).toLocaleString() + "\n"; }); sheet += "\n"; }
             const equipItems = equipment.filter(e => e.hours > 0);
-            if (equipItems.length > 0) {
-                sheet += `EQUIPMENT\n`;
-                equipItems.forEach(e => {
-                    const cost = (e.hours || 0) * (e.rate || 0);
-                    sheet += `  ${e.name}: ${e.hours} hrs @ $${e.rate}/hr = $${cost.toLocaleString()}\n`;
-                });
-                sheet += `\n`;
-            }
-
-            // Materials
+            if (equipItems.length > 0) { sheet += "EQUIPMENT\n"; equipItems.forEach(e => { sheet += "  " + e.name + ": " + e.hours + " hrs @ $" + e.rate + "/hr = $" + ((e.hours||0)*(e.rate||0)).toLocaleString() + "\n"; }); sheet += "\n"; }
             const matItems = materials.filter(m => m.quantity > 0);
-            if (matItems.length > 0) {
-                sheet += `MATERIALS\n`;
-                matItems.forEach(m => {
-                    const cost = (m.quantity || 0) * (m.price || 0);
-                    sheet += `  ${m.name}: ${m.quantity} × $${m.price} = $${cost.toLocaleString()}\n`;
-                });
-                sheet += `\n`;
-            }
-
-            // Additional
+            if (matItems.length > 0) { sheet += "MATERIALS\n"; matItems.forEach(m => { sheet += "  " + m.name + ": " + m.quantity + " × $" + m.price + " = $" + ((m.quantity||0)*(m.price||0)).toLocaleString() + "\n"; }); sheet += "\n"; }
             const addItems = additionalCosts.filter(a => a.cost > 0);
-            if (addItems.length > 0) {
-                sheet += `ADDITIONAL COSTS\n`;
-                addItems.forEach(a => {
-                    sheet += `  ${a.description}: $${a.cost.toLocaleString()}\n`;
-                });
-                sheet += `\n`;
-            }
-
-            // Summary
-            sheet += `${'═'.repeat(45)}\n`;
-            sheet += `SUMMARY\n`;
-            sheet += `  Labor:           ${document.getElementById('sumLabor').textContent}\n`;
-            sheet += `  Equipment:       ${document.getElementById('sumEquipment').textContent}\n`;
-            sheet += `  Materials:       ${document.getElementById('sumMaterials').textContent}\n`;
-            sheet += `  Additional:      ${document.getElementById('sumAdditional').textContent}\n`;
-            sheet += `  ─────────────────────────\n`;
-            sheet += `  Subtotal:        ${document.getElementById('sumSubtotal').textContent}\n`;
-            sheet += `  Overhead (18%):  ${document.getElementById('sumOverhead').textContent}\n`;
-            sheet += `  Profit (10%):    ${document.getElementById('sumProfit').textContent}\n`;
-            sheet += `  GE Tax (4.712%): ${document.getElementById('sumTax').textContent}\n`;
-            sheet += `  ─────────────────────────\n`;
-            sheet += `  TOTAL BID:       ${document.getElementById('sumTotal').textContent}\n\n`;
-            sheet += `  Price per sq ft: ${document.getElementById('pricePerSqft').textContent}\n`;
-            sheet += `${'═'.repeat(45)}`;
-
+            if (addItems.length > 0) { sheet += "ADDITIONAL COSTS\n"; addItems.forEach(a => { sheet += "  " + a.description + ": $" + a.cost.toLocaleString() + "\n"; }); sheet += "\n"; }
+            sheet += '═'.repeat(45) + "\nSUMMARY\n  Labor:           " + document.getElementById('sumLabor').textContent + "\n  Equipment:       " + document.getElementById('sumEquipment').textContent + "\n  Materials:       " + document.getElementById('sumMaterials').textContent + "\n  Additional:      " + document.getElementById('sumAdditional').textContent + "\n  ─────────────────────────\n  Subtotal:        " + document.getElementById('sumSubtotal').textContent + "\n  Overhead (18%):  " + document.getElementById('sumOverhead').textContent + "\n  Profit (10%):    " + document.getElementById('sumProfit').textContent + "\n  GE Tax (4.712%): " + document.getElementById('sumTax').textContent + "\n  ─────────────────────────\n  TOTAL BID:       " + document.getElementById('sumTotal').textContent + "\n\n  Price per sq ft: " + document.getElementById('pricePerSqft').textContent + "\n" + '═'.repeat(45);
             document.getElementById('previewBox').textContent = sheet;
             document.getElementById('modalOverlay').classList.add('show');
         }
 
-        function closeModal() {
-            document.getElementById('modalOverlay').classList.remove('show');
-        }
-
-        function copyBidSheet() {
-            const text = document.getElementById('previewBox').textContent;
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('Copied to clipboard!');
-                closeModal();
-            });
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2000);
-        }
-
-        // Close modal on overlay click
-        document.getElementById('modalOverlay').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
+        function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+        function copyBidSheet() { navigator.clipboard.writeText(document.getElementById('previewBox').textContent).then(() => { showToast('Copied to clipboard!'); closeModal(); }); }
+        function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
+        document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+        initApp();
     </script>
 </body>
 </html>
-
