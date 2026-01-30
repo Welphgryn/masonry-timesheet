@@ -63,6 +63,11 @@
         .btn-success { background: #16a34a; color: white; }
         .btn-success:hover { background: #15803d; }
 
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
         .tabs {
             display: flex;
             background: #2d2d2d;
@@ -176,6 +181,107 @@
         .summary-card .value.orange { color: #f97316; }
         .summary-card .value.green { color: #16a34a; }
         .summary-card .value.yellow { color: #eab308; }
+
+        /* Employee Weekly Summary Section */
+        .employee-summary-section {
+            background: #2d2d2d;
+            border-radius: 12px;
+            border: 1px solid #404040;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .employee-summary-header {
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            background: #353535;
+            user-select: none;
+        }
+
+        .employee-summary-header:hover {
+            background: #3d3d3d;
+        }
+
+        .employee-summary-header h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #f97316;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .employee-summary-header .toggle-icon {
+            transition: transform 0.2s;
+        }
+
+        .employee-summary-header.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .employee-summary-content {
+            padding: 16px 20px;
+            display: block;
+        }
+
+        .employee-summary-content.hidden {
+            display: none;
+        }
+
+        .employee-summary-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .employee-summary-list {
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            color: #e5e5e5;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .employee-summary-list .summary-title {
+            color: #f97316;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .employee-summary-list .employee-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 2px 0;
+        }
+
+        .employee-summary-list .employee-line:hover {
+            background: #2d2d2d;
+        }
+
+        .employee-summary-list .employee-name {
+            color: #e5e5e5;
+        }
+
+        .employee-summary-list .employee-hours {
+            color: #f97316;
+            font-weight: 600;
+        }
+
+        .employee-summary-list .total-line {
+            border-top: 1px solid #404040;
+            margin-top: 8px;
+            padding-top: 8px;
+            font-weight: bold;
+        }
 
         .timesheet-container {
             background: #2d2d2d;
@@ -485,6 +591,23 @@
                 </div>
             </div>
 
+            <!-- Employee Weekly Hours Summary -->
+            <div class="employee-summary-section">
+                <div class="employee-summary-header" onclick="toggleEmployeeSummary()">
+                    <h3><span class="toggle-icon">▼</span> Employee Weekly Hours</h3>
+                    <span style="color: #999; font-size: 0.8rem;" id="summaryTotalHours">0 total hrs</span>
+                </div>
+                <div class="employee-summary-content" id="employeeSummaryContent">
+                    <div class="employee-summary-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="copyEmployeeSummary(event)">📋 Copy</button>
+                        <button class="btn btn-secondary btn-sm" onclick="downloadEmployeeSummary(event)">⬇️ Download</button>
+                    </div>
+                    <div class="employee-summary-list" id="employeeSummaryList">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
             <div class="timesheet-container">
                 <div class="timesheet-header">
                     <h2 id="selectedDayDisplay">Friday, January 24, 2026</h2>
@@ -551,6 +674,7 @@
         let selectedDayIndex = 0;
         let saveTimeout = null;
         let showRates = true;
+        let employeeSummaryCollapsed = false;
 
         // ============================================
         // SEED DATA - Initial employees and jobs
@@ -617,6 +741,21 @@
             document.getElementById('toggleRatesBtn').textContent = showRates ? '👁️ Hide Rates' : '👁️ Show Rates';
         }
 
+        // Toggle employee summary section
+        function toggleEmployeeSummary() {
+            employeeSummaryCollapsed = !employeeSummaryCollapsed;
+            const header = document.querySelector('.employee-summary-header');
+            const content = document.getElementById('employeeSummaryContent');
+            
+            if (employeeSummaryCollapsed) {
+                header.classList.add('collapsed');
+                content.classList.add('hidden');
+            } else {
+                header.classList.remove('collapsed');
+                content.classList.remove('hidden');
+            }
+        }
+
         // Get worker rate for a specific job (or default from employee record)
         function getWorkerRate(workerName, jobName) {
             // First check if job has custom rate for this worker
@@ -675,6 +814,130 @@
             }
         }
 
+        // Calculate and render employee weekly hours summary
+        function updateEmployeeSummary() {
+            const weekKey = getWeekKey(currentWeekStart);
+            const weekData = allData[weekKey] || {};
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            
+            // Calculate hours per employee
+            const employeeHours = {};
+            workers.forEach(w => {
+                employeeHours[w.name] = 0;
+            });
+            
+            // Sum hours from all days
+            Object.values(weekData).forEach(dayData => {
+                if (typeof dayData === 'object') {
+                    Object.entries(dayData).forEach(([inputId, hours]) => {
+                        const parts = inputId.split('_');
+                        const workerName = parts[parts.length - 1];
+                        if (employeeHours.hasOwnProperty(workerName)) {
+                            employeeHours[workerName] += hours;
+                        }
+                    });
+                }
+            });
+            
+            // Calculate total
+            let totalHours = 0;
+            Object.values(employeeHours).forEach(h => totalHours += h);
+            
+            // Update header total
+            document.getElementById('summaryTotalHours').textContent = `${totalHours} total hrs`;
+            
+            // Build display - only show employees with hours
+            const container = document.getElementById('employeeSummaryList');
+            let html = `<span class="summary-title">Week of ${formatDate(currentWeekStart)} - ${formatDate(weekEnd)}, ${currentWeekStart.getFullYear()}</span>`;
+            
+            let hasAnyHours = false;
+            workers.forEach(w => {
+                const hours = employeeHours[w.name];
+                if (hours > 0) {
+                    hasAnyHours = true;
+                    html += `<div class="employee-line"><span class="employee-name">${w.name}:</span><span class="employee-hours">${hours} hrs</span></div>`;
+                }
+            });
+            
+            if (!hasAnyHours) {
+                html += `<div style="color: #666; font-style: italic;">No hours logged this week</div>`;
+            } else {
+                html += `<div class="employee-line total-line"><span class="employee-name">TOTAL:</span><span class="employee-hours">${totalHours} hrs</span></div>`;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // Generate plain text summary for copying/downloading
+        function getEmployeeSummaryText() {
+            const weekKey = getWeekKey(currentWeekStart);
+            const weekData = allData[weekKey] || {};
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            
+            // Calculate hours per employee
+            const employeeHours = {};
+            workers.forEach(w => {
+                employeeHours[w.name] = 0;
+            });
+            
+            Object.values(weekData).forEach(dayData => {
+                if (typeof dayData === 'object') {
+                    Object.entries(dayData).forEach(([inputId, hours]) => {
+                        const parts = inputId.split('_');
+                        const workerName = parts[parts.length - 1];
+                        if (employeeHours.hasOwnProperty(workerName)) {
+                            employeeHours[workerName] += hours;
+                        }
+                    });
+                }
+            });
+            
+            let totalHours = 0;
+            let text = `Week of ${formatDate(currentWeekStart)} - ${formatDate(weekEnd)}, ${currentWeekStart.getFullYear()}\n\n`;
+            
+            workers.forEach(w => {
+                const hours = employeeHours[w.name];
+                if (hours > 0) {
+                    text += `${w.name}: ${hours} hrs\n`;
+                    totalHours += hours;
+                }
+            });
+            
+            if (totalHours > 0) {
+                text += `\nTOTAL: ${totalHours} hrs`;
+            }
+            
+            return text;
+        }
+
+        // Copy employee summary to clipboard
+        function copyEmployeeSummary(event) {
+            event.stopPropagation(); // Prevent toggle
+            const text = getEmployeeSummaryText();
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copied to clipboard!');
+            });
+        }
+
+        // Download employee summary as txt file
+        function downloadEmployeeSummary(event) {
+            event.stopPropagation(); // Prevent toggle
+            const text = getEmployeeSummaryText();
+            const weekKey = getWeekKey(currentWeekStart);
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `payroll-hours-${weekKey}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('Downloaded!');
+        }
+
         // Init
         loadAllData().then(async () => {
             // Check and seed data if needed
@@ -708,6 +971,7 @@
             buildDayTabs();
             loadDayData();
             calculateWeekTotal();
+            updateEmployeeSummary();
             
             // Hide loading overlay
             document.getElementById('loadingOverlay').classList.add('hidden');
@@ -796,13 +1060,13 @@
         function prevWeek() {
             currentWeekStart.setDate(currentWeekStart.getDate() - 7);
             selectedDayIndex = 0;
-            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal();
+            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal(); updateEmployeeSummary();
         }
 
         function nextWeek() {
             currentWeekStart.setDate(currentWeekStart.getDate() + 7);
             selectedDayIndex = 0;
-            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal();
+            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal(); updateEmployeeSummary();
         }
 
         // Day tabs
@@ -881,6 +1145,7 @@
         function onInput() {
             calculateTotals();
             calculateWeekTotal();
+            updateEmployeeSummary();
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(saveDay, 500);
         }
@@ -946,6 +1211,7 @@
             calculateTotals();
             saveDay();
             calculateWeekTotal();
+            updateEmployeeSummary();
         }
 
         // Tabs
@@ -1009,7 +1275,7 @@
             currentWeekStart = new Date(weekKey + 'T00:00:00');
             selectedDayIndex = 0;
             switchTab('timesheet');
-            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal();
+            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal(); updateEmployeeSummary();
         }
 
         // Report
