@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spencer's Masonry - Job</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -944,6 +946,7 @@
             </div>
 
             <div class="summary-actions">
+                <button class="btn btn-success" onclick="createInvoice()">📄 Create Invoice</button>
                 <button class="btn btn-primary" onclick="copyReport()">📋 Copy Report</button>
             </div>
         </div>
@@ -1662,6 +1665,474 @@
             }
             
             navigator.clipboard.writeText(report).then(() => showToast('Report copied!'));
+        }
+
+        // Create Invoice PDF
+        function createInvoice() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const margin = 20;
+            const contentWidth = pageWidth - (margin * 2);
+            
+            // Colors
+            const orange = [249, 115, 22];
+            const darkGray = [45, 45, 45];
+            const lightGray = [150, 150, 150];
+            const green = [22, 163, 74];
+            
+            // ==================== PAGE 1: SUMMARY ====================
+            let y = margin;
+            
+            // Header
+            doc.setFillColor(...orange);
+            doc.rect(0, 0, pageWidth, 40, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(24);
+            doc.setFont('helvetica', 'bold');
+            doc.text("SPENCER'S MASONRY INC.", margin, 25);
+            
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.text("Job Invoice", pageWidth - margin - 30, 25);
+            
+            y = 55;
+            
+            // Job Info Section
+            doc.setTextColor(...darkGray);
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text(currentJob.name || 'Untitled Job', margin, y);
+            y += 10;
+            
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(...lightGray);
+            
+            const jobType = (currentJob.jobType || 'hourly').toUpperCase();
+            const status = formatStatus(currentJob.status || 'active');
+            doc.text(`${jobType} • ${status}`, margin, y);
+            y += 15;
+            
+            // Client & Address Box
+            doc.setFillColor(245, 245, 245);
+            doc.roundedRect(margin, y, contentWidth, 35, 3, 3, 'F');
+            
+            doc.setTextColor(...darkGray);
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            doc.text('CLIENT', margin + 8, y + 10);
+            doc.text('ADDRESS', margin + 8, y + 25);
+            
+            doc.setFont('helvetica', 'normal');
+            doc.text(currentJob.client || 'N/A', margin + 50, y + 10);
+            doc.text(currentJob.address || 'N/A', margin + 50, y + 25);
+            
+            if (currentJob.startDate) {
+                doc.setFont('helvetica', 'bold');
+                doc.text('START DATE', contentWidth - 30, y + 10);
+                doc.setFont('helvetica', 'normal');
+                const startDate = new Date(currentJob.startDate + 'T00:00:00');
+                doc.text(startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), contentWidth - 30, y + 20);
+            }
+            
+            y += 50;
+            
+            // Cost Breakdown Section
+            doc.setFillColor(...orange);
+            doc.rect(margin, y, contentWidth, 8, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.text('COST BREAKDOWN', margin + 5, y + 6);
+            y += 15;
+            
+            // Calculate all values
+            const payrollLabor = calculatePayrollLabor();
+            const additionalLabor = (currentJob.additionalLabor || []).reduce((sum, i) => sum + (i.amount || 0), 0);
+            const equipmentTotal = calculateEquipmentTotal();
+            const materialsTotal = (currentJob.materials || []).reduce((sum, i) => sum + (i.amount || 0), 0);
+            
+            const subtotal1 = payrollLabor + additionalLabor + equipmentTotal + materialsTotal;
+            const overhead = subtotal1 * ((currentJob.overheadPercent || 18) / 100);
+            const subtotal2 = subtotal1 + overhead;
+            const profit = subtotal2 * ((currentJob.profitPercent || 10) / 100);
+            const subtotal3 = subtotal2 + profit;
+            const tax = subtotal3 * ((currentJob.geTaxPercent || 4.712) / 100);
+            const total = subtotal3 + tax;
+            
+            const totalDraws = (currentJob.draws || []).reduce((sum, d) => sum + (d.amount || 0), 0);
+            
+            // Line items
+            const lineItems = [
+                { label: 'Payroll Labor', value: payrollLabor },
+                { label: 'Additional Labor', value: additionalLabor },
+                { label: 'Equipment', value: equipmentTotal },
+                { label: 'Materials', value: materialsTotal },
+                { label: 'Subtotal', value: subtotal1, bold: true },
+                { label: `Overhead (${currentJob.overheadPercent || 18}%)`, value: overhead },
+                { label: `Profit (${currentJob.profitPercent || 10}%)`, value: profit },
+                { label: `GE Tax (${currentJob.geTaxPercent || 4.712}%)`, value: tax }
+            ];
+            
+            doc.setTextColor(...darkGray);
+            lineItems.forEach((item, i) => {
+                if (item.bold) {
+                    doc.setFillColor(240, 240, 240);
+                    doc.rect(margin, y - 4, contentWidth, 8, 'F');
+                    doc.setFont('helvetica', 'bold');
+                } else {
+                    doc.setFont('helvetica', 'normal');
+                }
+                doc.setFontSize(10);
+                doc.text(item.label, margin + 5, y);
+                doc.text('$' + Math.round(item.value).toLocaleString(), pageWidth - margin - 5, y, { align: 'right' });
+                y += 8;
+            });
+            
+            y += 5;
+            
+            // Total Box
+            doc.setFillColor(...orange);
+            doc.roundedRect(margin, y, contentWidth, 18, 3, 3, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('TOTAL DUE', margin + 8, y + 12);
+            doc.text('$' + Math.round(total).toLocaleString(), pageWidth - margin - 8, y + 12, { align: 'right' });
+            
+            y += 30;
+            
+            // Metrics Row
+            const sf = currentJob.squareFootage || 0;
+            const metricsY = y;
+            
+            // Square Footage
+            if (sf > 0) {
+                doc.setTextColor(...lightGray);
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                doc.text('SQUARE FOOTAGE', margin, metricsY);
+                doc.setTextColor(...darkGray);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text(sf.toLocaleString() + ' SF', margin, metricsY + 8);
+                
+                // Cost per SF
+                doc.setTextColor(...lightGray);
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                doc.text('COST PER SF', margin + 60, metricsY);
+                doc.setTextColor(...green);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text('$' + (total / sf).toFixed(2), margin + 60, metricsY + 8);
+            }
+            
+            // Balance/Owed
+            doc.setTextColor(...lightGray);
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            
+            if (currentJob.jobType === 'contract') {
+                doc.text('CONTRACT AMOUNT', pageWidth - margin - 60, metricsY);
+                doc.setTextColor(167, 139, 250);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text('$' + (currentJob.contractAmount || 0).toLocaleString(), pageWidth - margin - 60, metricsY + 8);
+            }
+            
+            doc.setTextColor(...lightGray);
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            doc.text('TOTAL DRAWS', pageWidth - margin - 120, metricsY);
+            doc.setTextColor(234, 179, 8);
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text('$' + totalDraws.toLocaleString(), pageWidth - margin - 120, metricsY + 8);
+            
+            y += 25;
+            
+            // Balance Due
+            let balanceLabel, balanceValue;
+            if (currentJob.jobType === 'contract') {
+                balanceLabel = 'REMAINING BALANCE';
+                balanceValue = (currentJob.contractAmount || 0) - totalDraws;
+            } else {
+                balanceLabel = 'AMOUNT OWED';
+                balanceValue = Math.round(total) - totalDraws;
+            }
+            
+            doc.setFillColor(245, 245, 245);
+            doc.roundedRect(margin, y, contentWidth, 20, 3, 3, 'F');
+            doc.setTextColor(...lightGray);
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            doc.text(balanceLabel, margin + 8, y + 8);
+            doc.setTextColor(currentJob.jobType === 'contract' ? 167 : 244, currentJob.jobType === 'contract' ? 139 : 114, currentJob.jobType === 'contract' ? 250 : 182);
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('$' + balanceValue.toLocaleString(), margin + 8, y + 16);
+            
+            // Footer on page 1
+            doc.setTextColor(...lightGray);
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Generated on ' + new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }), margin, pageHeight - 15);
+            doc.text('Page 1', pageWidth - margin, pageHeight - 15, { align: 'right' });
+            
+            // ==================== PAGE 2: LABOR DETAIL ====================
+            doc.addPage();
+            y = margin;
+            
+            // Header
+            doc.setFillColor(...orange);
+            doc.rect(0, 0, pageWidth, 25, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('LABOR DETAIL - ' + (currentJob.name || 'Job'), margin, 17);
+            
+            y = 40;
+            
+            // Get labor data by week (same logic as renderLabor)
+            const payrollName = currentJob.payrollName || currentJob.name;
+            const payrollKey = payrollName.replace(/[^a-zA-Z]/g, '');
+            const weekKeys = Object.keys(allData).filter(k => k.match(/^\d{4}-\d{2}-\d{2}$/) && k !== 'jobs').sort().reverse();
+            
+            const laborByEmployee = {};
+            let totalLaborHours = 0;
+            let totalLaborCost = 0;
+            
+            weekKeys.forEach(weekKey => {
+                const weekData = allData[weekKey];
+                Object.entries(weekData).forEach(([dayKey, day]) => {
+                    if (typeof day === 'object') {
+                        Object.entries(day).forEach(([inputId, hours]) => {
+                            if (inputId.startsWith(payrollKey + '_')) {
+                                const workerName = inputId.split('_').pop();
+                                const rate = getWorkerRate(workerName);
+                                const cost = hours * rate;
+                                
+                                if (!laborByEmployee[workerName]) {
+                                    laborByEmployee[workerName] = { hours: 0, cost: 0, rate: rate };
+                                }
+                                laborByEmployee[workerName].hours += hours;
+                                laborByEmployee[workerName].cost += cost;
+                                totalLaborHours += hours;
+                                totalLaborCost += cost;
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // Employee Hours Table
+            doc.setTextColor(...darkGray);
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Payroll Labor by Employee', margin, y);
+            y += 10;
+            
+            // Table Header
+            doc.setFillColor(...orange);
+            doc.rect(margin, y, contentWidth, 8, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            doc.text('EMPLOYEE', margin + 5, y + 6);
+            doc.text('HOURS', margin + 80, y + 6);
+            doc.text('RATE', margin + 110, y + 6);
+            doc.text('TOTAL', pageWidth - margin - 5, y + 6, { align: 'right' });
+            y += 12;
+            
+            // Employee rows
+            const employees = Object.entries(laborByEmployee).sort((a, b) => b[1].cost - a[1].cost);
+            
+            if (employees.length === 0) {
+                doc.setTextColor(...lightGray);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'italic');
+                doc.text('No payroll hours recorded for this job', margin + 5, y + 5);
+                y += 15;
+            } else {
+                employees.forEach(([name, data], i) => {
+                    if (i % 2 === 0) {
+                        doc.setFillColor(250, 250, 250);
+                        doc.rect(margin, y - 4, contentWidth, 8, 'F');
+                    }
+                    
+                    doc.setTextColor(...darkGray);
+                    doc.setFontSize(9);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(name, margin + 5, y);
+                    doc.text(data.hours.toFixed(1), margin + 80, y);
+                    doc.text('$' + data.rate.toFixed(2), margin + 110, y);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('$' + Math.round(data.cost).toLocaleString(), pageWidth - margin - 5, y, { align: 'right' });
+                    y += 8;
+                    
+                    // Check for page break
+                    if (y > pageHeight - 50) {
+                        doc.addPage();
+                        y = 30;
+                    }
+                });
+                
+                // Payroll Total
+                y += 2;
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, y - 4, contentWidth, 10, 'F');
+                doc.setTextColor(...darkGray);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.text('PAYROLL TOTAL', margin + 5, y + 2);
+                doc.text(totalLaborHours.toFixed(1) + ' hrs', margin + 80, y + 2);
+                doc.setTextColor(...orange);
+                doc.text('$' + Math.round(totalLaborCost).toLocaleString(), pageWidth - margin - 5, y + 2, { align: 'right' });
+                y += 20;
+            }
+            
+            // Additional Labor Section
+            const additionalLaborItems = currentJob.additionalLabor || [];
+            if (additionalLaborItems.length > 0) {
+                doc.setTextColor(...darkGray);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Additional Labor', margin, y);
+                y += 10;
+                
+                additionalLaborItems.forEach((item, i) => {
+                    if (i % 2 === 0) {
+                        doc.setFillColor(250, 250, 250);
+                        doc.rect(margin, y - 4, contentWidth, 8, 'F');
+                    }
+                    doc.setTextColor(...darkGray);
+                    doc.setFontSize(9);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(item.desc || 'Item ' + (i + 1), margin + 5, y);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('$' + (item.amount || 0).toLocaleString(), pageWidth - margin - 5, y, { align: 'right' });
+                    y += 8;
+                });
+                
+                y += 2;
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, y - 4, contentWidth, 10, 'F');
+                doc.setTextColor(...darkGray);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.text('ADDITIONAL LABOR TOTAL', margin + 5, y + 2);
+                doc.setTextColor(...orange);
+                doc.text('$' + additionalLabor.toLocaleString(), pageWidth - margin - 5, y + 2, { align: 'right' });
+                y += 20;
+            }
+            
+            // Equipment Section
+            if (equipmentTotal > 0) {
+                if (y > pageHeight - 80) {
+                    doc.addPage();
+                    y = 30;
+                }
+                
+                doc.setTextColor(...darkGray);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Equipment', margin, y);
+                y += 10;
+                
+                equipment.forEach((eq, i) => {
+                    const hours = (currentJob.equipment || {})[eq.name] || 0;
+                    if (hours > 0) {
+                        if (i % 2 === 0) {
+                            doc.setFillColor(250, 250, 250);
+                            doc.rect(margin, y - 4, contentWidth, 8, 'F');
+                        }
+                        doc.setTextColor(...darkGray);
+                        doc.setFontSize(9);
+                        doc.setFont('helvetica', 'normal');
+                        doc.text(eq.name, margin + 5, y);
+                        doc.text(hours + ' hrs @ $' + eq.rate + '/hr', margin + 80, y);
+                        doc.setFont('helvetica', 'bold');
+                        doc.text('$' + (hours * eq.rate).toLocaleString(), pageWidth - margin - 5, y, { align: 'right' });
+                        y += 8;
+                    }
+                });
+                
+                y += 2;
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, y - 4, contentWidth, 10, 'F');
+                doc.setTextColor(...darkGray);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.text('EQUIPMENT TOTAL', margin + 5, y + 2);
+                doc.setTextColor(...orange);
+                doc.text('$' + equipmentTotal.toLocaleString(), pageWidth - margin - 5, y + 2, { align: 'right' });
+                y += 20;
+            }
+            
+            // Materials Section
+            const materialItems = currentJob.materials || [];
+            if (materialItems.length > 0) {
+                if (y > pageHeight - 80) {
+                    doc.addPage();
+                    y = 30;
+                }
+                
+                doc.setTextColor(...darkGray);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Materials', margin, y);
+                y += 10;
+                
+                materialItems.forEach((item, i) => {
+                    if (i % 2 === 0) {
+                        doc.setFillColor(250, 250, 250);
+                        doc.rect(margin, y - 4, contentWidth, 8, 'F');
+                    }
+                    doc.setTextColor(...darkGray);
+                    doc.setFontSize(9);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(item.desc || 'Item ' + (i + 1), margin + 5, y);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('$' + (item.amount || 0).toLocaleString(), pageWidth - margin - 5, y, { align: 'right' });
+                    y += 8;
+                    
+                    if (y > pageHeight - 30) {
+                        doc.addPage();
+                        y = 30;
+                    }
+                });
+                
+                y += 2;
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, y - 4, contentWidth, 10, 'F');
+                doc.setTextColor(...darkGray);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.text('MATERIALS TOTAL', margin + 5, y + 2);
+                doc.setTextColor(...orange);
+                doc.text('$' + materialsTotal.toLocaleString(), pageWidth - margin - 5, y + 2, { align: 'right' });
+            }
+            
+            // Footer on last page
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 2; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setTextColor(...lightGray);
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                doc.text("Spencer's Masonry Inc.", margin, pageHeight - 15);
+                doc.text('Page ' + i + ' of ' + pageCount, pageWidth - margin, pageHeight - 15, { align: 'right' });
+            }
+            
+            // Save
+            const fileName = (currentJob.name || 'job').replace(/[^a-zA-Z0-9]/g, '_') + '_invoice.pdf';
+            doc.save(fileName);
+            showToast('Invoice created!');
         }
 
         // Delete
