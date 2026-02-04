@@ -1,1 +1,1568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spencer's Masonry - Calendar</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #353535;
+            --bg-card: #2d2d2d;
+            --bg-input: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #999999;
+            --text-muted: #666666;
+            --border-color: #404040;
+            --border-light: #353535;
+            --accent: #f97316;
+            --accent-hover: #ea580c;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #eab308;
+            --info: #3b82f6;
+            --purple: #a78bfa;
+            --pink: #f472b6;
+            --card-shadow: rgba(0,0,0,0.3);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #fafafa;
+            --bg-card: #ffffff;
+            --bg-input: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --border-color: #e0e0e0;
+            --border-light: #eeeeee;
+            --card-shadow: rgba(0,0,0,0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: all 0.2s;
+            box-shadow: 0 2px 10px var(--card-shadow);
+        }
+        .theme-toggle:hover { border-color: var(--accent); transform: scale(1.1); }
+
+        .header {
+            background: #f97316;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h1 {
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-back {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+        .btn-back:hover { background: rgba(255,255,255,0.3); }
+        .btn-primary { background: #f97316; color: white; }
+        .btn-primary:hover { background: #ea580c; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { border-color: var(--accent); }
+        .btn-success { background: #16a34a; color: white; }
+        .btn-success:hover { background: #15803d; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+
+        .main-content {
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ── Tab Navigation ── */
+        .tab-nav {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tab-btn:hover { border-color: var(--accent); color: var(--text-primary); }
+        .tab-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+        .tab-btn .tab-icon { font-size: 1rem; }
+
+        .tab-count {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+        }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ── Calendar Grid ── */
+        .cal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .cal-header h2 {
+            font-size: 1.3rem;
+            color: var(--accent);
+        }
+
+        .cal-nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .cal-nav button {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cal-nav button:hover { border-color: var(--accent); color: var(--accent); }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: var(--border-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .cal-day-header {
+            background: var(--bg-tertiary);
+            padding: 10px 4px;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cal-day {
+            background: var(--bg-secondary);
+            min-height: 100px;
+            padding: 8px;
+            cursor: pointer;
+            transition: background 0.15s;
+            position: relative;
+        }
+
+        .cal-day:hover { background: var(--bg-tertiary); }
+
+        .cal-day.other-month {
+            opacity: 0.35;
+        }
+
+        .cal-day.today {
+            background: var(--bg-tertiary);
+        }
+
+        .cal-day.today .cal-date {
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cal-date {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+
+        .cal-events {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .cal-event {
+            font-size: 0.65rem;
+            padding: 2px 5px;
+            border-radius: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            font-weight: 500;
+            transition: opacity 0.15s;
+        }
+
+        .cal-event:hover { opacity: 0.8; }
+
+        .cal-event.bill { background: rgba(244, 114, 182, 0.2); color: var(--pink); }
+        .cal-event.pour { background: rgba(59, 130, 246, 0.2); color: var(--info); }
+        .cal-event.jobsite { background: rgba(22, 163, 74, 0.2); color: var(--success); }
+
+        .cal-more {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+            cursor: pointer;
+        }
+        .cal-more:hover { color: var(--accent); }
+
+        /* ── List Views (Bills, Pours, Job Sites) ── */
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .list-header h2 {
+            font-size: 1.3rem;
+            color: var(--accent);
+        }
+
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .item-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+            gap: 12px;
+        }
+
+        .item-card:hover {
+            border-color: var(--accent);
+            background: var(--bg-tertiary);
+        }
+
+        .item-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .item-badge {
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .item-badge.recurring { background: rgba(167, 139, 250, 0.2); color: var(--purple); }
+        .item-badge.one-time { background: rgba(107, 114, 128, 0.2); color: #9ca3af; }
+        .item-badge.confirmed { background: rgba(22, 163, 74, 0.2); color: var(--success); }
+        .item-badge.tentative { background: rgba(234, 179, 8, 0.2); color: var(--warning); }
+
+        .item-detail {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .item-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .item-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .item-amount {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        .item-amount.bill { color: var(--pink); }
+        .item-amount.pour { color: var(--info); }
+        .item-amount.jobsite { color: var(--success); }
+
+        .item-date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .item-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 2px;
+            transition: color 0.15s;
+        }
+        .item-action-btn:hover { color: var(--accent); }
+        .item-action-btn.delete:hover { color: var(--danger); }
+
+        .no-items {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .no-items .icon { font-size: 3rem; margin-bottom: 16px; }
+        .no-items h3 { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 8px; }
+        .no-items p { font-size: 0.9rem; margin-bottom: 20px; }
+
+        /* ── Summary Cards ── */
+        .summary-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: var(--bg-secondary);
+            padding: 14px 18px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .summary-card .label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            letter-spacing: 0.3px;
+        }
+
+        .summary-card .value {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .summary-card .value.orange { color: var(--accent); }
+        .summary-card .value.green { color: var(--success); }
+        .summary-card .value.pink { color: var(--pink); }
+        .summary-card .value.blue { color: var(--info); }
+
+        /* ── Upcoming strip on calendar tab ── */
+        .upcoming-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .upcoming-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upcoming-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px var(--card-shadow);
+        }
+
+        .upcoming-card h3 {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .upcoming-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .upcoming-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .upcoming-item .name {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .upcoming-item .date {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .upcoming-item .amount {
+            font-weight: 600;
+        }
+
+        .upcoming-empty {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* ── Modal ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 480px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-tertiary);
+        }
+
+        .modal-header h3 { font-size: 1.1rem; color: var(--accent); }
+        .modal-close { background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; }
+        .modal-close:hover { color: var(--text-primary); }
+
+        .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+
+        .form-group { margin-bottom: 16px; }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder { color: var(--text-muted); }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .form-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            background: var(--bg-tertiary);
+        }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #16a34a;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 200;
+        }
+        .toast.error { background: #dc2626; }
+        .toast.show { opacity: 1; }
+
+        /* ── Day Detail Panel ── */
+        .day-detail-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 90;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .day-detail-overlay.show { display: flex; }
+
+        .day-detail {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 420px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            padding: 24px;
+        }
+
+        .day-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .day-detail-header h3 {
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+
+        .day-section { margin-bottom: 16px; }
+
+        .day-section h4 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .day-event-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 0.9rem;
+        }
+
+        .day-event-item .name { color: var(--text-primary); }
+        .day-event-item .amount { font-weight: 600; }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .header { padding: 12px 16px; }
+            .main-content { padding: 16px; }
+            .cal-day { min-height: 70px; padding: 4px; }
+            .cal-date { font-size: 0.75rem; }
+            .cal-event { font-size: 0.55rem; padding: 1px 3px; }
+            .cal-day-header { padding: 8px 2px; font-size: 0.65rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .upcoming-strip { grid-template-columns: 1fr; }
+            .tab-btn { padding: 8px 14px; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀️</button>
+
+    <header class="header">
+        <div class="header-left">
+            <a href="index.html" class="btn btn-back">← Menu</a>
+            <h1>📅 Calendar</h1>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="calendar">
+                <span class="tab-icon">📅</span> Calendar
+            </button>
+            <button class="tab-btn" data-tab="bills">
+                <span class="tab-icon">💸</span> Bills
+                <span class="tab-count" id="billCount">0</span>
+            </button>
+            <button class="tab-btn" data-tab="pours">
+                <span class="tab-icon">🏗️</span> Pours
+                <span class="tab-count" id="pourCount">0</span>
+            </button>
+            <button class="tab-btn" data-tab="jobsites">
+                <span class="tab-icon">📍</span> Job Sites
+                <span class="tab-count" id="jobsiteCount">0</span>
+            </button>
+        </div>
+
+        <!-- ═══════ CALENDAR TAB ═══════ -->
+        <div class="tab-panel active" id="panel-calendar">
+            <!-- Upcoming at a glance -->
+            <div class="upcoming-strip" id="upcomingStrip">
+                <div class="upcoming-card" onclick="switchTab('bills')">
+                    <h3>💸 Upcoming Bills</h3>
+                    <div class="upcoming-list" id="upcomingBills"></div>
+                </div>
+                <div class="upcoming-card" onclick="switchTab('pours')">
+                    <h3>🏗️ Upcoming Pours</h3>
+                    <div class="upcoming-list" id="upcomingPours"></div>
+                </div>
+                <div class="upcoming-card" onclick="switchTab('jobsites')">
+                    <h3>📍 Upcoming Job Sites</h3>
+                    <div class="upcoming-list" id="upcomingJobsites"></div>
+                </div>
+            </div>
+
+            <!-- Calendar -->
+            <div class="cal-header">
+                <h2 id="calMonthYear"></h2>
+                <div class="cal-nav">
+                    <button onclick="changeMonth(-1)">‹</button>
+                    <button onclick="goToday()" style="width:auto;padding:0 12px;font-size:0.8rem;">Today</button>
+                    <button onclick="changeMonth(1)">›</button>
+                </div>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+        </div>
+
+        <!-- ═══════ BILLS TAB ═══════ -->
+        <div class="tab-panel" id="panel-bills">
+            <div class="summary-bar">
+                <div class="summary-card">
+                    <div class="label">Monthly Total</div>
+                    <div class="value pink" id="billsMonthly">$0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Due This Week</div>
+                    <div class="value orange" id="billsDueWeek">$0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Total Bills</div>
+                    <div class="value green" id="billsTotal">0</div>
+                </div>
+            </div>
+            <div class="list-header">
+                <h2>Upcoming Bills</h2>
+                <button class="btn btn-primary" onclick="openModal('bill')">+ Add Bill</button>
+            </div>
+            <div class="item-list" id="billsList"></div>
+        </div>
+
+        <!-- ═══════ POURS TAB ═══════ -->
+        <div class="tab-panel" id="panel-pours">
+            <div class="summary-bar">
+                <div class="summary-card">
+                    <div class="label">Scheduled</div>
+                    <div class="value blue" id="poursScheduled">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">This Month</div>
+                    <div class="value orange" id="poursMonth">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Confirmed</div>
+                    <div class="value green" id="poursConfirmed">0</div>
+                </div>
+            </div>
+            <div class="list-header">
+                <h2>Scheduled Pours</h2>
+                <button class="btn btn-primary" onclick="openModal('pour')">+ Schedule Pour</button>
+            </div>
+            <div class="item-list" id="poursList"></div>
+        </div>
+
+        <!-- ═══════ JOB SITES TAB ═══════ -->
+        <div class="tab-panel" id="panel-jobsites">
+            <div class="summary-bar">
+                <div class="summary-card">
+                    <div class="label">Scheduled</div>
+                    <div class="value green" id="jobsitesScheduled">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">This Week</div>
+                    <div class="value orange" id="jobsitesWeek">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Crew Needed</div>
+                    <div class="value blue" id="jobsitesCrew">0</div>
+                </div>
+            </div>
+            <div class="list-header">
+                <h2>Job Site Schedule</h2>
+                <button class="btn btn-primary" onclick="openModal('jobsite')">+ Add Date</button>
+            </div>
+            <div class="item-list" id="jobsitesList"></div>
+        </div>
+    </div>
+
+    <!-- ═══════ ADD/EDIT MODAL ═══════ -->
+    <div class="modal-overlay" id="itemModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add Item</h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editId">
+                <input type="hidden" id="editType">
+
+                <!-- Common: Name -->
+                <div class="form-group">
+                    <label id="nameLabel">Name</label>
+                    <input type="text" id="itemName" placeholder="e.g. Water Bill">
+                </div>
+
+                <!-- Bill-specific -->
+                <div class="form-group bill-field">
+                    <label>Amount</label>
+                    <input type="number" id="itemAmount" placeholder="0.00" step="0.01">
+                </div>
+                <div class="form-group bill-field">
+                    <label>Recurrence</label>
+                    <select id="itemRecurrence">
+                        <option value="monthly">Monthly</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="one-time">One-Time</option>
+                    </select>
+                </div>
+                <div class="form-group bill-field" id="dueDayGroup">
+                    <label>Due Day of Month</label>
+                    <input type="number" id="itemDueDay" min="1" max="31" placeholder="10">
+                    <div class="form-hint">e.g. 10 for the 10th of each month</div>
+                </div>
+
+                <!-- Pour-specific -->
+                <div class="form-group pour-field">
+                    <label>Job / Location</label>
+                    <input type="text" id="pourJob" placeholder="e.g. 6272 Kawaihau">
+                </div>
+                <div class="form-group pour-field">
+                    <label>Yards</label>
+                    <input type="number" id="pourYards" placeholder="0" step="0.5">
+                </div>
+                <div class="form-group pour-field">
+                    <label>Status</label>
+                    <select id="pourStatus">
+                        <option value="confirmed">Confirmed</option>
+                        <option value="tentative">Tentative</option>
+                    </select>
+                </div>
+
+                <!-- Jobsite-specific -->
+                <div class="form-group jobsite-field">
+                    <label>Job Name</label>
+                    <input type="text" id="jobsiteJob" placeholder="e.g. Kawaihau Retaining Wall">
+                </div>
+                <div class="form-group jobsite-field">
+                    <label>Crew Size</label>
+                    <input type="number" id="jobsiteCrew" placeholder="4" min="1">
+                </div>
+
+                <!-- Common: Date -->
+                <div class="form-group" id="dateGroup">
+                    <label id="dateLabel">Date</label>
+                    <input type="date" id="itemDate">
+                </div>
+
+                <!-- Common: Notes -->
+                <div class="form-group">
+                    <label>Notes</label>
+                    <input type="text" id="itemNotes" placeholder="Optional notes">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-success" onclick="saveItem()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Day Detail Popup -->
+    <div class="day-detail-overlay" id="dayDetail">
+        <div class="day-detail">
+            <div class="day-detail-header">
+                <h3 id="dayDetailTitle"></h3>
+                <button class="modal-close" onclick="closeDayDetail()">×</button>
+            </div>
+            <div id="dayDetailBody"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+    // ══════════════════════════════════════
+    //  DATA LAYER — localStorage
+    // ══════════════════════════════════════
+    const STORAGE_KEY = 'spencers-calendar';
+
+    function loadData() {
+        try {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { bills: [], pours: [], jobsites: [] };
+        } catch {
+            return { bills: [], pours: [], jobsites: [] };
+        }
+    }
+
+    function saveData(data) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    let data = loadData();
+
+    // Seed demo data on first load so you can see the layout
+    if (data.bills.length === 0 && data.pours.length === 0 && data.jobsites.length === 0) {
+        data.bills = [
+            { name: 'Water #1', amount: 21.55, recurrence: 'monthly', dueDay: 10, notes: '6272 Kawaihau' },
+            { name: 'Water #2', amount: 21.55, recurrence: 'monthly', dueDay: 10, notes: '' },
+            { name: "Joe's Truck", amount: 450.00, recurrence: 'monthly', dueDay: 15, notes: 'Truck payment' },
+            { name: 'Credit Card', amount: 0, recurrence: 'monthly', dueDay: 25, notes: 'Variable amount' },
+        ];
+        data.pours = [
+            { name: 'Foundation Pour', date: '2026-02-12', job: '6272 Kawaihau', yards: 18, status: 'confirmed', notes: '' },
+            { name: 'Retaining Wall', date: '2026-02-19', job: 'Koloa Estates', yards: 12, status: 'tentative', notes: 'Waiting on permit' },
+            { name: 'Driveway', date: '2026-03-04', job: 'Poipu Residence', yards: 8, status: 'tentative', notes: '' },
+        ];
+        data.jobsites = [
+            { name: 'Block Work', date: '2026-02-06', job: '6272 Kawaihau', crew: 4, notes: '' },
+            { name: 'Form Setup', date: '2026-02-11', job: '6272 Kawaihau', crew: 3, notes: 'Day before pour' },
+            { name: 'Grading', date: '2026-02-18', job: 'Koloa Estates', crew: 2, notes: '' },
+            { name: 'Cleanup', date: '2026-02-24', job: '6272 Kawaihau', crew: 2, notes: 'Final walkthrough' },
+        ];
+        saveData(data);
+    }
+
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+
+    // ══════════════════════════════════════
+    //  TABS
+    // ══════════════════════════════════════
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add('active');
+        document.getElementById(`panel-${tab}`).classList.add('active');
+    }
+
+    // ══════════════════════════════════════
+    //  CALENDAR RENDERING
+    // ══════════════════════════════════════
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+    function renderCalendar() {
+        const grid = document.getElementById('calGrid');
+        document.getElementById('calMonthYear').textContent = `${MONTHS[currentMonth]} ${currentYear}`;
+
+        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const prevMonthDays = new Date(currentYear, currentMonth, 0).getDate();
+        const today = new Date();
+
+        let html = DAYS.map(d => `<div class="cal-day-header">${d}</div>`).join('');
+
+        // Previous month fill
+        for (let i = firstDay - 1; i >= 0; i--) {
+            const day = prevMonthDays - i;
+            html += `<div class="cal-day other-month"><div class="cal-date">${day}</div></div>`;
+        }
+
+        // Current month
+        for (let d = 1; d <= daysInMonth; d++) {
+            const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const isToday = today.getFullYear() === currentYear && today.getMonth() === currentMonth && today.getDate() === d;
+            const events = getEventsForDate(currentYear, currentMonth, d);
+
+            html += `<div class="cal-day${isToday ? ' today' : ''}" onclick="openDayDetail('${dateStr}')">`;
+            html += `<div class="cal-date">${d}</div>`;
+            html += `<div class="cal-events">`;
+
+            const maxShow = 3;
+            events.slice(0, maxShow).forEach(ev => {
+                html += `<div class="cal-event ${ev.type}">${ev.label}</div>`;
+            });
+            if (events.length > maxShow) {
+                html += `<div class="cal-more">+${events.length - maxShow} more</div>`;
+            }
+
+            html += `</div></div>`;
+        }
+
+        // Next month fill
+        const totalCells = firstDay + daysInMonth;
+        const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+        for (let i = 1; i <= remaining; i++) {
+            html += `<div class="cal-day other-month"><div class="cal-date">${i}</div></div>`;
+        }
+
+        grid.innerHTML = html;
+    }
+
+    function getEventsForDate(year, month, day) {
+        const events = [];
+
+        // Bills
+        data.bills.forEach(b => {
+            if (b.recurrence === 'monthly' && b.dueDay === day) {
+                events.push({ type: 'bill', label: `💸 ${b.name}`, item: b });
+            } else if (b.recurrence === 'one-time' || b.recurrence === 'weekly') {
+                const bd = new Date(b.date + 'T00:00:00');
+                if (b.recurrence === 'one-time' && bd.getFullYear() === year && bd.getMonth() === month && bd.getDate() === day) {
+                    events.push({ type: 'bill', label: `💸 ${b.name}`, item: b });
+                }
+                if (b.recurrence === 'weekly') {
+                    const check = new Date(year, month, day);
+                    const diff = Math.floor((check - bd) / (1000*60*60*24));
+                    if (diff >= 0 && diff % 7 === 0) {
+                        events.push({ type: 'bill', label: `💸 ${b.name}`, item: b });
+                    }
+                }
+            }
+        });
+
+        // Pours
+        data.pours.forEach(p => {
+            const pd = new Date(p.date + 'T00:00:00');
+            if (pd.getFullYear() === year && pd.getMonth() === month && pd.getDate() === day) {
+                events.push({ type: 'pour', label: `🏗️ ${p.name}`, item: p });
+            }
+        });
+
+        // Job sites
+        data.jobsites.forEach(j => {
+            const jd = new Date(j.date + 'T00:00:00');
+            if (jd.getFullYear() === year && jd.getMonth() === month && jd.getDate() === day) {
+                events.push({ type: 'jobsite', label: `📍 ${j.name}`, item: j });
+            }
+        });
+
+        return events;
+    }
+
+    function changeMonth(dir) {
+        currentMonth += dir;
+        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+        renderCalendar();
+    }
+
+    function goToday() {
+        const t = new Date();
+        currentMonth = t.getMonth();
+        currentYear = t.getFullYear();
+        renderCalendar();
+    }
+
+    // ══════════════════════════════════════
+    //  DAY DETAIL POPUP
+    // ══════════════════════════════════════
+    function openDayDetail(dateStr) {
+        const [y, m, d] = dateStr.split('-').map(Number);
+        const events = getEventsForDate(y, m - 1, d);
+        const dateObj = new Date(y, m - 1, d);
+        const formatted = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+        document.getElementById('dayDetailTitle').textContent = formatted;
+
+        if (events.length === 0) {
+            document.getElementById('dayDetailBody').innerHTML = '<p style="color:var(--text-muted);padding:20px 0;text-align:center;">Nothing scheduled</p>';
+        } else {
+            const bills = events.filter(e => e.type === 'bill');
+            const pours = events.filter(e => e.type === 'pour');
+            const jobsites = events.filter(e => e.type === 'jobsite');
+
+            let html = '';
+            if (bills.length) {
+                html += '<div class="day-section"><h4>💸 Bills</h4>';
+                bills.forEach(e => {
+                    html += `<div class="day-event-item"><span class="name">${e.item.name}</span><span class="amount" style="color:var(--pink);">$${(e.item.amount||0).toLocaleString('en-US',{minimumFractionDigits:2})}</span></div>`;
+                });
+                html += '</div>';
+            }
+            if (pours.length) {
+                html += '<div class="day-section"><h4>🏗️ Pours</h4>';
+                pours.forEach(e => {
+                    html += `<div class="day-event-item"><span class="name">${e.item.name}${e.item.job?' — '+e.item.job:''}</span><span class="amount" style="color:var(--info);">${e.item.yards||'?'} yds</span></div>`;
+                });
+                html += '</div>';
+            }
+            if (jobsites.length) {
+                html += '<div class="day-section"><h4>📍 Job Sites</h4>';
+                jobsites.forEach(e => {
+                    html += `<div class="day-event-item"><span class="name">${e.item.name}${e.item.job?' — '+e.item.job:''}</span><span class="amount" style="color:var(--success);">${e.item.crew||'?'} crew</span></div>`;
+                });
+                html += '</div>';
+            }
+
+            document.getElementById('dayDetailBody').innerHTML = html;
+        }
+
+        document.getElementById('dayDetail').classList.add('show');
+    }
+
+    function closeDayDetail() {
+        document.getElementById('dayDetail').classList.remove('show');
+    }
+
+    document.getElementById('dayDetail').addEventListener('click', function(e) {
+        if (e.target === this) closeDayDetail();
+    });
+
+    // ══════════════════════════════════════
+    //  UPCOMING CARDS
+    // ══════════════════════════════════════
+    function renderUpcoming() {
+        const today = new Date();
+        const in14 = new Date(today);
+        in14.setDate(in14.getDate() + 14);
+
+        // Bills
+        const upBills = document.getElementById('upcomingBills');
+        const nextBills = getUpcomingBills(today, in14);
+        if (nextBills.length === 0) {
+            upBills.innerHTML = '<div class="upcoming-empty">No bills due soon</div>';
+        } else {
+            upBills.innerHTML = nextBills.slice(0, 4).map(b =>
+                `<div class="upcoming-item"><span class="name">${b.name}</span><span class="amount" style="color:var(--pink);">$${(b.amount||0).toLocaleString('en-US',{minimumFractionDigits:2})}</span></div>`
+            ).join('');
+        }
+
+        // Pours
+        const upPours = document.getElementById('upcomingPours');
+        const nextPours = data.pours.filter(p => {
+            const d = new Date(p.date + 'T00:00:00');
+            return d >= today && d <= in14;
+        }).sort((a,b) => new Date(a.date) - new Date(b.date));
+        if (nextPours.length === 0) {
+            upPours.innerHTML = '<div class="upcoming-empty">No pours scheduled</div>';
+        } else {
+            upPours.innerHTML = nextPours.slice(0, 4).map(p =>
+                `<div class="upcoming-item"><span class="name">${p.name}</span><span class="date">${formatShortDate(p.date)}</span></div>`
+            ).join('');
+        }
+
+        // Job sites
+        const upJobsites = document.getElementById('upcomingJobsites');
+        const nextJobsites = data.jobsites.filter(j => {
+            const d = new Date(j.date + 'T00:00:00');
+            return d >= today && d <= in14;
+        }).sort((a,b) => new Date(a.date) - new Date(b.date));
+        if (nextJobsites.length === 0) {
+            upJobsites.innerHTML = '<div class="upcoming-empty">No job sites scheduled</div>';
+        } else {
+            upJobsites.innerHTML = nextJobsites.slice(0, 4).map(j =>
+                `<div class="upcoming-item"><span class="name">${j.name}</span><span class="date">${formatShortDate(j.date)}</span></div>`
+            ).join('');
+        }
+    }
+
+    function getUpcomingBills(from, to) {
+        const results = [];
+        data.bills.forEach(b => {
+            if (b.recurrence === 'monthly') {
+                // Check this month and next month
+                for (let offset = 0; offset <= 1; offset++) {
+                    const checkMonth = new Date(from.getFullYear(), from.getMonth() + offset, b.dueDay);
+                    if (checkMonth >= from && checkMonth <= to) {
+                        results.push({ ...b, nextDue: checkMonth });
+                    }
+                }
+            } else if (b.recurrence === 'one-time') {
+                const d = new Date(b.date + 'T00:00:00');
+                if (d >= from && d <= to) results.push({ ...b, nextDue: d });
+            }
+        });
+        return results.sort((a,b) => a.nextDue - b.nextDue);
+    }
+
+    // ══════════════════════════════════════
+    //  LIST RENDERING
+    // ══════════════════════════════════════
+    function renderBills() {
+        const list = document.getElementById('billsList');
+        document.getElementById('billCount').textContent = data.bills.length;
+
+        if (data.bills.length === 0) {
+            list.innerHTML = `<div class="no-items"><div class="icon">💸</div><h3>No Bills Yet</h3><p>Add your recurring and one-time bills to track due dates.</p><button class="btn btn-primary" onclick="openModal('bill')">+ Add Bill</button></div>`;
+            return;
+        }
+
+        // Summary
+        const monthly = data.bills.filter(b => b.recurrence === 'monthly').reduce((s, b) => s + (b.amount||0), 0);
+        document.getElementById('billsMonthly').textContent = '$' + monthly.toLocaleString('en-US', {minimumFractionDigits:2});
+
+        const today = new Date();
+        const weekEnd = new Date(today);
+        weekEnd.setDate(weekEnd.getDate() + 7);
+        const dueWeek = getUpcomingBills(today, weekEnd).reduce((s, b) => s + (b.amount||0), 0);
+        document.getElementById('billsDueWeek').textContent = '$' + dueWeek.toLocaleString('en-US', {minimumFractionDigits:2});
+        document.getElementById('billsTotal').textContent = data.bills.length;
+
+        list.innerHTML = data.bills.map((b, i) => `
+            <div class="item-card">
+                <div class="item-left">
+                    <div class="item-name">
+                        ${b.name}
+                        <span class="item-badge ${b.recurrence === 'monthly' || b.recurrence === 'weekly' ? 'recurring' : 'one-time'}">
+                            ${b.recurrence}
+                        </span>
+                    </div>
+                    <div class="item-detail">${b.recurrence === 'monthly' ? 'Due: ' + ordinal(b.dueDay) + ' of each month' : b.date ? formatShortDate(b.date) : ''}</div>
+                    ${b.notes ? `<div class="item-meta">${b.notes}</div>` : ''}
+                </div>
+                <div class="item-right">
+                    <div class="item-amount bill">$${(b.amount||0).toLocaleString('en-US',{minimumFractionDigits:2})}</div>
+                    <div class="item-actions">
+                        <button class="item-action-btn" onclick="editItem('bill',${i})" title="Edit">✏️</button>
+                        <button class="item-action-btn delete" onclick="deleteItem('bill',${i})" title="Delete">🗑️</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderPours() {
+        const list = document.getElementById('poursList');
+        document.getElementById('pourCount').textContent = data.pours.length;
+
+        if (data.pours.length === 0) {
+            list.innerHTML = `<div class="no-items"><div class="icon">🏗️</div><h3>No Pours Scheduled</h3><p>Schedule concrete pours with dates, yardage, and status.</p><button class="btn btn-primary" onclick="openModal('pour')">+ Schedule Pour</button></div>`;
+            return;
+        }
+
+        const now = new Date();
+        const thisMonth = data.pours.filter(p => { const d = new Date(p.date+'T00:00:00'); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); });
+        document.getElementById('poursScheduled').textContent = data.pours.length;
+        document.getElementById('poursMonth').textContent = thisMonth.length;
+        document.getElementById('poursConfirmed').textContent = data.pours.filter(p => p.status === 'confirmed').length;
+
+        const sorted = [...data.pours].sort((a,b) => new Date(a.date) - new Date(b.date));
+        list.innerHTML = sorted.map((p, i) => {
+            const idx = data.pours.indexOf(p);
+            return `
+            <div class="item-card">
+                <div class="item-left">
+                    <div class="item-name">
+                        ${p.name}
+                        <span class="item-badge ${p.status}">${p.status}</span>
+                    </div>
+                    <div class="item-detail">${p.job || ''} ${p.yards ? '· ' + p.yards + ' yards' : ''}</div>
+                    ${p.notes ? `<div class="item-meta">${p.notes}</div>` : ''}
+                </div>
+                <div class="item-right">
+                    <div class="item-date">${formatShortDate(p.date)}</div>
+                    ${p.yards ? `<div class="item-amount pour">${p.yards} yds</div>` : ''}
+                    <div class="item-actions">
+                        <button class="item-action-btn" onclick="editItem('pour',${idx})" title="Edit">✏️</button>
+                        <button class="item-action-btn delete" onclick="deleteItem('pour',${idx})" title="Delete">🗑️</button>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function renderJobsites() {
+        const list = document.getElementById('jobsitesList');
+        document.getElementById('jobsiteCount').textContent = data.jobsites.length;
+
+        if (data.jobsites.length === 0) {
+            list.innerHTML = `<div class="no-items"><div class="icon">📍</div><h3>No Job Site Dates</h3><p>Schedule job site dates with crew assignments.</p><button class="btn btn-primary" onclick="openModal('jobsite')">+ Add Date</button></div>`;
+            return;
+        }
+
+        const now = new Date();
+        const weekEnd = new Date(now); weekEnd.setDate(weekEnd.getDate() + 7);
+        const thisWeek = data.jobsites.filter(j => { const d = new Date(j.date+'T00:00:00'); return d >= now && d <= weekEnd; });
+        const totalCrew = data.jobsites.reduce((s, j) => s + (j.crew || 0), 0);
+
+        document.getElementById('jobsitesScheduled').textContent = data.jobsites.length;
+        document.getElementById('jobsitesWeek').textContent = thisWeek.length;
+        document.getElementById('jobsitesCrew').textContent = totalCrew;
+
+        const sorted = [...data.jobsites].sort((a,b) => new Date(a.date) - new Date(b.date));
+        list.innerHTML = sorted.map((j, i) => {
+            const idx = data.jobsites.indexOf(j);
+            return `
+            <div class="item-card">
+                <div class="item-left">
+                    <div class="item-name">${j.name}</div>
+                    <div class="item-detail">${j.job || ''} ${j.crew ? '· Crew: ' + j.crew : ''}</div>
+                    ${j.notes ? `<div class="item-meta">${j.notes}</div>` : ''}
+                </div>
+                <div class="item-right">
+                    <div class="item-date">${formatShortDate(j.date)}</div>
+                    ${j.crew ? `<div class="item-amount jobsite">${j.crew} crew</div>` : ''}
+                    <div class="item-actions">
+                        <button class="item-action-btn" onclick="editItem('jobsite',${idx})" title="Edit">✏️</button>
+                        <button class="item-action-btn delete" onclick="deleteItem('jobsite',${idx})" title="Delete">🗑️</button>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    // ══════════════════════════════════════
+    //  MODAL (ADD / EDIT)
+    // ══════════════════════════════════════
+    function openModal(type, idx = null) {
+        document.getElementById('editType').value = type;
+        document.getElementById('editId').value = idx !== null ? idx : '';
+
+        // Show/hide type-specific fields
+        document.querySelectorAll('.bill-field').forEach(el => el.style.display = type === 'bill' ? 'block' : 'none');
+        document.querySelectorAll('.pour-field').forEach(el => el.style.display = type === 'pour' ? 'block' : 'none');
+        document.querySelectorAll('.jobsite-field').forEach(el => el.style.display = type === 'jobsite' ? 'block' : 'none');
+
+        // Date field visibility
+        const dateGroup = document.getElementById('dateGroup');
+        const recurrence = document.getElementById('itemRecurrence');
+        if (type === 'bill') {
+            document.getElementById('nameLabel').textContent = 'Bill Name';
+            document.getElementById('modalTitle').textContent = idx !== null ? 'Edit Bill' : 'Add Bill';
+            // Show/hide date vs dueDay based on recurrence
+            updateBillDateFields();
+        } else if (type === 'pour') {
+            document.getElementById('nameLabel').textContent = 'Pour Name';
+            document.getElementById('modalTitle').textContent = idx !== null ? 'Edit Pour' : 'Schedule Pour';
+            document.getElementById('dateLabel').textContent = 'Pour Date';
+            dateGroup.style.display = 'block';
+            document.getElementById('dueDayGroup').style.display = 'none';
+        } else {
+            document.getElementById('nameLabel').textContent = 'Description';
+            document.getElementById('modalTitle').textContent = idx !== null ? 'Edit Job Site Date' : 'Add Job Site Date';
+            document.getElementById('dateLabel').textContent = 'Date';
+            dateGroup.style.display = 'block';
+            document.getElementById('dueDayGroup').style.display = 'none';
+        }
+
+        // Pre-fill if editing
+        if (idx !== null) {
+            const item = data[type + 's'][idx];
+            document.getElementById('itemName').value = item.name || '';
+            document.getElementById('itemNotes').value = item.notes || '';
+            document.getElementById('itemDate').value = item.date || '';
+
+            if (type === 'bill') {
+                document.getElementById('itemAmount').value = item.amount || '';
+                document.getElementById('itemRecurrence').value = item.recurrence || 'monthly';
+                document.getElementById('itemDueDay').value = item.dueDay || '';
+                updateBillDateFields();
+            } else if (type === 'pour') {
+                document.getElementById('pourJob').value = item.job || '';
+                document.getElementById('pourYards').value = item.yards || '';
+                document.getElementById('pourStatus').value = item.status || 'confirmed';
+            } else {
+                document.getElementById('jobsiteJob').value = item.job || '';
+                document.getElementById('jobsiteCrew').value = item.crew || '';
+            }
+        } else {
+            // Clear form
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemNotes').value = '';
+            document.getElementById('itemDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('itemAmount').value = '';
+            document.getElementById('itemRecurrence').value = 'monthly';
+            document.getElementById('itemDueDay').value = '';
+            document.getElementById('pourJob').value = '';
+            document.getElementById('pourYards').value = '';
+            document.getElementById('pourStatus').value = 'confirmed';
+            document.getElementById('jobsiteJob').value = '';
+            document.getElementById('jobsiteCrew').value = '';
+        }
+
+        document.getElementById('itemModal').classList.add('show');
+    }
+
+    function updateBillDateFields() {
+        const rec = document.getElementById('itemRecurrence').value;
+        const dateGroup = document.getElementById('dateGroup');
+        const dueDayGroup = document.getElementById('dueDayGroup');
+
+        if (rec === 'monthly') {
+            dueDayGroup.style.display = 'block';
+            dateGroup.style.display = 'none';
+        } else {
+            dueDayGroup.style.display = 'none';
+            dateGroup.style.display = 'block';
+            document.getElementById('dateLabel').textContent = rec === 'weekly' ? 'Starting Date' : 'Due Date';
+        }
+    }
+
+    document.getElementById('itemRecurrence').addEventListener('change', updateBillDateFields);
+
+    function closeModal() {
+        document.getElementById('itemModal').classList.remove('show');
+    }
+
+    document.getElementById('itemModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    function saveItem() {
+        const type = document.getElementById('editType').value;
+        const idxStr = document.getElementById('editId').value;
+        const idx = idxStr !== '' ? parseInt(idxStr) : null;
+        const name = document.getElementById('itemName').value.trim();
+
+        if (!name) { showToast('Name is required', true); return; }
+
+        let item = { name, notes: document.getElementById('itemNotes').value.trim() };
+
+        if (type === 'bill') {
+            item.amount = parseFloat(document.getElementById('itemAmount').value) || 0;
+            item.recurrence = document.getElementById('itemRecurrence').value;
+            if (item.recurrence === 'monthly') {
+                item.dueDay = parseInt(document.getElementById('itemDueDay').value) || 1;
+            } else {
+                item.date = document.getElementById('itemDate').value;
+            }
+        } else if (type === 'pour') {
+            item.date = document.getElementById('itemDate').value;
+            item.job = document.getElementById('pourJob').value.trim();
+            item.yards = parseFloat(document.getElementById('pourYards').value) || 0;
+            item.status = document.getElementById('pourStatus').value;
+        } else {
+            item.date = document.getElementById('itemDate').value;
+            item.job = document.getElementById('jobsiteJob').value.trim();
+            item.crew = parseInt(document.getElementById('jobsiteCrew').value) || 0;
+        }
+
+        const key = type + 's';
+        if (idx !== null) {
+            data[key][idx] = item;
+            showToast('Updated!');
+        } else {
+            data[key].push(item);
+            showToast('Added!');
+        }
+
+        saveData(data);
+        closeModal();
+        renderAll();
+    }
+
+    function editItem(type, idx) {
+        openModal(type, idx);
+    }
+
+    function deleteItem(type, idx) {
+        if (!confirm('Delete this item?')) return;
+        data[type + 's'].splice(idx, 1);
+        saveData(data);
+        showToast('Deleted');
+        renderAll();
+    }
+
+    // ══════════════════════════════════════
+    //  HELPERS
+    // ══════════════════════════════════════
+    function formatShortDate(dateStr) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr + 'T00:00:00');
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function ordinal(n) {
+        const s = ['th','st','nd','rd'];
+        const v = n % 100;
+        return n + (s[(v-20)%10] || s[v] || s[0]);
+    }
+
+    function showToast(msg, isError = false) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.className = 'toast' + (isError ? ' error' : '');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    // ══════════════════════════════════════
+    //  RENDER ALL
+    // ══════════════════════════════════════
+    function renderAll() {
+        renderCalendar();
+        renderUpcoming();
+        renderBills();
+        renderPours();
+        renderJobsites();
+    }
+
+    renderAll();
+    </script>
+
+    <!-- Theme toggle (matches other pages exactly) -->
+    <script>
+    (function(){
+        function initTheme(){
+            const s = localStorage.getItem('spencers-theme');
+            if (s) document.documentElement.setAttribute('data-theme', s);
+            updateIcon();
+        }
+        window.toggleTheme = function(){
+            const c = document.documentElement.getAttribute('data-theme');
+            const n = c === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', n);
+            localStorage.setItem('spencers-theme', n);
+            updateIcon();
+        };
+        function updateIcon(){
+            const b = document.querySelector('.theme-toggle');
+            if (b) {
+                const t = document.documentElement.getAttribute('data-theme');
+                b.textContent = t === 'light' ? '🌙' : '☀️';
+            }
+        }
+        initTheme();
+    })();
+    </script>
+</body>
+</html>
 
