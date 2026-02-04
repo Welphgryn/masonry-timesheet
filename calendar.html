@@ -1247,7 +1247,7 @@
         document.getElementById('billsTotal').textContent = data.bills.length;
 
         list.innerHTML = data.bills.map((b, i) => `
-            <div class="item-card">
+            <div class="item-card" style="cursor:pointer;" onclick="window.location.href='bill.html?bill=${i}'">
                 <div class="item-left">
                     <div class="item-name">
                         ${b.name}
@@ -1260,7 +1260,7 @@
                 </div>
                 <div class="item-right">
                     <div class="item-amount bill">$${(b.amount||0).toLocaleString('en-US',{minimumFractionDigits:2})}</div>
-                    <div class="item-actions">
+                    <div class="item-actions" onclick="event.stopPropagation()">
                         <button class="item-action-btn" onclick="editItem('bill',${i})" title="Edit">✏️</button>
                         <button class="item-action-btn delete" onclick="deleteItem('bill',${i})" title="Delete">🗑️</button>
                     </div>
