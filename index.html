@@ -5,6 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spencer's Masonry - Management System</title>
     <style>
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #404040;
+            --bg-card: #2d2d2d;
+            --text-primary: #ffffff;
+            --text-secondary: #999999;
+            --text-muted: #666666;
+            --border-color: var(--border-color);
+            --accent: #f97316;
+            --accent-hover: #ea580c;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --login-box-bg: #ffffff;
+            --login-input-bg: #fafafa;
+            --login-input-border: #e5e5e5;
+            --login-input-text: #333;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e5e5e5;
+            --bg-card: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --border-color: #e0e0e0;
+            --login-box-bg: #ffffff;
+            --login-input-bg: #f5f5f5;
+            --login-input-border: #e0e0e0;
+            --login-input-text: #1a1a1a;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -13,9 +47,34 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #1a1a1a;
+            background: var(--bg-primary);
             min-height: 100vh;
-            color: #ffffff;
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent);
+            transform: scale(1.05);
         }
 
         .login-screen {
@@ -24,11 +83,11 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
         }
 
         .login-box {
-            background: #ffffff;
+            background: var(--login-box-bg);
             padding: 40px;
             border-radius: 16px;
             width: 100%;
@@ -40,11 +99,11 @@
         .login-box h1 {
             font-size: 1.6rem;
             margin-bottom: 4px;
-            color: #f97316;
+            color: var(--accent);
         }
 
         .login-box p {
-            color: #999;
+            color: var(--text-secondary);
             margin-bottom: 24px;
             font-size: 0.9rem;
         }
@@ -52,23 +111,23 @@
         .login-box input {
             width: 100%;
             padding: 14px 16px;
-            border: 2px solid #e5e5e5;
+            border: 2px solid var(--login-input-border);
             border-radius: 8px;
-            background: #fafafa;
-            color: #333;
+            background: var(--login-input-bg);
+            color: var(--login-input-text);
             font-size: 1rem;
             margin-bottom: 12px;
         }
 
         .login-box input:focus {
             outline: none;
-            border-color: #f97316;
+            border-color: var(--accent);
         }
 
         .login-box button {
             width: 100%;
             padding: 14px;
-            background: #f97316;
+            background: var(--accent);
             color: white;
             border: none;
             border-radius: 8px;
@@ -79,11 +138,11 @@
         }
 
         .login-box button:hover {
-            background: #ea580c;
+            background: var(--accent-hover);
         }
 
         .login-error {
-            color: #dc2626;
+            color: var(--danger);
             font-size: 0.9rem;
             margin-bottom: 12px;
             display: none;
@@ -93,7 +152,7 @@
             display: none;
             min-height: 100vh;
             padding: 20px;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
         }
 
         .splash-screen.show {
@@ -107,12 +166,12 @@
 
         .splash-header h1 {
             font-size: 2rem;
-            color: #f97316;
+            color: var(--accent);
             margin-bottom: 8px;
         }
 
         .splash-header p {
-            color: #999;
+            color: var(--text-secondary);
             font-size: 1rem;
         }
 
@@ -126,8 +185,8 @@
         }
 
         .splash-card {
-            background: #2d2d2d;
-            border: 2px solid #404040;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
             border-radius: 16px;
             padding: 40px 30px;
             text-align: center;
@@ -139,7 +198,7 @@
         }
 
         .splash-card:hover {
-            border-color: #f97316;
+            border-color: var(--accent);
             transform: translateY(-4px);
             box-shadow: 0 10px 40px rgba(249, 115, 22, 0.2);
         }
@@ -152,11 +211,11 @@
         .splash-card h2 {
             font-size: 1.4rem;
             margin-bottom: 8px;
-            color: #fff;
+            color: var(--text-primary);
         }
 
         .splash-card p {
-            color: #999;
+            color: var(--text-secondary);
             font-size: 0.9rem;
             line-height: 1.5;
         }
@@ -168,14 +227,14 @@
 
         .splash-card.disabled:hover {
             transform: none;
-            border-color: #404040;
+            border-color: var(--border-color);
             box-shadow: none;
         }
 
         .coming-soon {
             display: inline-block;
-            background: #404040;
-            color: #999;
+            background: var(--border-color);
+            color: var(--text-secondary);
             font-size: 0.7rem;
             padding: 4px 8px;
             border-radius: 4px;
@@ -184,24 +243,24 @@
             letter-spacing: 1px;
         }
 
-        .splash-logout {
+        .splash-footer {
             text-align: center;
             margin-top: 40px;
         }
 
-        .splash-logout button {
+        .splash-footer button {
             background: transparent;
-            border: 1px solid #404040;
-            color: #999;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
             padding: 10px 24px;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
         }
 
-        .splash-logout button:hover {
-            border-color: #f97316;
-            color: #f97316;
+        .splash-footer button:hover {
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
         @media (max-width: 768px) {
@@ -220,6 +279,8 @@
     </style>
 </head>
 <body>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">🌙</button>
+    
     <div class="login-screen" id="loginScreen">
         <div class="login-box">
             <h1>🧱 Spencer's Masonry</h1>
@@ -269,7 +330,8 @@
                 <span class="coming-soon">Coming Soon</span>
             </div>
         </div>
-        <div class="splash-logout">
+        <div class="splash-footer" style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:40px;">
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀️</button>
             <button onclick="logout()">Logout</button>
         </div>
     </div>
@@ -302,6 +364,31 @@
             document.getElementById('passwordInput').value = '';
             document.getElementById('loginError').style.display = 'none';
         }
+    </script>
+
+    <script>
+    (function(){
+        function initTheme(){
+            const s=localStorage.getItem('spencers-theme');
+            if(s)document.documentElement.setAttribute('data-theme',s);
+            updateIcon();
+        }
+        window.toggleTheme=function(){
+            const c=document.documentElement.getAttribute('data-theme');
+            const n=c==='light'?'dark':'light';
+            document.documentElement.setAttribute('data-theme',n);
+            localStorage.setItem('spencers-theme',n);
+            updateIcon();
+        };
+        function updateIcon(){
+            const b=document.querySelector('.theme-toggle');
+            if(b){
+                const t=document.documentElement.getAttribute('data-theme');
+                b.textContent=t==='light'?'🌙':'☀️';
+            }
+        }
+        initTheme();
+    })();
     </script>
 </body>
 </html>
