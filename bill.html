@@ -1,1 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spencer's Masonry - Bill Detail</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #353535;
+            --bg-card: #2d2d2d;
+            --bg-input: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #999999;
+            --text-muted: #666666;
+            --border-color: #404040;
+            --border-light: #353535;
+            --accent: #f97316;
+            --accent-hover: #ea580c;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #eab308;
+            --info: #3b82f6;
+            --purple: #a78bfa;
+            --pink: #f472b6;
+            --card-shadow: rgba(0,0,0,0.3);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #fafafa;
+            --bg-card: #ffffff;
+            --bg-input: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --border-color: #e0e0e0;
+            --border-light: #eeeeee;
+            --card-shadow: rgba(0,0,0,0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .theme-toggle {
+            position: fixed; bottom: 20px; right: 20px;
+            background: var(--bg-secondary); border: 1px solid var(--border-color);
+            color: var(--text-primary); width: 44px; height: 44px; border-radius: 50%;
+            cursor: pointer; font-size: 1.2rem; display: flex; align-items: center;
+            justify-content: center; z-index: 100; transition: all 0.2s;
+            box-shadow: 0 2px 10px var(--card-shadow);
+        }
+        .theme-toggle:hover { border-color: var(--accent); transform: scale(1.1); }
+
+        .header {
+            background: #f97316; padding: 12px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 12px;
+        }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header h1 { font-size: 1.1rem; color: white; }
+
+        .btn {
+            padding: 10px 20px; border: none; border-radius: 8px;
+            font-size: 0.95rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; text-decoration: none;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .btn-back { background: rgba(255,255,255,0.2); color: white; padding: 8px 16px; font-size: 0.85rem; }
+        .btn-back:hover { background: rgba(255,255,255,0.3); }
+        .btn-primary { background: #f97316; color: white; }
+        .btn-primary:hover { background: #ea580c; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { border-color: var(--accent); }
+        .btn-success { background: #16a34a; color: white; }
+        .btn-success:hover { background: #15803d; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-lg { padding: 14px 28px; font-size: 1.1rem; }
+
+        .main-content { padding: 24px; max-width: 900px; margin: 0 auto; }
+
+        /* ── Bill Header Card ── */
+        .bill-hero {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 24px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .bill-hero-left h2 {
+            font-size: 1.6rem;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .bill-hero-left .bill-meta {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .bill-hero-left .bill-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .bill-badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .bill-badge.recurring { background: rgba(167, 139, 250, 0.2); color: var(--purple); }
+        .bill-badge.one-time { background: rgba(107, 114, 128, 0.2); color: #9ca3af; }
+
+        .bill-hero-right {
+            text-align: right;
+        }
+
+        .bill-amount-display {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--pink);
+        }
+
+        .bill-due-display {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ── Pay Now Section ── */
+        .pay-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .pay-section h3 {
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+
+        .pay-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .pay-method {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pay-method:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .pay-method.selected { border-color: var(--accent); background: rgba(249, 115, 22, 0.08); }
+
+        .pay-method .icon { font-size: 2rem; margin-bottom: 8px; }
+        .pay-method .label { font-weight: 600; font-size: 0.95rem; color: var(--text-primary); }
+        .pay-method .desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+        /* ── Check Form (pay-by-check detail) ── */
+        .check-form {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        .check-form.show { display: block; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label {
+            display: block; font-size: 0.85rem; color: var(--text-secondary);
+            margin-bottom: 6px; font-weight: 500;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 12px 14px; border: 1px solid var(--border-color);
+            border-radius: 8px; background: var(--bg-input); color: var(--text-primary);
+            font-size: 0.95rem; transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent); }
+        .form-group input::placeholder { color: var(--text-muted); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+
+        /* ── Send to Accountant form ── */
+        .accountant-form {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        .accountant-form.show { display: block; }
+
+        .priority-select {
+            display: flex;
+            gap: 8px;
+        }
+
+        .priority-opt {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+        }
+        .priority-opt:hover { border-color: var(--accent); }
+        .priority-opt.selected { border-color: var(--accent); background: rgba(249, 115, 22, 0.1); color: var(--accent); }
+
+        /* ── Payment History ── */
+        .history-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .history-section h3 {
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+
+        .history-list { display: flex; flex-direction: column; gap: 8px; }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            gap: 12px;
+        }
+
+        .history-item .left { display: flex; flex-direction: column; gap: 2px; }
+        .history-item .method { font-weight: 600; font-size: 0.9rem; color: var(--text-primary); }
+        .history-item .date { font-size: 0.8rem; color: var(--text-muted); }
+        .history-item .check-num { font-size: 0.8rem; color: var(--purple); }
+
+        .history-item .right { text-align: right; }
+        .history-item .amount { font-weight: 700; font-size: 1rem; color: var(--success); }
+
+        .history-status {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+        }
+        .history-status.paid { background: rgba(22,163,74,0.2); color: var(--success); }
+        .history-status.pending { background: rgba(234,179,8,0.2); color: var(--warning); }
+        .history-status.sent { background: rgba(59,130,246,0.2); color: var(--info); }
+
+        .no-history {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* ── Payee Details Section ── */
+        .payee-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .payee-section h3 {
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .payee-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .payee-field {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .payee-field .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .payee-field .value {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        /* ── Signature Management ── */
+        .sig-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .sig-section h3 {
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+
+        .sig-preview {
+            background: white;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .sig-preview img {
+            max-height: 70px;
+            max-width: 100%;
+        }
+
+        .sig-preview .placeholder {
+            color: #999;
+            font-size: 0.85rem;
+        }
+
+        .sig-canvas-container {
+            display: none;
+            margin-bottom: 12px;
+        }
+        .sig-canvas-container.show { display: block; }
+
+        #sigCanvas {
+            width: 100%;
+            height: 120px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: white;
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        .sig-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* ── Check Print Layout ── */
+        .check-preview-container {
+            display: none;
+            margin-top: 20px;
+        }
+        .check-preview-container.show { display: block; }
+
+        .check-preview {
+            background: #fffff8;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            padding: 30px 40px;
+            max-width: 720px;
+            margin: 0 auto;
+            font-family: 'Courier New', monospace;
+            color: #1a1a1a;
+            position: relative;
+            min-height: 280px;
+        }
+
+        .check-company {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .check-company-addr {
+            font-size: 0.7rem;
+            color: #666;
+            margin-bottom: 16px;
+        }
+
+        .check-number {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .check-date-line {
+            text-align: right;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+        }
+
+        .check-date-line span { border-bottom: 1px solid #333; padding: 2px 40px; }
+
+        .check-payto {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+        }
+
+        .check-payto-label { font-size: 0.7rem; white-space: nowrap; }
+        .check-payto-value {
+            flex: 1;
+            border-bottom: 1px solid #333;
+            padding: 2px 8px;
+            font-weight: 600;
+        }
+
+        .check-amount-box {
+            border: 2px solid #333;
+            padding: 4px 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            min-width: 120px;
+            text-align: right;
+        }
+
+        .check-amount-words {
+            border-bottom: 1px solid #333;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+            margin-bottom: 16px;
+            min-height: 20px;
+        }
+
+        .check-memo-line {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-top: 20px;
+            font-size: 0.75rem;
+        }
+
+        .check-memo-label { color: #666; }
+        .check-memo-value {
+            flex: 1;
+            border-bottom: 1px solid #999;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+        }
+
+        .check-sig-area {
+            text-align: right;
+            margin-top: 20px;
+            padding-top: 0;
+        }
+
+        .check-sig-area img {
+            max-height: 50px;
+            margin-bottom: -8px;
+        }
+
+        .check-sig-line {
+            border-top: 1px solid #333;
+            width: 250px;
+            margin-left: auto;
+            margin-top: 4px;
+            padding-top: 2px;
+            font-size: 0.65rem;
+            color: #999;
+            text-align: center;
+        }
+
+        .check-bottom {
+            margin-top: 20px;
+            padding-top: 12px;
+            border-top: 1px dashed #ccc;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: #999;
+        }
+
+        /* ── Print Styles ── */
+        @media print {
+            body * { visibility: hidden; }
+            .check-preview, .check-preview * { visibility: visible; }
+            .check-preview {
+                position: fixed;
+                top: 0.5in;
+                left: 0.5in;
+                width: 7.5in;
+                border: none;
+                box-shadow: none;
+                padding: 20px 30px;
+            }
+            .theme-toggle { display: none; }
+        }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+            background: #16a34a; color: white; padding: 12px 24px; border-radius: 8px;
+            font-weight: 600; opacity: 0; transition: opacity 0.3s; z-index: 200;
+        }
+        .toast.error { background: #dc2626; }
+        .toast.show { opacity: 1; }
+
+        /* ── Modal ── */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8); z-index: 100;
+            align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: var(--bg-secondary); border-radius: 16px; width: 100%;
+            max-width: 480px; max-height: 90vh; overflow: hidden;
+            display: flex; flex-direction: column; border: 1px solid var(--border-color);
+        }
+
+        .modal-header {
+            padding: 16px 20px; border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--bg-tertiary);
+        }
+        .modal-header h3 { font-size: 1.1rem; color: var(--accent); }
+        .modal-close { background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; }
+        .modal-close:hover { color: var(--text-primary); }
+
+        .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+
+        .modal-footer {
+            padding: 16px 20px; border-top: 1px solid var(--border-color);
+            display: flex; gap: 12px; justify-content: flex-end; background: var(--bg-tertiary);
+        }
+
+        @media (max-width: 768px) {
+            .header { padding: 12px 16px; }
+            .main-content { padding: 16px; }
+            .bill-hero { grid-template-columns: 1fr; text-align: center; }
+            .bill-hero-right { text-align: center; }
+            .pay-methods { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .payee-grid { grid-template-columns: 1fr; }
+            .check-preview { padding: 20px; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀️</button>
+
+    <header class="header">
+        <div class="header-left">
+            <a href="calendar.html" class="btn btn-back" id="backBtn">← Bills</a>
+            <h1>💸 Bill Detail</h1>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <!-- Bill Hero -->
+        <div class="bill-hero" id="billHero">
+            <div class="bill-hero-left">
+                <h2 id="billName">—</h2>
+                <span class="bill-badge recurring" id="billBadge">monthly</span>
+                <div class="bill-meta">
+                    <span id="billDue">—</span>
+                    <span id="billNotes"></span>
+                </div>
+            </div>
+            <div class="bill-hero-right">
+                <div class="bill-amount-display" id="billAmountDisplay">$0.00</div>
+                <div class="bill-due-display" id="billNextDue">Next due: —</div>
+            </div>
+        </div>
+
+        <!-- Payee Details -->
+        <div class="payee-section" id="payeeSection">
+            <h3>
+                Payee Details
+                <button class="btn btn-secondary" style="padding:6px 12px;font-size:0.8rem;" onclick="openPayeeModal()">✏️ Edit</button>
+            </h3>
+            <div class="payee-grid" id="payeeGrid">
+                <div class="payee-field">
+                    <span class="label">Payee Name</span>
+                    <span class="value" id="payeeName">—</span>
+                </div>
+                <div class="payee-field">
+                    <span class="label">Account #</span>
+                    <span class="value" id="payeeAccount">—</span>
+                </div>
+                <div class="payee-field">
+                    <span class="label">Address</span>
+                    <span class="value" id="payeeAddress">—</span>
+                </div>
+                <div class="payee-field">
+                    <span class="label">Default Memo</span>
+                    <span class="value" id="payeeMemo">—</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pay Now -->
+        <div class="pay-section">
+            <h3>Pay Bill</h3>
+            <div class="pay-methods">
+                <div class="pay-method" data-method="check" onclick="selectMethod('check')">
+                    <div class="icon">🖨️</div>
+                    <div class="label">Print Check</div>
+                    <div class="desc">Print to blank check stock</div>
+                </div>
+                <div class="pay-method" data-method="accountant" onclick="selectMethod('accountant')">
+                    <div class="icon">📋</div>
+                    <div class="label">Send to Accountant</div>
+                    <div class="desc">Add to AP queue for review</div>
+                </div>
+                <div class="pay-method" data-method="manual" onclick="selectMethod('manual')">
+                    <div class="icon">✅</div>
+                    <div class="label">Mark as Paid</div>
+                    <div class="desc">Already paid (record it)</div>
+                </div>
+            </div>
+
+            <!-- ── Check Form ── -->
+            <div class="check-form" id="checkForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Pay To</label>
+                        <input type="text" id="checkPayTo" placeholder="Payee name">
+                    </div>
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" id="checkAmount" step="0.01" placeholder="0.00">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="checkDate">
+                    </div>
+                    <div class="form-group">
+                        <label>Check #</label>
+                        <input type="number" id="checkNumber" placeholder="Auto">
+                        <div class="form-hint">Leave blank for auto-increment</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Memo</label>
+                    <input type="text" id="checkMemo" placeholder="e.g. Water — Feb 2026">
+                </div>
+                <div style="display:flex;gap:12px;margin-top:16px;">
+                    <button class="btn btn-primary" onclick="previewCheck()">Preview Check</button>
+                </div>
+
+                <!-- Check Preview -->
+                <div class="check-preview-container" id="checkPreviewContainer">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                        <span style="font-size:0.85rem;color:var(--text-secondary);">Check Preview</span>
+                        <div style="display:flex;gap:8px;">
+                            <button class="btn btn-success" onclick="printAndRecord()">🖨️ Print & Record</button>
+                        </div>
+                    </div>
+                    <div class="check-preview" id="checkPreview"></div>
+                </div>
+            </div>
+
+            <!-- ── Accountant Form ── -->
+            <div class="accountant-form" id="accountantForm">
+                <div class="form-group">
+                    <label>Payment Amount</label>
+                    <input type="number" id="acctAmount" step="0.01" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>Priority</label>
+                    <div class="priority-select" id="prioritySelect">
+                        <div class="priority-opt selected" data-priority="normal" onclick="selectPriority('normal')">Normal</div>
+                        <div class="priority-opt" data-priority="urgent" onclick="selectPriority('urgent')">🔴 Urgent</div>
+                        <div class="priority-opt" data-priority="low" onclick="selectPriority('low')">Low</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Instructions</label>
+                    <input type="text" id="acctInstructions" placeholder="e.g. Pay online, use autopay portal">
+                </div>
+                <button class="btn btn-primary btn-lg" style="width:100%;margin-top:8px;" onclick="sendToAccountant()">
+                    📋 Send to Accountant Queue
+                </button>
+            </div>
+
+            <!-- ── Mark as Paid Form ── -->
+            <div class="accountant-form" id="manualForm" style="display:none;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Amount Paid</label>
+                        <input type="number" id="manualAmount" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Date Paid</label>
+                        <input type="date" id="manualDate">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Method</label>
+                    <select id="manualMethod">
+                        <option value="online">Paid Online</option>
+                        <option value="cash">Cash</option>
+                        <option value="transfer">Bank Transfer</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Reference / Confirmation #</label>
+                    <input type="text" id="manualRef" placeholder="Optional">
+                </div>
+                <button class="btn btn-success btn-lg" style="width:100%;margin-top:8px;" onclick="recordManualPayment()">
+                    ✅ Record Payment
+                </button>
+            </div>
+        </div>
+
+        <!-- Signature -->
+        <div class="sig-section">
+            <h3>Authorized Signature</h3>
+            <div class="sig-preview" id="sigPreview">
+                <span class="placeholder">No signature saved</span>
+            </div>
+            <div class="sig-canvas-container" id="sigCanvasContainer">
+                <canvas id="sigCanvas"></canvas>
+            </div>
+            <div class="sig-actions">
+                <button class="btn btn-secondary" onclick="toggleSigPad()" id="sigToggleBtn">✍️ Draw Signature</button>
+                <label class="btn btn-secondary" style="cursor:pointer;">
+                    📁 Upload Image
+                    <input type="file" accept="image/*" style="display:none;" onchange="uploadSig(event)">
+                </label>
+                <button class="btn btn-danger" onclick="clearSig()" style="display:none;" id="sigClearBtn">Clear</button>
+            </div>
+        </div>
+
+        <!-- Payment History -->
+        <div class="history-section">
+            <h3>Payment History</h3>
+            <div class="history-list" id="historyList">
+                <div class="no-history">No payments recorded yet</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payee Edit Modal -->
+    <div class="modal-overlay" id="payeeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Edit Payee Details</h3>
+                <button class="modal-close" onclick="closePayeeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Payee Name</label>
+                    <input type="text" id="editPayeeName" placeholder="e.g. County of Kauai Water Dept">
+                </div>
+                <div class="form-group">
+                    <label>Account Number</label>
+                    <input type="text" id="editPayeeAccount" placeholder="e.g. 12345678">
+                </div>
+                <div class="form-group">
+                    <label>Mailing Address</label>
+                    <input type="text" id="editPayeeAddress" placeholder="e.g. PO Box 1234, Lihue HI 96766">
+                </div>
+                <div class="form-group">
+                    <label>Default Memo</label>
+                    <input type="text" id="editPayeeMemo" placeholder="e.g. Acct #12345 — Water">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closePayeeModal()">Cancel</button>
+                <button class="btn btn-success" onclick="savePayee()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+    // ══════════════════════════════════════
+    //  STORAGE
+    // ══════════════════════════════════════
+    const CAL_KEY = 'spencers-calendar';
+    const AP_KEY = 'spencers-ap';
+    const SIG_KEY = 'spencers-signature';
+    const CHECK_NUM_KEY = 'spencers-check-num';
+
+    function loadCalData() {
+        try { return JSON.parse(localStorage.getItem(CAL_KEY)) || { bills: [], pours: [], jobsites: [] }; }
+        catch { return { bills: [], pours: [], jobsites: [] }; }
+    }
+    function saveCalData(d) { localStorage.setItem(CAL_KEY, JSON.stringify(d)); }
+
+    function loadAP() {
+        try { return JSON.parse(localStorage.getItem(AP_KEY)) || { queue: [], history: {} }; }
+        catch { return { queue: [], history: {} }; }
+    }
+    function saveAP(d) { localStorage.setItem(AP_KEY, JSON.stringify(d)); }
+
+    function getNextCheckNum() {
+        let n = parseInt(localStorage.getItem(CHECK_NUM_KEY)) || 1001;
+        return n;
+    }
+    function incrementCheckNum() {
+        let n = getNextCheckNum();
+        localStorage.setItem(CHECK_NUM_KEY, String(n + 1));
+        return n;
+    }
+
+    // ══════════════════════════════════════
+    //  INIT — Load bill from URL params
+    // ══════════════════════════════════════
+    const params = new URLSearchParams(window.location.search);
+    const billIdx = parseInt(params.get('bill'));
+    const calData = loadCalData();
+    const apData = loadAP();
+    let bill = null;
+
+    if (!isNaN(billIdx) && calData.bills[billIdx]) {
+        bill = calData.bills[billIdx];
+    }
+
+    if (!bill) {
+        document.querySelector('.main-content').innerHTML = `
+            <div style="text-align:center;padding:80px 20px;color:var(--text-muted);">
+                <div style="font-size:3rem;margin-bottom:16px;">💸</div>
+                <h3 style="color:var(--text-secondary);margin-bottom:8px;">Bill Not Found</h3>
+                <p>This bill may have been deleted.</p>
+                <a href="calendar.html" class="btn btn-primary" style="margin-top:20px;">← Back to Calendar</a>
+            </div>`;
+    } else {
+        initBillPage();
+    }
+
+    function initBillPage() {
+        // Ensure bill has AP fields
+        if (!bill.payee) bill.payee = {};
+        if (!bill.payments) bill.payments = [];
+
+        // Fill hero
+        document.getElementById('billName').textContent = bill.name;
+        document.getElementById('billAmountDisplay').textContent = '$' + (bill.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+        document.getElementById('billBadge').textContent = bill.recurrence;
+        document.getElementById('billBadge').className = 'bill-badge ' + (bill.recurrence === 'one-time' ? 'one-time' : 'recurring');
+
+        if (bill.recurrence === 'monthly') {
+            document.getElementById('billDue').textContent = '📅 Due: ' + ordinal(bill.dueDay) + ' of each month';
+            const today = new Date();
+            let nextDue = new Date(today.getFullYear(), today.getMonth(), bill.dueDay);
+            if (nextDue < today) nextDue.setMonth(nextDue.getMonth() + 1);
+            document.getElementById('billNextDue').textContent = 'Next due: ' + nextDue.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        } else {
+            document.getElementById('billDue').textContent = '📅 ' + (bill.date || '');
+            document.getElementById('billNextDue').textContent = '';
+        }
+
+        if (bill.notes) {
+            document.getElementById('billNotes').textContent = '📝 ' + bill.notes;
+        }
+
+        // Payee
+        renderPayee();
+
+        // Pre-fill check form
+        document.getElementById('checkPayTo').value = bill.payee?.name || bill.name;
+        document.getElementById('checkAmount').value = bill.amount || '';
+        document.getElementById('checkDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('checkMemo').value = bill.payee?.memo || bill.name;
+
+        // Pre-fill accountant form
+        document.getElementById('acctAmount').value = bill.amount || '';
+
+        // Pre-fill manual form
+        document.getElementById('manualAmount').value = bill.amount || '';
+        document.getElementById('manualDate').value = new Date().toISOString().split('T')[0];
+
+        // Signature
+        loadSignature();
+
+        // History
+        renderHistory();
+    }
+
+    // ══════════════════════════════════════
+    //  PAYEE
+    // ══════════════════════════════════════
+    function renderPayee() {
+        const p = bill.payee || {};
+        document.getElementById('payeeName').textContent = p.name || '—';
+        document.getElementById('payeeAccount').textContent = p.account || '—';
+        document.getElementById('payeeAddress').textContent = p.address || '—';
+        document.getElementById('payeeMemo').textContent = p.memo || '—';
+    }
+
+    function openPayeeModal() {
+        const p = bill.payee || {};
+        document.getElementById('editPayeeName').value = p.name || '';
+        document.getElementById('editPayeeAccount').value = p.account || '';
+        document.getElementById('editPayeeAddress').value = p.address || '';
+        document.getElementById('editPayeeMemo').value = p.memo || '';
+        document.getElementById('payeeModal').classList.add('show');
+    }
+
+    function closePayeeModal() {
+        document.getElementById('payeeModal').classList.remove('show');
+    }
+
+    document.getElementById('payeeModal').addEventListener('click', function(e) {
+        if (e.target === this) closePayeeModal();
+    });
+
+    function savePayee() {
+        bill.payee = {
+            name: document.getElementById('editPayeeName').value.trim(),
+            account: document.getElementById('editPayeeAccount').value.trim(),
+            address: document.getElementById('editPayeeAddress').value.trim(),
+            memo: document.getElementById('editPayeeMemo').value.trim()
+        };
+        calData.bills[billIdx] = bill;
+        saveCalData(calData);
+        renderPayee();
+        document.getElementById('checkPayTo').value = bill.payee.name || bill.name;
+        document.getElementById('checkMemo').value = bill.payee.memo || bill.name;
+        closePayeeModal();
+        showToast('Payee saved!');
+    }
+
+    // ══════════════════════════════════════
+    //  PAY METHOD SELECTION
+    // ══════════════════════════════════════
+    let selectedMethod = null;
+
+    function selectMethod(method) {
+        selectedMethod = method;
+        document.querySelectorAll('.pay-method').forEach(el => el.classList.remove('selected'));
+        document.querySelector(`.pay-method[data-method="${method}"]`).classList.add('selected');
+
+        document.getElementById('checkForm').classList.toggle('show', method === 'check');
+        document.getElementById('accountantForm').classList.toggle('show', method === 'accountant');
+        document.getElementById('manualForm').style.display = method === 'manual' ? 'block' : 'none';
+    }
+
+    // ══════════════════════════════════════
+    //  CHECK PRINTING
+    // ══════════════════════════════════════
+    function previewCheck() {
+        const payTo = document.getElementById('checkPayTo').value.trim();
+        const amount = parseFloat(document.getElementById('checkAmount').value) || 0;
+        const date = document.getElementById('checkDate').value;
+        const memo = document.getElementById('checkMemo').value.trim();
+        let checkNum = parseInt(document.getElementById('checkNumber').value);
+        if (!checkNum) checkNum = getNextCheckNum();
+        document.getElementById('checkNumber').value = checkNum;
+
+        const dateFormatted = new Date(date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        const sigData = localStorage.getItem(SIG_KEY);
+        const sigHtml = sigData ? `<img src="${sigData}" alt="Signature">` : '<span style="color:#999;font-size:0.7rem;">No signature</span>';
+
+        document.getElementById('checkPreview').innerHTML = `
+            <div class="check-company">SPENCER'S MASONRY LLC</div>
+            <div class="check-company-addr">Kauai, Hawaii</div>
+            <div class="check-number">#${checkNum}</div>
+            <div class="check-date-line">Date: <span>${dateFormatted}</span></div>
+            <div class="check-payto">
+                <span class="check-payto-label">PAY TO THE<br>ORDER OF</span>
+                <span class="check-payto-value">${payTo}</span>
+                <span class="check-amount-box">$${amount.toFixed(2)}</span>
+            </div>
+            <div class="check-amount-words">${numberToWords(amount)}</div>
+            <div class="check-memo-line">
+                <span class="check-memo-label">MEMO</span>
+                <span class="check-memo-value">${memo}</span>
+            </div>
+            <div class="check-sig-area">
+                ${sigHtml}
+                <div class="check-sig-line">AUTHORIZED SIGNATURE</div>
+            </div>
+        `;
+
+        document.getElementById('checkPreviewContainer').classList.add('show');
+    }
+
+    function printAndRecord() {
+        const amount = parseFloat(document.getElementById('checkAmount').value) || 0;
+        const checkNum = incrementCheckNum();
+        const date = document.getElementById('checkDate').value;
+
+        // Record payment
+        if (!bill.payments) bill.payments = [];
+        bill.payments.push({
+            method: 'check',
+            amount: amount,
+            date: date,
+            checkNumber: checkNum,
+            status: 'paid',
+            timestamp: new Date().toISOString()
+        });
+        calData.bills[billIdx] = bill;
+        saveCalData(calData);
+        renderHistory();
+
+        // Print
+        window.print();
+        showToast(`Check #${checkNum} printed & recorded!`);
+    }
+
+    // ══════════════════════════════════════
+    //  SEND TO ACCOUNTANT
+    // ══════════════════════════════════════
+    let selectedPriority = 'normal';
+
+    function selectPriority(p) {
+        selectedPriority = p;
+        document.querySelectorAll('.priority-opt').forEach(el => el.classList.remove('selected'));
+        document.querySelector(`.priority-opt[data-priority="${p}"]`).classList.add('selected');
+    }
+
+    function sendToAccountant() {
+        const amount = parseFloat(document.getElementById('acctAmount').value) || 0;
+        const instructions = document.getElementById('acctInstructions').value.trim();
+
+        const queueItem = {
+            id: Date.now().toString(36),
+            billIdx: billIdx,
+            billName: bill.name,
+            amount: amount,
+            priority: selectedPriority,
+            instructions: instructions,
+            payee: bill.payee || {},
+            status: 'pending',
+            submittedAt: new Date().toISOString(),
+            submittedBy: 'Jordan'
+        };
+
+        apData.queue.push(queueItem);
+        saveAP(apData);
+
+        // Record in bill history
+        if (!bill.payments) bill.payments = [];
+        bill.payments.push({
+            method: 'sent-to-accountant',
+            amount: amount,
+            date: new Date().toISOString().split('T')[0],
+            status: 'pending',
+            queueId: queueItem.id,
+            timestamp: new Date().toISOString()
+        });
+        calData.bills[billIdx] = bill;
+        saveCalData(calData);
+        renderHistory();
+
+        showToast('Sent to accountant queue!');
+    }
+
+    // ══════════════════════════════════════
+    //  MANUAL PAYMENT
+    // ══════════════════════════════════════
+    function recordManualPayment() {
+        const amount = parseFloat(document.getElementById('manualAmount').value) || 0;
+        const date = document.getElementById('manualDate').value;
+        const method = document.getElementById('manualMethod').value;
+        const ref = document.getElementById('manualRef').value.trim();
+
+        if (!bill.payments) bill.payments = [];
+        bill.payments.push({
+            method: method,
+            amount: amount,
+            date: date,
+            reference: ref,
+            status: 'paid',
+            timestamp: new Date().toISOString()
+        });
+        calData.bills[billIdx] = bill;
+        saveCalData(calData);
+        renderHistory();
+        showToast('Payment recorded!');
+    }
+
+    // ══════════════════════════════════════
+    //  PAYMENT HISTORY
+    // ══════════════════════════════════════
+    function renderHistory() {
+        const list = document.getElementById('historyList');
+        const payments = bill.payments || [];
+
+        if (payments.length === 0) {
+            list.innerHTML = '<div class="no-history">No payments recorded yet</div>';
+            return;
+        }
+
+        list.innerHTML = [...payments].reverse().map(p => {
+            const methodLabel = {
+                'check': '🖨️ Check',
+                'sent-to-accountant': '📋 Sent to Accountant',
+                'online': '🌐 Online',
+                'cash': '💵 Cash',
+                'transfer': '🏦 Bank Transfer',
+                'other': '📝 Other'
+            }[p.method] || p.method;
+
+            return `
+                <div class="history-item">
+                    <div class="left">
+                        <span class="method">${methodLabel}</span>
+                        <span class="date">${formatDate(p.date)}</span>
+                        ${p.checkNumber ? `<span class="check-num">Check #${p.checkNumber}</span>` : ''}
+                        ${p.reference ? `<span class="check-num">Ref: ${p.reference}</span>` : ''}
+                    </div>
+                    <div class="right">
+                        <span class="amount">$${(p.amount||0).toLocaleString('en-US',{minimumFractionDigits:2})}</span>
+                        <span class="history-status ${p.status}">${p.status}</span>
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    // ══════════════════════════════════════
+    //  SIGNATURE
+    // ══════════════════════════════════════
+    let sigPadOpen = false;
+    let drawing = false;
+    let sigCtx = null;
+
+    function loadSignature() {
+        const sig = localStorage.getItem(SIG_KEY);
+        if (sig) {
+            document.getElementById('sigPreview').innerHTML = `<img src="${sig}" alt="Saved signature">`;
+            document.getElementById('sigClearBtn').style.display = 'inline-flex';
+        }
+    }
+
+    function toggleSigPad() {
+        sigPadOpen = !sigPadOpen;
+        const container = document.getElementById('sigCanvasContainer');
+        container.classList.toggle('show', sigPadOpen);
+        document.getElementById('sigToggleBtn').textContent = sigPadOpen ? '✕ Close Pad' : '✍️ Draw Signature';
+
+        if (sigPadOpen && !sigCtx) {
+            initSigCanvas();
+        }
+    }
+
+    function initSigCanvas() {
+        const canvas = document.getElementById('sigCanvas');
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = 120;
+        sigCtx = canvas.getContext('2d');
+        sigCtx.strokeStyle = '#1a1a1a';
+        sigCtx.lineWidth = 2;
+        sigCtx.lineCap = 'round';
+        sigCtx.lineJoin = 'round';
+
+        function getPos(e) {
+            const r = canvas.getBoundingClientRect();
+            const touch = e.touches ? e.touches[0] : e;
+            return { x: touch.clientX - r.left, y: touch.clientY - r.top };
+        }
+
+        canvas.addEventListener('mousedown', e => { drawing = true; const p = getPos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x, p.y); });
+        canvas.addEventListener('mousemove', e => { if (!drawing) return; const p = getPos(e); sigCtx.lineTo(p.x, p.y); sigCtx.stroke(); });
+        canvas.addEventListener('mouseup', () => drawing = false);
+        canvas.addEventListener('mouseleave', () => drawing = false);
+
+        canvas.addEventListener('touchstart', e => { e.preventDefault(); drawing = true; const p = getPos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x, p.y); });
+        canvas.addEventListener('touchmove', e => { e.preventDefault(); if (!drawing) return; const p = getPos(e); sigCtx.lineTo(p.x, p.y); sigCtx.stroke(); });
+        canvas.addEventListener('touchend', () => drawing = false);
+
+        // Save button
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'btn btn-success';
+        saveBtn.style.marginTop = '8px';
+        saveBtn.textContent = '💾 Save Signature';
+        saveBtn.onclick = () => {
+            const dataUrl = canvas.toDataURL('image/png');
+            localStorage.setItem(SIG_KEY, dataUrl);
+            document.getElementById('sigPreview').innerHTML = `<img src="${dataUrl}" alt="Saved signature">`;
+            document.getElementById('sigClearBtn').style.display = 'inline-flex';
+            toggleSigPad();
+            showToast('Signature saved!');
+        };
+
+        const clearBtn = document.createElement('button');
+        clearBtn.className = 'btn btn-secondary';
+        clearBtn.style.marginTop = '8px';
+        clearBtn.style.marginLeft = '8px';
+        clearBtn.textContent = 'Clear Pad';
+        clearBtn.onclick = () => { sigCtx.clearRect(0, 0, canvas.width, canvas.height); };
+
+        const container = document.getElementById('sigCanvasContainer');
+        const actions = document.createElement('div');
+        actions.style.display = 'flex';
+        actions.appendChild(saveBtn);
+        actions.appendChild(clearBtn);
+        container.appendChild(actions);
+    }
+
+    function uploadSig(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            localStorage.setItem(SIG_KEY, e.target.result);
+            document.getElementById('sigPreview').innerHTML = `<img src="${e.target.result}" alt="Saved signature">`;
+            document.getElementById('sigClearBtn').style.display = 'inline-flex';
+            showToast('Signature uploaded!');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function clearSig() {
+        if (!confirm('Remove saved signature?')) return;
+        localStorage.removeItem(SIG_KEY);
+        document.getElementById('sigPreview').innerHTML = '<span class="placeholder">No signature saved</span>';
+        document.getElementById('sigClearBtn').style.display = 'none';
+        showToast('Signature cleared');
+    }
+
+    // ══════════════════════════════════════
+    //  HELPERS
+    // ══════════════════════════════════════
+    function ordinal(n) {
+        const s = ['th','st','nd','rd'];
+        const v = n % 100;
+        return n + (s[(v-20)%10] || s[v] || s[0]);
+    }
+
+    function formatDate(d) {
+        if (!d) return '';
+        return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function numberToWords(num) {
+        if (num === 0) return 'Zero and 00/100';
+        const ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine',
+            'Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+        const tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+
+        const dollars = Math.floor(num);
+        const cents = Math.round((num - dollars) * 100);
+
+        function convert(n) {
+            if (n === 0) return '';
+            if (n < 20) return ones[n] + ' ';
+            if (n < 100) return tens[Math.floor(n/10)] + (n%10 ? '-' + ones[n%10] : '') + ' ';
+            if (n < 1000) return ones[Math.floor(n/100)] + ' Hundred ' + convert(n%100);
+            if (n < 1000000) return convert(Math.floor(n/1000)) + 'Thousand ' + convert(n%1000);
+            return convert(Math.floor(n/1000000)) + 'Million ' + convert(n%1000000);
+        }
+
+        return convert(dollars).trim() + ' and ' + String(cents).padStart(2, '0') + '/100';
+    }
+
+    function showToast(msg, isError = false) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.className = 'toast' + (isError ? ' error' : '');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+    </script>
+
+    <script>
+    (function(){
+        function initTheme(){
+            const s=localStorage.getItem('spencers-theme');
+            if(s)document.documentElement.setAttribute('data-theme',s);
+            updateIcon();
+        }
+        window.toggleTheme=function(){
+            const c=document.documentElement.getAttribute('data-theme');
+            const n=c==='light'?'dark':'light';
+            document.documentElement.setAttribute('data-theme',n);
+            localStorage.setItem('spencers-theme',n);
+            updateIcon();
+        };
+        function updateIcon(){
+            const b=document.querySelector('.theme-toggle');
+            if(b){
+                const t=document.documentElement.getAttribute('data-theme');
+                b.textContent=t==='light'?'🌙':'☀️';
+            }
+        }
+        initTheme();
+    })();
+    </script>
+</body>
+</html>
 
