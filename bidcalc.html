@@ -5,8 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spencer's Masonry - Bid Calculator</title>
     <style>
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #353535;
+            --bg-input: #1a1a1a;
+            --border-color: var(--border-color);
+            --border-light: #525252;
+            --text-primary: #ffffff;
+            --text-secondary: #999999;
+            --text-muted: #666666;
+            --accent: #f97316;
+            --accent-hover: #ea580c;
+            --success: #16a34a;
+            --success-hover: #15803d;
+            --danger: #dc2626;
+            --danger-hover: #b91c1c;
+            --shadow: rgba(0,0,0,0.3);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #fafafa;
+            --bg-input: #ffffff;
+            --border-color: #e0e0e0;
+            --border-light: #d4d4d4;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --card-shadow: rgba(0,0,0,0.1);
+        }
+
+        .theme-toggle { position: fixed; bottom: 20px; right: 20px; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; z-index: 100; transition: all 0.2s; box-shadow: 0 2px 10px var(--card-shadow); }
+        .theme-toggle:hover { border-color: var(--accent); transform: scale(1.1); }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a1a; min-height: 100vh; color: #ffffff; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-primary); min-height: 100vh; color: var(--text-primary); transition: background 0.3s, color 0.3s; }
         .header { background: #f97316; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; box-shadow: 0 2px 10px rgba(249, 115, 22, 0.3); }
         .header h1 { font-size: 1.2rem; color: white; }
         .header-controls { display: flex; align-items: center; gap: 12px; }
@@ -15,7 +50,7 @@
         .btn-primary:hover { background: #ea580c; }
         .btn-success { background: #16a34a; color: white; }
         .btn-success:hover { background: #15803d; }
-        .btn-secondary { background: #404040; color: #ffffff; }
+        .btn-secondary { background: var(--border-color); color: var(--text-primary); }
         .btn-secondary:hover { background: #525252; }
         .btn-back { background: rgba(255,255,255,0.2); color: white; padding: 10px 16px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; }
         .btn-back:hover { background: rgba(255,255,255,0.3); }
@@ -23,77 +58,77 @@
         .btn-danger { background: #dc2626; color: white; }
         .btn-danger:hover { background: #b91c1c; }
         .main-content { padding: 24px; max-width: 1200px; margin: 0 auto; }
-        .card { background: #2d2d2d; border-radius: 12px; border: 1px solid #404040; margin-bottom: 20px; overflow: hidden; }
-        .card-header { background: #353535; padding: 14px 20px; border-bottom: 1px solid #404040; display: flex; justify-content: space-between; align-items: center; }
-        .card-header h2 { font-size: 1rem; font-weight: 600; color: #f97316; }
+        .card { background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; overflow: hidden; }
+        .card-header { background: var(--bg-tertiary); padding: 14px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .card-header h2 { font-size: 1rem; font-weight: 600; color: var(--accent); }
         .card-body { padding: 20px; }
         .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px; }
         .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-group label { font-size: 0.85rem; color: #999; }
-        .form-group input, .form-group select { padding: 12px 14px; border: 1px solid #404040; border-radius: 8px; background: #1a1a1a; color: #fff; font-size: 1rem; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: #f97316; }
-        .form-group input::placeholder { color: #666; }
+        .form-group label { font-size: 0.85rem; color: var(--text-secondary); }
+        .form-group input, .form-group select { padding: 12px 14px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-primary); color: var(--text-primary); font-size: 1rem; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent); }
+        .form-group input::placeholder { color: var(--text-muted); }
         .item-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid #353535; }
         .item-row:last-child { border-bottom: none; }
-        .item-row input, .item-row select { padding: 10px 12px; border: 1px solid #404040; border-radius: 6px; background: #1a1a1a; color: #fff; font-size: 0.9rem; }
-        .item-row input:focus, .item-row select:focus { outline: none; border-color: #f97316; }
+        .item-row input, .item-row select { padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-primary); color: var(--text-primary); font-size: 0.9rem; }
+        .item-row input:focus, .item-row select:focus { outline: none; border-color: var(--accent); }
         .item-row .cost { color: #16a34a; font-weight: 600; text-align: right; }
-        .item-row .remove-btn { background: none; border: none; color: #666; cursor: pointer; padding: 8px; font-size: 1.2rem; }
+        .item-row .remove-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 8px; font-size: 1.2rem; }
         .item-row .remove-btn:hover { color: #dc2626; }
-        .item-header { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 12px; padding: 0 0 10px 0; border-bottom: 1px solid #404040; margin-bottom: 10px; font-size: 0.8rem; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
+        .item-header { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 12px; padding: 0 0 10px 0; border-bottom: 1px solid var(--border-color); margin-bottom: 10px; font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
         .item-header span:nth-child(4) { text-align: right; }
-        .add-row-btn { display: flex; align-items: center; gap: 8px; padding: 12px; background: #353535; border: 1px dashed #525252; border-radius: 8px; color: #999; cursor: pointer; width: 100%; justify-content: center; margin-top: 12px; transition: all 0.2s; }
-        .add-row-btn:hover { background: #404040; border-color: #f97316; color: #f97316; }
-        .summary-card { background: linear-gradient(135deg, #2d2d2d 0%, #353535 100%); border: 2px solid #f97316; }
+        .add-row-btn { display: flex; align-items: center; gap: 8px; padding: 12px; background: var(--bg-tertiary); border: 1px dashed var(--border-light); border-radius: 8px; color: var(--text-secondary); cursor: pointer; width: 100%; justify-content: center; margin-top: 12px; transition: all 0.2s; }
+        .add-row-btn:hover { background: var(--border-color); border-color: var(--accent); color: var(--accent); }
+        .summary-card { background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%); border: 2px solid #f97316; }
         .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
         .summary-left { display: flex; flex-direction: column; gap: 12px; }
-        .summary-line { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #404040; }
-        .summary-line.subtotal { font-weight: 600; color: #f97316; }
-        .summary-line.total { font-size: 1.3rem; font-weight: 700; color: #16a34a; border-bottom: none; padding-top: 12px; border-top: 2px solid #f97316; }
-        .summary-line .label { color: #999; }
+        .summary-line { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); }
+        .summary-line.subtotal { font-weight: 600; color: var(--accent); }
+        .summary-line.total { font-size: 1.3rem; font-weight: 700; color: #16a34a; border-bottom: none; padding-top: 12px; border-top: 2px solid var(--accent); }
+        .summary-line .label { color: var(--text-secondary); }
         .summary-line .value { font-weight: 600; }
-        .summary-right { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #1a1a1a; border-radius: 12px; padding: 24px; }
+        .summary-right { display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-primary); border-radius: 12px; padding: 24px; }
         .price-per-sqft { text-align: center; }
-        .price-per-sqft .amount { font-size: 3rem; font-weight: 700; color: #f97316; }
-        .price-per-sqft .unit { font-size: 1rem; color: #999; }
+        .price-per-sqft .amount { font-size: 3rem; font-weight: 700; color: var(--accent); }
+        .price-per-sqft .unit { font-size: 1rem; color: var(--text-secondary); }
         .action-bar { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
         .modal-overlay.show { display: flex; }
-        .modal { background: #2d2d2d; border-radius: 16px; width: 100%; max-width: 600px; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; border: 1px solid #404040; }
-        .modal-header { padding: 16px 20px; border-bottom: 1px solid #404040; display: flex; justify-content: space-between; align-items: center; background: #353535; }
-        .modal-header h3 { font-size: 1.1rem; color: #f97316; }
-        .modal-close { background: none; border: none; color: #999; font-size: 1.5rem; cursor: pointer; }
-        .modal-close:hover { color: #fff; }
+        .modal { background: var(--bg-secondary); border-radius: 16px; width: 100%; max-width: 600px; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border-color); }
+        .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-tertiary); }
+        .modal-header h3 { font-size: 1.1rem; color: var(--accent); }
+        .modal-close { background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; }
+        .modal-close:hover { color: var(--text-primary); }
         .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
-        .preview-box { background: #1a1a1a; border-radius: 8px; padding: 16px; font-family: 'Courier New', monospace; font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; color: #e5e5e5; }
-        .modal-footer { padding: 16px 20px; border-top: 1px solid #404040; display: flex; gap: 12px; justify-content: flex-end; background: #353535; }
+        .preview-box { background: var(--bg-primary); border-radius: 8px; padding: 16px; font-family: 'Courier New', monospace; font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; color: var(--text-primary); }
+        .modal-footer { padding: 16px 20px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; justify-content: flex-end; background: var(--bg-tertiary); }
         .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #16a34a; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 600; opacity: 0; transition: opacity 0.3s; z-index: 200; }
         .toast.show { opacity: 1; }
-        .tabs { display: flex; background: #2d2d2d; padding: 0 24px; gap: 4px; border-bottom: 1px solid #404040; }
-        .tab { padding: 14px 24px; background: transparent; border: none; color: #999; font-size: 0.95rem; font-weight: 500; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; }
-        .tab:hover { color: #fff; }
-        .tab.active { color: #f97316; border-bottom-color: #f97316; }
+        .tabs { display: flex; background: var(--bg-secondary); padding: 0 24px; gap: 4px; border-bottom: 1px solid var(--border-color); }
+        .tab { padding: 14px 24px; background: transparent; border: none; color: var(--text-secondary); font-size: 0.95rem; font-weight: 500; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; }
+        .tab:hover { color: var(--text-primary); }
+        .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .history-list { display: flex; flex-direction: column; gap: 12px; }
-        .history-card { background: #2d2d2d; border: 1px solid #404040; border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
-        .history-card:hover { border-color: #f97316; background: #353535; }
+        .history-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
+        .history-card:hover { border-color: var(--accent); background: var(--bg-tertiary); }
         .history-info { flex: 1; cursor: pointer; }
-        .history-info h3 { font-size: 1rem; font-weight: 600; margin-bottom: 4px; color: #fff; }
-        .history-info p { font-size: 0.85rem; color: #999; }
+        .history-info h3 { font-size: 1rem; font-weight: 600; margin-bottom: 4px; color: var(--text-primary); }
+        .history-info p { font-size: 0.85rem; color: var(--text-secondary); }
         .history-stats { text-align: right; margin-right: 16px; }
         .history-stats .total { font-size: 1.2rem; font-weight: 700; color: #16a34a; }
-        .history-stats .sqft { font-size: 0.85rem; color: #f97316; }
+        .history-stats .sqft { font-size: 0.85rem; color: var(--accent); }
         .history-actions { display: flex; gap: 8px; }
-        .delete-btn { background: none; border: none; color: #666; cursor: pointer; padding: 8px; font-size: 1.3rem; border-radius: 6px; transition: all 0.2s; }
+        .delete-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 8px; font-size: 1.3rem; border-radius: 6px; transition: all 0.2s; }
         .delete-btn:hover { color: #dc2626; background: rgba(220, 38, 38, 0.1); }
-        .no-history { text-align: center; padding: 60px 20px; color: #666; }
+        .no-history { text-align: center; padding: 60px 20px; color: var(--text-muted); }
         .no-history p { margin-bottom: 16px; }
         .quick-buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
-        .quick-btn { flex: 1; min-width: 120px; padding: 16px 20px; background: #1a1a1a; border: 2px solid #404040; border-radius: 10px; color: #fff; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-        .quick-btn:hover { border-color: #f97316; background: #2d2d2d; color: #f97316; }
+        .quick-btn { flex: 1; min-width: 120px; padding: 16px 20px; background: var(--bg-primary); border: 2px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .quick-btn:hover { border-color: var(--accent); background: var(--bg-secondary); color: var(--accent); }
         .quick-btn:active { transform: scale(0.98); }
-        .quick-note { font-size: 0.85rem; color: #666; text-align: center; }
+        .quick-note { font-size: 0.85rem; color: var(--text-muted); text-align: center; }
         @media (max-width: 768px) {
             .header { padding: 12px 16px; }
             .main-content { padding: 16px; }
@@ -112,6 +147,7 @@
         <div class="header-controls">
             <a href="index.html" class="btn btn-back">← Back to Menu</a>
         </div>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀️</button>
     </header>
 
     <div class="tabs">
@@ -217,7 +253,7 @@
         </div>
 
         <div class="tab-content" id="historyTab">
-            <h2 style="margin-bottom: 20px; color: #f97316;">Saved Bids</h2>
+            <h2 style="margin-bottom: 20px; color: var(--accent);">Saved Bids</h2>
             <div class="history-list" id="bidHistoryList"></div>
         </div>
     </div>
@@ -424,6 +460,31 @@
         function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
         document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
         initApp();
+    </script>
+
+    <script>
+    (function(){
+        function initTheme(){
+            const s=localStorage.getItem('spencers-theme');
+            if(s)document.documentElement.setAttribute('data-theme',s);
+            updateIcon();
+        }
+        window.toggleTheme=function(){
+            const c=document.documentElement.getAttribute('data-theme');
+            const n=c==='light'?'dark':'light';
+            document.documentElement.setAttribute('data-theme',n);
+            localStorage.setItem('spencers-theme',n);
+            updateIcon();
+        };
+        function updateIcon(){
+            const b=document.getElementById('themeToggle');
+            if(b){
+                const t=document.documentElement.getAttribute('data-theme');
+                b.textContent=t==='light'?'🌙':'☀️';
+            }
+        }
+        initTheme();
+    })();
     </script>
 </body>
 </html>
