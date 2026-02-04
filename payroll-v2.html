@@ -5,12 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spencer's Masonry - Payroll</title>
     <style>
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #353535;
+            --bg-input: #1a1a1a;
+            --border-color: var(--border-color);
+            --border-hover: #525252;
+            --text-primary: #ffffff;
+            --text-secondary: #999999;
+            --text-muted: #666666;
+            --accent: #f97316;
+            --accent-hover: #ea580c;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --card-shadow: rgba(0,0,0,0.3);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #fafafa;
+            --bg-input: #ffffff;
+            --border-color: #e0e0e0;
+            --border-hover: #d0d0d0;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --card-shadow: rgba(0,0,0,0.1);
+        }
+
+        .theme-toggle { position: fixed; bottom: 20px; right: 20px; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; z-index: 100; transition: all 0.2s; box-shadow: 0 2px 10px var(--card-shadow); }
+        .theme-toggle:hover { border-color: var(--accent); transform: scale(1.1); }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #1a1a1a;
+            background: var(--bg-primary);
             min-height: 100vh;
-            color: #ffffff;
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
         }
 
         .header {
@@ -57,7 +91,7 @@
         .btn-primary { background: #f97316; color: white; }
         .btn-primary:hover { background: #ea580c; }
 
-        .btn-secondary { background: #404040; color: #fff; }
+        .btn-secondary { background: var(--border-color); color: var(--text-primary); }
         .btn-secondary:hover { background: #525252; }
 
         .btn-success { background: #16a34a; color: white; }
@@ -70,25 +104,25 @@
 
         .tabs {
             display: flex;
-            background: #2d2d2d;
+            background: var(--bg-secondary);
             padding: 0 24px;
             gap: 4px;
-            border-bottom: 1px solid #404040;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .tab {
             padding: 14px 24px;
             background: transparent;
             border: none;
-            color: #999;
+            color: var(--text-secondary);
             font-size: 0.95rem;
             font-weight: 500;
             cursor: pointer;
             border-bottom: 3px solid transparent;
         }
 
-        .tab:hover { color: #fff; }
-        .tab.active { color: #f97316; border-bottom-color: #f97316; }
+        .tab:hover { color: var(--text-primary); }
+        .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -100,7 +134,7 @@
         }
 
         .week-selector {
-            background: #2d2d2d;
+            background: var(--bg-secondary);
             padding: 16px 20px;
             border-radius: 12px;
             margin-bottom: 20px;
@@ -109,7 +143,7 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 12px;
-            border: 1px solid #404040;
+            border: 1px solid var(--border-color);
         }
 
         .week-nav {
@@ -119,7 +153,7 @@
         }
 
         .week-nav button {
-            background: #404040;
+            background: var(--border-color);
             border: none;
             color: white;
             width: 36px;
@@ -132,11 +166,11 @@
         .week-nav button:hover { background: #f97316; }
 
         .week-display { text-align: center; }
-        .week-display .period { font-size: 1.1rem; font-weight: 600; color: #f97316; }
-        .week-display .dates { font-size: 0.85rem; color: #999; margin-top: 2px; }
+        .week-display .period { font-size: 1.1rem; font-weight: 600; color: var(--accent); }
+        .week-display .dates { font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px; }
 
-        .save-status { font-size: 0.85rem; color: #999; display: flex; align-items: center; gap: 6px; }
-        .save-status.saving { color: #f97316; }
+        .save-status { font-size: 0.85rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+        .save-status.saving { color: var(--accent); }
         .save-status.saved { color: #16a34a; }
 
         .day-tabs {
@@ -149,16 +183,16 @@
 
         .day-tab {
             padding: 10px 16px;
-            background: #2d2d2d;
-            border: 1px solid #404040;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            color: #999;
+            color: var(--text-secondary);
             font-size: 0.85rem;
             cursor: pointer;
         }
 
-        .day-tab:hover { border-color: #f97316; color: #fff; }
-        .day-tab.active { background: #f97316; border-color: #f97316; color: white; }
+        .day-tab:hover { border-color: var(--accent); color: var(--text-primary); }
+        .day-tab.active { background: #f97316; border-color: var(--accent); color: white; }
         .day-tab .day-name { font-weight: 600; }
         .day-tab .day-date { font-size: 0.75rem; opacity: 0.8; }
 
@@ -170,23 +204,23 @@
         }
 
         .summary-card {
-            background: #2d2d2d;
+            background: var(--bg-secondary);
             padding: 14px 18px;
             border-radius: 10px;
-            border: 1px solid #404040;
+            border: 1px solid var(--border-color);
         }
 
-        .summary-card .label { font-size: 0.75rem; color: #999; text-transform: uppercase; margin-bottom: 4px; }
+        .summary-card .label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 4px; }
         .summary-card .value { font-size: 1.3rem; font-weight: 700; }
-        .summary-card .value.orange { color: #f97316; }
+        .summary-card .value.orange { color: var(--accent); }
         .summary-card .value.green { color: #16a34a; }
         .summary-card .value.yellow { color: #eab308; }
 
         /* Employee Weekly Summary Section */
         .employee-summary-section {
-            background: #2d2d2d;
+            background: var(--bg-secondary);
             border-radius: 12px;
-            border: 1px solid #404040;
+            border: 1px solid var(--border-color);
             margin-bottom: 20px;
             overflow: hidden;
         }
@@ -197,7 +231,7 @@
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            background: #353535;
+            background: var(--bg-tertiary);
             user-select: none;
         }
 
@@ -208,7 +242,7 @@
         .employee-summary-header h3 {
             font-size: 0.95rem;
             font-weight: 600;
-            color: #f97316;
+            color: var(--accent);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -238,20 +272,20 @@
         }
 
         .employee-summary-list {
-            background: #1a1a1a;
+            background: var(--bg-primary);
             border-radius: 8px;
             padding: 16px;
             font-family: 'Courier New', monospace;
             font-size: 0.85rem;
             line-height: 1.8;
             white-space: pre-wrap;
-            color: #e5e5e5;
+            color: var(--text-primary);
             max-height: 300px;
             overflow-y: auto;
         }
 
         .employee-summary-list .summary-title {
-            color: #f97316;
+            color: var(--accent);
             font-weight: bold;
             margin-bottom: 8px;
             display: block;
@@ -264,46 +298,46 @@
         }
 
         .employee-summary-list .employee-line:hover {
-            background: #2d2d2d;
+            background: var(--bg-secondary);
         }
 
         .employee-summary-list .employee-name {
-            color: #e5e5e5;
+            color: var(--text-primary);
         }
 
         .employee-summary-list .employee-hours {
-            color: #f97316;
+            color: var(--accent);
             font-weight: 600;
         }
 
         .employee-summary-list .total-line {
-            border-top: 1px solid #404040;
+            border-top: 1px solid var(--border-color);
             margin-top: 8px;
             padding-top: 8px;
             font-weight: bold;
         }
 
         .timesheet-container {
-            background: #2d2d2d;
+            background: var(--bg-secondary);
             border-radius: 12px;
-            border: 1px solid #404040;
+            border: 1px solid var(--border-color);
             overflow: hidden;
         }
 
         .timesheet-header {
             padding: 14px 20px;
-            border-bottom: 1px solid #404040;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 12px;
-            background: #353535;
+            background: var(--bg-tertiary);
         }
 
-        .timesheet-header h2 { font-size: 1rem; font-weight: 600; color: #f97316; }
+        .timesheet-header h2 { font-size: 1rem; font-weight: 600; color: var(--accent); }
 
-        .legend { display: flex; gap: 16px; font-size: 0.8rem; color: #999; }
+        .legend { display: flex; gap: 16px; font-size: 0.8rem; color: var(--text-secondary); }
         .legend span { display: flex; align-items: center; gap: 6px; }
         .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
         .legend-dot.direct { background: #16a34a; }
@@ -317,7 +351,7 @@
         }
 
         .grid-header {
-            background: #404040;
+            background: var(--border-color);
             padding: 10px 6px;
             text-align: center;
             font-weight: 600;
@@ -326,15 +360,15 @@
         }
 
         .grid-header.job-col { text-align: left; padding-left: 14px; }
-        .grid-header .rate { font-size: 0.65rem; color: #999; font-weight: 400; display: block; margin-top: 2px; }
+        .grid-header .rate { font-size: 0.65rem; color: var(--text-secondary); font-weight: 400; display: block; margin-top: 2px; }
         .grid-header .rate.hidden { display: none; }
 
         .grid-row { display: contents; }
-        .grid-row:hover .grid-cell { background: #353535; }
+        .grid-row:hover .grid-cell { background: var(--bg-tertiary); }
 
         .grid-cell {
             padding: 6px;
-            border-bottom: 1px solid #404040;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -363,29 +397,29 @@
             width: 100%;
             max-width: 46px;
             padding: 8px 2px;
-            border: 1px solid #404040;
+            border: 1px solid var(--border-color);
             border-radius: 6px;
-            background: #1a1a1a;
-            color: #fff;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             font-size: 0.9rem;
             text-align: center;
         }
 
-        .hour-input:focus { outline: none; border-color: #f97316; background: #2d2d2d; }
+        .hour-input:focus { outline: none; border-color: var(--accent); background: var(--bg-secondary); }
         .hour-input::placeholder { color: #525252; }
 
-        .totals-row .grid-cell { background: #404040; font-weight: 600; border-bottom: none; }
-        .totals-row .total-value { color: #f97316; }
+        .totals-row .grid-cell { background: var(--border-color); font-weight: 600; border-bottom: none; }
+        .totals-row .total-value { color: var(--accent); }
 
         .action-bar {
             padding: 14px 20px;
-            border-top: 1px solid #404040;
+            border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 12px;
-            background: #353535;
+            background: var(--bg-tertiary);
         }
 
         .action-buttons { display: flex; gap: 10px; }
@@ -393,8 +427,8 @@
         .history-list { display: flex; flex-direction: column; gap: 12px; }
 
         .history-card {
-            background: #2d2d2d;
-            border: 1px solid #404040;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 16px 20px;
             display: flex;
@@ -403,17 +437,17 @@
             cursor: pointer;
         }
 
-        .history-card:hover { border-color: #f97316; background: #353535; }
-        .history-card.current { border-color: #f97316; background: rgba(249, 115, 22, 0.1); }
+        .history-card:hover { border-color: var(--accent); background: var(--bg-tertiary); }
+        .history-card.current { border-color: var(--accent); background: rgba(249, 115, 22, 0.1); }
 
         .history-info h3 { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
-        .history-info p { font-size: 0.85rem; color: #999; }
+        .history-info p { font-size: 0.85rem; color: var(--text-secondary); }
 
         .history-stats { text-align: right; }
-        .history-stats .hours { font-size: 1.2rem; font-weight: 700; color: #f97316; }
-        .history-stats .cost { font-size: 0.85rem; color: #999; }
+        .history-stats .hours { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
+        .history-stats .cost { font-size: 0.85rem; color: var(--text-secondary); }
 
-        .no-history { text-align: center; padding: 40px; color: #666; }
+        .no-history { text-align: center; padding: 40px; color: var(--text-muted); }
 
         .modal-overlay {
             display: none;
@@ -429,7 +463,7 @@
         .modal-overlay.show { display: flex; }
 
         .modal {
-            background: #2d2d2d;
+            background: var(--bg-secondary);
             border-radius: 16px;
             width: 100%;
             max-width: 600px;
@@ -437,41 +471,41 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            border: 1px solid #404040;
+            border: 1px solid var(--border-color);
         }
 
         .modal-header {
             padding: 16px 20px;
-            border-bottom: 1px solid #404040;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #353535;
+            background: var(--bg-tertiary);
         }
 
-        .modal-header h3 { font-size: 1.1rem; color: #f97316; }
-        .modal-close { background: none; border: none; color: #999; font-size: 1.5rem; cursor: pointer; }
+        .modal-header h3 { font-size: 1.1rem; color: var(--accent); }
+        .modal-close { background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; }
 
         .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
 
         .preview-box {
-            background: #1a1a1a;
+            background: var(--bg-primary);
             border-radius: 8px;
             padding: 16px;
             font-family: 'Courier New', monospace;
             font-size: 0.85rem;
             line-height: 1.6;
             white-space: pre-wrap;
-            color: #e5e5e5;
+            color: var(--text-primary);
         }
 
         .modal-footer {
             padding: 16px 20px;
-            border-top: 1px solid #404040;
+            border-top: 1px solid var(--border-color);
             display: flex;
             gap: 12px;
             justify-content: flex-end;
-            background: #353535;
+            background: var(--bg-tertiary);
         }
 
         .toast {
@@ -494,7 +528,7 @@
         .loading-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: #1a1a1a;
+            background: var(--bg-primary);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -504,23 +538,23 @@
         .loading-overlay.hidden { display: none; }
 
         .loading-text {
-            color: #f97316;
+            color: var(--accent);
             font-size: 1.2rem;
         }
 
         .no-data-message {
             text-align: center;
             padding: 40px;
-            color: #666;
+            color: var(--text-muted);
         }
 
         .no-data-message h3 {
-            color: #999;
+            color: var(--text-secondary);
             margin-bottom: 10px;
         }
 
         .no-data-message a {
-            color: #f97316;
+            color: var(--accent);
             text-decoration: none;
         }
 
@@ -547,6 +581,7 @@
             <h1> Payroll</h1>
             <button class="btn btn-secondary" id="toggleRatesBtn" onclick="toggleRates()" style="padding: 6px 12px; font-size: 0.8rem;"> Hide Rates</button>
         </div>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀️</button>
         <div class="save-status" id="saveStatus">
             <span>●</span> All changes saved
         </div>
@@ -595,7 +630,7 @@
             <div class="employee-summary-section">
                 <div class="employee-summary-header" onclick="toggleEmployeeSummary()">
                     <h3><span class="toggle-icon">▼</span> Employee Weekly Hours</h3>
-                    <span style="color: #999; font-size: 0.8rem;" id="summaryTotalHours">0 total hrs</span>
+                    <span style="color: var(--text-secondary); font-size: 0.8rem;" id="summaryTotalHours">0 total hrs</span>
                 </div>
                 <div class="employee-summary-content" id="employeeSummaryContent">
                     <div class="employee-summary-actions">
@@ -620,7 +655,7 @@
                     <div class="timesheet-grid" id="timesheetGrid"></div>
                 </div>
                 <div class="action-bar">
-                    <span style="color: #999; font-size: 0.85rem;">Tab to move • Auto-saves</span>
+                    <span style="color: var(--text-secondary); font-size: 0.85rem;">Tab to move • Auto-saves</span>
                     <div class="action-buttons">
                         <button class="btn btn-secondary" onclick="clearDay()">Clear Day</button>
                         <button class="btn btn-primary" onclick="generateReport()">📋 Copy Report</button>
@@ -630,7 +665,7 @@
         </div>
 
         <div class="tab-content" id="historyTab">
-            <h2 style="margin-bottom: 20px; color: #f97316;">Payroll History</h2>
+            <h2 style="margin-bottom: 20px; color: var(--accent);">Payroll History</h2>
             <div class="history-list" id="historyList"></div>
         </div>
     </div>
@@ -861,7 +896,7 @@
             });
             
             if (!hasAnyHours) {
-                html += `<div style="color: #666; font-style: italic;">No hours logged this week</div>`;
+                html += `<div style="color: var(--text-muted); font-style: italic;">No hours logged this week</div>`;
             } else {
                 html += `<div class="employee-line total-line"><span class="employee-name">TOTAL:</span><span class="employee-hours">${totalHours} hrs</span></div>`;
             }
@@ -1344,6 +1379,31 @@
             setTimeout(() => toast.classList.remove('show'), 2000);
         }
         document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+    </script>
+
+    <script>
+    (function(){
+        function initTheme(){
+            const s=localStorage.getItem('spencers-theme');
+            if(s)document.documentElement.setAttribute('data-theme',s);
+            updateIcon();
+        }
+        window.toggleTheme=function(){
+            const c=document.documentElement.getAttribute('data-theme');
+            const n=c==='light'?'dark':'light';
+            document.documentElement.setAttribute('data-theme',n);
+            localStorage.setItem('spencers-theme',n);
+            updateIcon();
+        };
+        function updateIcon(){
+            const b=document.getElementById('themeToggle');
+            if(b){
+                const t=document.documentElement.getAttribute('data-theme');
+                b.textContent=t==='light'?'🌙':'☀️';
+            }
+        }
+        initTheme();
+    })();
     </script>
 </body>
 </html>
