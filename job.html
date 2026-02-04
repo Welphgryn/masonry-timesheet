@@ -7,12 +7,48 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <style>
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #353535;
+            --bg-input: #1a1a1a;
+            --border-color: #404040;
+            --border-hover: #525252;
+            --text-primary: #ffffff;
+            --text-secondary: #999999;
+            --text-muted: #666666;
+            --accent: #f97316;
+            --accent-hover: #ea580c;
+            --success: #16a34a;
+            --success-hover: #15803d;
+            --danger: #dc2626;
+            --danger-hover: #b91c1c;
+            --card-shadow: rgba(0,0,0,0.3);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #fafafa;
+            --bg-input: #ffffff;
+            --border-color: #e0e0e0;
+            --border-hover: #d0d0d0;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --card-shadow: rgba(0,0,0,0.1);
+        }
+
+        .theme-toggle { position: fixed; bottom: 20px; right: 20px; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; z-index: 100; transition: all 0.2s; box-shadow: 0 2px 10px var(--card-shadow); }
+        .theme-toggle:hover { border-color: var(--accent); transform: scale(1.1); }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #1a1a1a;
+            background: var(--bg-primary);
             min-height: 100vh;
-            color: #ffffff;
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
         }
 
         .header {
@@ -82,7 +118,7 @@
         .btn-primary { background: #f97316; color: white; }
         .btn-primary:hover { background: #ea580c; }
 
-        .btn-secondary { background: #404040; color: #fff; }
+        .btn-secondary { background: var(--border-color); color: var(--text-primary); }
         .btn-secondary:hover { background: #525252; }
 
         .btn-success { background: #16a34a; color: white; }
@@ -98,10 +134,10 @@
 
         .tabs {
             display: flex;
-            background: #2d2d2d;
+            background: var(--bg-secondary);
             padding: 0 24px;
             gap: 4px;
-            border-bottom: 1px solid #404040;
+            border-bottom: 1px solid var(--border-color);
             overflow-x: auto;
         }
 
@@ -109,7 +145,7 @@
             padding: 14px 20px;
             background: transparent;
             border: none;
-            color: #999;
+            color: var(--text-secondary);
             font-size: 0.9rem;
             font-weight: 500;
             cursor: pointer;
@@ -117,8 +153,8 @@
             white-space: nowrap;
         }
 
-        .tab:hover { color: #fff; }
-        .tab.active { color: #f97316; border-bottom-color: #f97316; }
+        .tab:hover { color: var(--text-primary); }
+        .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -130,17 +166,17 @@
         }
 
         .section {
-            background: #2d2d2d;
+            background: var(--bg-secondary);
             border-radius: 12px;
-            border: 1px solid #404040;
+            border: 1px solid var(--border-color);
             margin-bottom: 20px;
             overflow: hidden;
         }
 
         .section-header {
             padding: 14px 20px;
-            background: #353535;
-            border-bottom: 1px solid #404040;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -150,7 +186,7 @@
 
         .section-header h3 {
             font-size: 1rem;
-            color: #f97316;
+            color: var(--accent);
         }
 
         .section-body { padding: 20px; }
@@ -166,7 +202,7 @@
         .form-group label {
             display: block;
             font-size: 0.8rem;
-            color: #999;
+            color: var(--text-secondary);
             margin-bottom: 6px;
             font-weight: 500;
         }
@@ -176,10 +212,10 @@
         .form-group textarea {
             width: 100%;
             padding: 10px 12px;
-            border: 1px solid #404040;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            background: #1a1a1a;
-            color: #fff;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             font-size: 0.9rem;
         }
 
@@ -187,7 +223,7 @@
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #f97316;
+            border-color: var(--accent);
         }
 
         .form-group textarea { resize: vertical; min-height: 80px; }
@@ -207,22 +243,22 @@
             gap: 10px;
             align-items: center;
             padding: 10px;
-            background: #1a1a1a;
+            background: var(--bg-primary);
             border-radius: 8px;
         }
 
         .draw-item input {
             padding: 8px 10px;
-            border: 1px solid #404040;
+            border: 1px solid var(--border-color);
             border-radius: 6px;
-            background: #2d2d2d;
-            color: #fff;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
             font-size: 0.85rem;
         }
 
         .draw-item input:focus {
             outline: none;
-            border-color: #f97316;
+            border-color: var(--accent);
         }
 
         .draw-delete {
@@ -240,12 +276,12 @@
             display: flex;
             justify-content: space-between;
             padding: 12px;
-            background: #404040;
+            background: var(--border-color);
             border-radius: 8px;
             margin-top: 12px;
         }
 
-        .draws-total .label { color: #999; }
+        .draws-total .label { color: var(--text-secondary); }
         .draws-total .value { font-weight: 700; color: #eab308; }
 
         .balance-box {
@@ -267,7 +303,7 @@
 
         .balance-box .label {
             font-size: 0.85rem;
-            color: #999;
+            color: var(--text-secondary);
             margin-bottom: 4px;
         }
 
@@ -281,7 +317,7 @@
 
         /* Labor Tab */
         .week-block {
-            background: #1a1a1a;
+            background: var(--bg-primary);
             border-radius: 10px;
             margin-bottom: 12px;
             overflow: hidden;
@@ -289,17 +325,17 @@
 
         .week-header {
             padding: 12px 16px;
-            background: #353535;
+            background: var(--bg-tertiary);
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
         }
 
-        .week-header:hover { background: #404040; }
+        .week-header:hover { background: var(--border-color); }
 
         .week-header .week-title { font-weight: 600; }
-        .week-header .week-total { color: #f97316; font-weight: 600; }
+        .week-header .week-total { color: var(--accent); font-weight: 600; }
 
         .week-body {
             display: none;
@@ -318,11 +354,11 @@
         .labor-cell {
             padding: 8px 4px;
             text-align: center;
-            background: #2d2d2d;
+            background: var(--bg-secondary);
         }
 
         .labor-cell.header {
-            background: #404040;
+            background: var(--border-color);
             font-weight: 600;
             font-size: 0.75rem;
         }
@@ -333,9 +369,9 @@
         }
 
         .labor-cell.total-row {
-            background: #404040;
+            background: var(--border-color);
             font-weight: 600;
-            color: #f97316;
+            color: var(--accent);
         }
 
         /* Worker Rates Grid */
@@ -346,7 +382,7 @@
         }
 
         .worker-rate-item {
-            background: #1a1a1a;
+            background: var(--bg-primary);
             border-radius: 8px;
             padding: 12px;
             display: flex;
@@ -366,28 +402,28 @@
         }
 
         .worker-rate-item .rate-input-group span {
-            color: #999;
+            color: var(--text-secondary);
         }
 
         .worker-rate-item input {
             width: 70px;
             padding: 6px 8px;
-            border: 1px solid #404040;
+            border: 1px solid var(--border-color);
             border-radius: 6px;
-            background: #2d2d2d;
-            color: #fff;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
             font-size: 0.9rem;
             text-align: right;
         }
 
         .worker-rate-item input:focus {
             outline: none;
-            border-color: #f97316;
+            border-color: var(--accent);
         }
 
         .worker-rate-item .default-rate {
             font-size: 0.75rem;
-            color: #666;
+            color: var(--text-muted);
         }
 
         /* Line Items (Additional Labor, Materials) */
@@ -406,16 +442,16 @@
 
         .line-item input {
             padding: 10px 12px;
-            border: 1px solid #404040;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            background: #1a1a1a;
-            color: #fff;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             font-size: 0.9rem;
         }
 
         .line-item input:focus {
             outline: none;
-            border-color: #f97316;
+            border-color: var(--accent);
         }
 
         .line-item-delete {
@@ -431,13 +467,13 @@
             display: flex;
             justify-content: space-between;
             padding: 12px 16px;
-            background: #404040;
+            background: var(--border-color);
             border-radius: 8px;
             margin-top: 12px;
             font-weight: 600;
         }
 
-        .line-item-total .value { color: #f97316; }
+        .line-item-total .value { color: var(--accent); }
 
         /* Equipment Tab */
         .equipment-grid {
@@ -451,37 +487,37 @@
             gap: 12px;
             align-items: center;
             padding: 12px;
-            background: #1a1a1a;
+            background: var(--bg-primary);
             border-radius: 8px;
         }
 
         .equipment-row.header {
-            background: #404040;
+            background: var(--border-color);
             font-weight: 600;
             font-size: 0.85rem;
-            color: #999;
+            color: var(--text-secondary);
         }
 
         .equipment-name { font-weight: 500; }
 
         .equipment-rate {
-            color: #999;
+            color: var(--text-secondary);
             font-size: 0.85rem;
         }
 
         .equipment-row input {
             padding: 8px 10px;
-            border: 1px solid #404040;
+            border: 1px solid var(--border-color);
             border-radius: 6px;
-            background: #2d2d2d;
-            color: #fff;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
             font-size: 0.9rem;
             text-align: center;
         }
 
         .equipment-row input:focus {
             outline: none;
-            border-color: #f97316;
+            border-color: var(--accent);
         }
 
         .equipment-total { color: #16a34a; font-weight: 600; }
@@ -498,7 +534,7 @@
         }
 
         .summary-breakdown {
-            background: #1a1a1a;
+            background: var(--bg-primary);
             border-radius: 10px;
             padding: 20px;
         }
@@ -507,31 +543,31 @@
             display: flex;
             justify-content: space-between;
             padding: 10px 0;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .summary-line:last-child { border-bottom: none; }
 
-        .summary-line .label { color: #999; }
+        .summary-line .label { color: var(--text-secondary); }
         .summary-line .value { font-weight: 500; }
 
         .summary-line.subtotal {
             font-weight: 600;
         }
 
-        .summary-line.subtotal .label { color: #fff; }
+        .summary-line.subtotal .label { color: var(--text-primary); }
 
         .summary-line.total {
             font-size: 1.2rem;
             font-weight: 700;
             padding: 16px 0;
             margin-top: 10px;
-            border-top: 2px solid #f97316;
+            border-top: 2px solid var(--accent);
             border-bottom: none;
         }
 
-        .summary-line.total .label { color: #f97316; }
-        .summary-line.total .value { color: #f97316; }
+        .summary-line.total .label { color: var(--accent); }
+        .summary-line.total .value { color: var(--accent); }
 
         .summary-metrics {
             display: flex;
@@ -540,7 +576,7 @@
         }
 
         .metric-card {
-            background: #1a1a1a;
+            background: var(--bg-primary);
             border-radius: 10px;
             padding: 20px;
             text-align: center;
@@ -548,7 +584,7 @@
 
         .metric-card .label {
             font-size: 0.85rem;
-            color: #999;
+            color: var(--text-secondary);
             margin-bottom: 6px;
         }
 
@@ -558,7 +594,7 @@
         }
 
         .metric-card .value.green { color: #16a34a; }
-        .metric-card .value.orange { color: #f97316; }
+        .metric-card .value.orange { color: var(--accent); }
         .metric-card .value.purple { color: #a78bfa; }
         .metric-card .value.pink { color: #f472b6; }
 
@@ -566,10 +602,10 @@
             width: 100%;
             max-width: 150px;
             padding: 10px;
-            border: 1px solid #404040;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            background: #2d2d2d;
-            color: #fff;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
             font-size: 1.1rem;
             text-align: center;
             margin-top: 8px;
@@ -617,29 +653,29 @@
         .modal-overlay.show { display: flex; }
 
         .modal {
-            background: #2d2d2d;
+            background: var(--bg-secondary);
             border-radius: 16px;
             width: 100%;
             max-width: 500px;
-            border: 1px solid #404040;
+            border: 1px solid var(--border-color);
         }
 
         .modal-header {
             padding: 16px 20px;
-            border-bottom: 1px solid #404040;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #353535;
+            background: var(--bg-tertiary);
             border-radius: 16px 16px 0 0;
         }
 
-        .modal-header h3 { color: #f97316; }
+        .modal-header h3 { color: var(--accent); }
 
         .modal-close {
             background: none;
             border: none;
-            color: #999;
+            color: var(--text-secondary);
             font-size: 1.5rem;
             cursor: pointer;
         }
@@ -648,29 +684,29 @@
 
         .modal-footer {
             padding: 16px 20px;
-            border-top: 1px solid #404040;
+            border-top: 1px solid var(--border-color);
             display: flex;
             gap: 12px;
             justify-content: flex-end;
-            background: #353535;
+            background: var(--bg-tertiary);
             border-radius: 0 0 16px 16px;
         }
 
         .save-status {
             font-size: 0.85rem;
-            color: #999;
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .save-status.saving { color: #f97316; }
+        .save-status.saving { color: var(--accent); }
         .save-status.saved { color: #16a34a; }
 
         .loading {
             text-align: center;
             padding: 60px;
-            color: #999;
+            color: var(--text-secondary);
         }
 
         @media (max-width: 768px) {
@@ -695,6 +731,7 @@
                 <span class="badge" id="typeBadge">Contract</span>
             </div>
         </div>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀️</button>
         <div class="save-status" id="saveStatus">
             <span>●</span> All changes saved
         </div>
@@ -798,7 +835,7 @@
             <div class="section">
                 <div class="section-header">
                     <h3>Worker Rates for This Job</h3>
-                    <span style="color: #999; font-size: 0.85rem;">Custom rates override defaults</span>
+                    <span style="color: var(--text-secondary); font-size: 0.85rem;">Custom rates override defaults</span>
                 </div>
                 <div class="section-body">
                     <div class="worker-rates-grid" id="workerRatesGrid"></div>
@@ -808,7 +845,7 @@
             <div class="section">
                 <div class="section-header">
                     <h3>Payroll Labor</h3>
-                    <span style="color: #999; font-size: 0.85rem;">Auto-pulled from timesheet</span>
+                    <span style="color: var(--text-secondary); font-size: 0.85rem;">Auto-pulled from timesheet</span>
                 </div>
                 <div class="section-body">
                     <div id="laborWeeks">
@@ -878,7 +915,7 @@
         <div class="tab-content" id="summaryTab">
             <div class="summary-section">
                 <div class="summary-breakdown">
-                    <h3 style="color: #f97316; margin-bottom: 16px;">Cost Breakdown</h3>
+                    <h3 style="color: var(--accent); margin-bottom: 16px;">Cost Breakdown</h3>
                     <div class="summary-line">
                         <span class="label">Payroll Labor</span>
                         <span class="value" id="sumPayrollLabor">$0</span>
@@ -1220,7 +1257,7 @@
             const draws = currentJob.draws || [];
             
             if (draws.length === 0) {
-                container.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No draws recorded yet</div>';
+                container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">No draws recorded yet</div>';
             } else {
                 container.innerHTML = draws.map((draw, i) => `
                     <div class="draw-item">
@@ -1315,7 +1352,7 @@
             });
             
             if (weeksWithData.length === 0) {
-                container.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No payroll hours found for this job</div>';
+                container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">No payroll hours found for this job</div>';
             } else {
                 container.innerHTML = weeksWithData.map((week, i) => {
                     const weekStart = new Date(week.weekKey + 'T00:00:00');
@@ -1346,7 +1383,7 @@
             days.forEach(d => Object.keys(dayData[d]).forEach(w => workersInWeek.add(w)));
             const workerList = Array.from(workersInWeek);
             
-            if (workerList.length === 0) return '<div style="color:#666;padding:10px;">No data</div>';
+            if (workerList.length === 0) return '<div style="color: var(--text-muted);padding:10px;">No data</div>';
             
             let html = '<div class="labor-grid" style="grid-template-columns: 80px repeat(' + workerList.length + ', 1fr);">';
             
@@ -1387,7 +1424,7 @@
             const items = currentJob.additionalLabor || [];
             
             if (items.length === 0) {
-                container.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No additional labor items</div>';
+                container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">No additional labor items</div>';
             } else {
                 container.innerHTML = items.map((item, i) => `
                     <div class="line-item">
@@ -1481,7 +1518,7 @@
             const items = currentJob.materials || [];
             
             if (items.length === 0) {
-                container.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No materials added</div>';
+                container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">No materials added</div>';
             } else {
                 container.innerHTML = items.map((item, i) => `
                     <div class="line-item">
@@ -2176,6 +2213,31 @@
         document.getElementById('deleteModal').addEventListener('click', function(e) {
             if (e.target === this) closeDeleteModal();
         });
+    </script>
+
+    <script>
+    (function(){
+        function initTheme(){
+            const s=localStorage.getItem('spencers-theme');
+            if(s)document.documentElement.setAttribute('data-theme',s);
+            updateIcon();
+        }
+        window.toggleTheme=function(){
+            const c=document.documentElement.getAttribute('data-theme');
+            const n=c==='light'?'dark':'light';
+            document.documentElement.setAttribute('data-theme',n);
+            localStorage.setItem('spencers-theme',n);
+            updateIcon();
+        };
+        function updateIcon(){
+            const b=document.getElementById('themeToggle');
+            if(b){
+                const t=document.documentElement.getAttribute('data-theme');
+                b.textContent=t==='light'?'🌙':'☀️';
+            }
+        }
+        initTheme();
+    })();
     </script>
 </body>
 </html>
