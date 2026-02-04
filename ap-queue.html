@@ -1,1 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spencer's Masonry - AP Queue</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a1a; --bg-secondary: #2d2d2d; --bg-tertiary: #353535;
+            --bg-card: #2d2d2d; --bg-input: #1a1a1a; --text-primary: #ffffff;
+            --text-secondary: #999999; --text-muted: #666666; --border-color: #404040;
+            --border-light: #353535; --accent: #f97316; --accent-hover: #ea580c;
+            --success: #16a34a; --danger: #dc2626; --warning: #eab308;
+            --info: #3b82f6; --purple: #a78bfa; --pink: #f472b6;
+            --card-shadow: rgba(0,0,0,0.3);
+        }
+        [data-theme="light"] {
+            --bg-primary: #f5f5f5; --bg-secondary: #ffffff; --bg-tertiary: #fafafa;
+            --bg-card: #ffffff; --bg-input: #ffffff; --text-primary: #1a1a1a;
+            --text-secondary: #666666; --text-muted: #999999; --border-color: #e0e0e0;
+            --border-light: #eeeeee; --card-shadow: rgba(0,0,0,0.1);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-primary); min-height: 100vh; color: var(--text-primary); transition: background 0.3s, color 0.3s; }
+        .theme-toggle { position: fixed; bottom: 20px; right: 20px; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; z-index: 100; transition: all 0.2s; box-shadow: 0 2px 10px var(--card-shadow); }
+        .theme-toggle:hover { border-color: var(--accent); transform: scale(1.1); }
+        .header { background: #f97316; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header h1 { font-size: 1.1rem; color: white; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-back { background: rgba(255,255,255,0.2); color: white; padding: 8px 16px; font-size: 0.85rem; }
+        .btn-back:hover { background: rgba(255,255,255,0.3); }
+        .btn-primary { background: #f97316; color: white; }
+        .btn-primary:hover { background: #ea580c; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { border-color: var(--accent); }
+        .btn-success { background: #16a34a; color: white; }
+        .btn-success:hover { background: #15803d; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+        .main-content { padding: 24px; max-width: 1000px; margin: 0 auto; }
+
+        .summary-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
+        .summary-card { background: var(--bg-secondary); padding: 14px 18px; border-radius: 10px; border: 1px solid var(--border-color); }
+        .summary-card .label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 4px; }
+        .summary-card .value { font-size: 1.3rem; font-weight: 700; }
+        .summary-card .value.orange { color: var(--accent); }
+        .summary-card .value.green { color: var(--success); }
+        .summary-card .value.pink { color: var(--pink); }
+
+        .filter-tabs { display: flex; gap: 4px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px; }
+        .filter-tab { padding: 10px 20px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .filter-tab:hover { border-color: var(--accent); color: var(--text-primary); }
+        .filter-tab.active { background: var(--accent); border-color: var(--accent); color: white; }
+        .filter-tab .count { background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; margin-left: 6px; }
+
+        .queue-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .queue-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px 22px; transition: all 0.2s; }
+        .queue-card:hover { border-color: var(--accent); }
+        .queue-card.urgent { border-left: 4px solid var(--danger); }
+        .queue-card.low-pri { border-left: 4px solid var(--text-muted); }
+
+        .queue-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 12px; flex-wrap: wrap; }
+        .queue-top-left { display: flex; flex-direction: column; gap: 4px; }
+        .queue-bill-name { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .queue-payee { font-size: 0.85rem; color: var(--text-secondary); }
+        .queue-submitted { font-size: 0.8rem; color: var(--text-muted); }
+        .queue-amount { font-size: 1.4rem; font-weight: 800; color: var(--pink); }
+
+        .priority-badge { display: inline-block; font-size: 0.6rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .priority-badge.urgent { background: rgba(220,38,38,0.2); color: var(--danger); }
+        .priority-badge.normal { background: rgba(59,130,246,0.2); color: var(--info); }
+        .priority-badge.low { background: rgba(107,114,128,0.2); color: #9ca3af; }
+
+        .status-badge { display: inline-block; font-size: 0.6rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; }
+        .status-badge.pending { background: rgba(234,179,8,0.2); color: var(--warning); }
+        .status-badge.approved { background: rgba(59,130,246,0.2); color: var(--info); }
+        .status-badge.paid { background: rgba(22,163,74,0.2); color: var(--success); }
+        .status-badge.rejected { background: rgba(220,38,38,0.2); color: var(--danger); }
+
+        .queue-instructions { font-size: 0.85rem; color: var(--text-secondary); padding: 8px 12px; background: var(--bg-primary); border-radius: 6px; margin: 10px 0; border-left: 3px solid var(--accent); }
+        .queue-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+
+        .no-items { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .no-items .icon { font-size: 3rem; margin-bottom: 16px; }
+        .no-items h3 { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 8px; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: var(--bg-secondary); border-radius: 16px; width: 100%; max-width: 480px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border-color); }
+        .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-tertiary); }
+        .modal-header h3 { font-size: 1.1rem; color: var(--accent); }
+        .modal-close { background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; }
+        .modal-close:hover { color: var(--text-primary); }
+        .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+        .modal-footer { padding: 16px 20px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; justify-content: flex-end; background: var(--bg-tertiary); }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px; font-weight: 500; }
+        .form-group input, .form-group select { width: 100%; padding: 12px 14px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-input); color: var(--text-primary); font-size: 0.95rem; transition: border-color 0.2s; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #16a34a; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 600; opacity: 0; transition: opacity 0.3s; z-index: 200; }
+        .toast.error { background: #dc2626; }
+        .toast.show { opacity: 1; }
+
+        @media (max-width: 768px) { .header { padding: 12px 16px; } .main-content { padding: 16px; } .queue-top { flex-direction: column; } .form-row { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">&#9728;&#65039;</button>
+
+    <header class="header">
+        <div class="header-left">
+            <a href="index.html" class="btn btn-back">&larr; Menu</a>
+            <h1>&#128203; Accounts Payable</h1>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <div class="summary-bar">
+            <div class="summary-card"><div class="label">Pending</div><div class="value orange" id="pendingCount">0</div></div>
+            <div class="summary-card"><div class="label">Pending Total</div><div class="value pink" id="pendingTotal">$0</div></div>
+            <div class="summary-card"><div class="label">Paid This Month</div><div class="value green" id="paidMonth">$0</div></div>
+            <div class="summary-card"><div class="label">Urgent</div><div class="value orange" id="urgentCount">0</div></div>
+        </div>
+
+        <div class="filter-tabs" id="filterTabs">
+            <button class="filter-tab active" data-filter="pending">Pending <span class="count" id="countPending">0</span></button>
+            <button class="filter-tab" data-filter="approved">Approved <span class="count" id="countApproved">0</span></button>
+            <button class="filter-tab" data-filter="paid">Paid <span class="count" id="countPaid">0</span></button>
+            <button class="filter-tab" data-filter="rejected">Rejected <span class="count" id="countRejected">0</span></button>
+            <button class="filter-tab" data-filter="all">All <span class="count" id="countAll">0</span></button>
+        </div>
+
+        <div class="queue-list" id="queueList"></div>
+    </div>
+
+    <!-- Action Modal -->
+    <div class="modal-overlay" id="actionModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Process Payment</h3>
+                <button class="modal-close" onclick="closeActionModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="actionQueueId">
+                <div id="actionBillSummary" style="margin-bottom:16px;padding:12px;background:var(--bg-primary);border-radius:8px;"></div>
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select id="actionMethod" onchange="toggleCheckFields()">
+                        <option value="check">Print Check</option>
+                        <option value="online">Paid Online</option>
+                        <option value="transfer">Bank Transfer</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div id="actionCheckFields">
+                    <div class="form-row">
+                        <div class="form-group"><label>Check #</label><input type="number" id="actionCheckNum" placeholder="Auto"></div>
+                        <div class="form-group"><label>Date</label><input type="date" id="actionDate"></div>
+                    </div>
+                </div>
+                <div class="form-group"><label>Amount</label><input type="number" id="actionAmount" step="0.01"></div>
+                <div class="form-group"><label>Notes</label><input type="text" id="actionNotes" placeholder="Optional"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeActionModal()">Cancel</button>
+                <button class="btn btn-success" onclick="completePayment()">Mark Paid</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+    const AP_KEY = 'spencers-ap';
+    const CAL_KEY = 'spencers-calendar';
+    const CHECK_NUM_KEY = 'spencers-check-num';
+
+    function loadAP() { try { return JSON.parse(localStorage.getItem(AP_KEY)) || { queue: [] }; } catch { return { queue: [] }; } }
+    function saveAP(d) { localStorage.setItem(AP_KEY, JSON.stringify(d)); }
+    function loadCalData() { try { return JSON.parse(localStorage.getItem(CAL_KEY)) || { bills:[], pours:[], jobsites:[] }; } catch { return { bills:[], pours:[], jobsites:[] }; } }
+    function saveCalData(d) { localStorage.setItem(CAL_KEY, JSON.stringify(d)); }
+    function getNextCheckNum() { return parseInt(localStorage.getItem(CHECK_NUM_KEY)) || 1001; }
+    function incrementCheckNum() { let n = getNextCheckNum(); localStorage.setItem(CHECK_NUM_KEY, String(n+1)); return n; }
+
+    let apData = loadAP();
+    let currentFilter = 'pending';
+
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            currentFilter = tab.dataset.filter;
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            renderQueue();
+        });
+    });
+
+    function renderQueue() {
+        const list = document.getElementById('queueList');
+        const q = apData.queue || [];
+
+        const pending = q.filter(i => i.status === 'pending');
+        const approved = q.filter(i => i.status === 'approved');
+        const paid = q.filter(i => i.status === 'paid');
+        const rejected = q.filter(i => i.status === 'rejected');
+
+        document.getElementById('countPending').textContent = pending.length;
+        document.getElementById('countApproved').textContent = approved.length;
+        document.getElementById('countPaid').textContent = paid.length;
+        document.getElementById('countRejected').textContent = rejected.length;
+        document.getElementById('countAll').textContent = q.length;
+
+        document.getElementById('pendingCount').textContent = pending.length;
+        document.getElementById('pendingTotal').textContent = '$' + pending.reduce((s,i) => s+(i.amount||0), 0).toLocaleString('en-US',{minimumFractionDigits:2});
+        document.getElementById('urgentCount').textContent = pending.filter(i => i.priority === 'urgent').length;
+
+        const now = new Date();
+        const monthPaid = paid.filter(i => { const d = new Date(i.paidAt || i.submittedAt); return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear(); });
+        document.getElementById('paidMonth').textContent = '$' + monthPaid.reduce((s,i) => s+(i.paidAmount||i.amount||0), 0).toLocaleString('en-US',{minimumFractionDigits:2});
+
+        let filtered = currentFilter === 'all' ? [...q] : q.filter(i => i.status === currentFilter);
+        filtered.sort((a,b) => {
+            if (a.priority === 'urgent' && b.priority !== 'urgent') return -1;
+            if (b.priority === 'urgent' && a.priority !== 'urgent') return 1;
+            return new Date(b.submittedAt) - new Date(a.submittedAt);
+        });
+
+        if (filtered.length === 0) {
+            list.innerHTML = '<div class="no-items"><div class="icon">&#128203;</div><h3>No items</h3><p>Bills sent from the Calendar will appear here for processing.</p></div>';
+            return;
+        }
+
+        list.innerHTML = filtered.map(item => {
+            const submitted = new Date(item.submittedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+            const payee = item.payee?.name || item.billName;
+            return `
+            <div class="queue-card ${item.priority==='urgent'?'urgent':''} ${item.priority==='low'?'low-pri':''}">
+                <div class="queue-top">
+                    <div class="queue-top-left">
+                        <div class="queue-bill-name">
+                            ${item.billName}
+                            <span class="priority-badge ${item.priority}">${item.priority}</span>
+                            <span class="status-badge ${item.status}">${item.status}</span>
+                        </div>
+                        <div class="queue-payee">Payee: ${payee}${item.payee?.account?' &middot; Acct: '+item.payee.account:''}</div>
+                        <div class="queue-submitted">Submitted ${submitted} by ${item.submittedBy||'&mdash;'}</div>
+                    </div>
+                    <div class="queue-amount">$${(item.amount||0).toLocaleString('en-US',{minimumFractionDigits:2})}</div>
+                </div>
+                ${item.instructions?'<div class="queue-instructions">&#128221; '+item.instructions+'</div>':''}
+                ${item.paidNote?'<div class="queue-instructions" style="border-left-color:var(--success);">&#9989; '+item.paidNote+'</div>':''}
+                <div class="queue-actions">
+                    ${item.status==='pending'?`
+                        <button class="btn btn-success btn-sm" onclick="openActionModal('${item.id}')">&#128176; Pay</button>
+                        <button class="btn btn-primary btn-sm" onclick="updateStatus('${item.id}','approved')">&#128077; Approve</button>
+                        <button class="btn btn-danger btn-sm" onclick="updateStatus('${item.id}','rejected')">&#10005; Reject</button>
+                    `:''}
+                    ${item.status==='approved'?`
+                        <button class="btn btn-success btn-sm" onclick="openActionModal('${item.id}')">&#128176; Pay Now</button>
+                        <button class="btn btn-danger btn-sm" onclick="updateStatus('${item.id}','rejected')">&#10005; Reject</button>
+                    `:''}
+                    ${item.status==='paid'?`<button class="btn btn-secondary btn-sm" onclick="viewBill(${item.billIdx})">View Bill</button>`:''}
+                    ${item.status==='rejected'?`<button class="btn btn-secondary btn-sm" onclick="updateStatus('${item.id}','pending')">&#8617; Reopen</button>`:''}
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function updateStatus(id, status) {
+        const idx = apData.queue.findIndex(i => i.id === id);
+        if (idx === -1) return;
+        apData.queue[idx].status = status;
+        if (status === 'approved') apData.queue[idx].approvedAt = new Date().toISOString();
+        saveAP(apData);
+        renderQueue();
+        showToast(status.charAt(0).toUpperCase() + status.slice(1) + '!');
+    }
+
+    function openActionModal(id) {
+        const item = apData.queue.find(i => i.id === id);
+        if (!item) return;
+        document.getElementById('actionQueueId').value = id;
+        document.getElementById('actionAmount').value = item.amount || '';
+        document.getElementById('actionDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('actionCheckNum').value = getNextCheckNum();
+        document.getElementById('actionNotes').value = '';
+        const payee = item.payee?.name || item.billName;
+        document.getElementById('actionBillSummary').innerHTML = `
+            <div style="font-weight:600;font-size:1rem;margin-bottom:4px;">${item.billName}</div>
+            <div style="font-size:0.85rem;color:var(--text-secondary);">Payee: ${payee}</div>
+            ${item.instructions?'<div style="font-size:0.85rem;color:var(--accent);margin-top:4px;">'+item.instructions+'</div>':''}`;
+        toggleCheckFields();
+        document.getElementById('actionModal').classList.add('show');
+    }
+
+    function closeActionModal() { document.getElementById('actionModal').classList.remove('show'); }
+    document.getElementById('actionModal').addEventListener('click', function(e) { if (e.target === this) closeActionModal(); });
+
+    function toggleCheckFields() {
+        document.getElementById('actionCheckFields').style.display = document.getElementById('actionMethod').value === 'check' ? 'block' : 'none';
+    }
+
+    function completePayment() {
+        const id = document.getElementById('actionQueueId').value;
+        const idx = apData.queue.findIndex(i => i.id === id);
+        if (idx === -1) return;
+
+        const item = apData.queue[idx];
+        const method = document.getElementById('actionMethod').value;
+        const amount = parseFloat(document.getElementById('actionAmount').value) || 0;
+        const notes = document.getElementById('actionNotes').value.trim();
+
+        item.status = 'paid';
+        item.paidAt = new Date().toISOString();
+        item.paidMethod = method;
+        item.paidAmount = amount;
+
+        if (method === 'check') {
+            let checkNum = parseInt(document.getElementById('actionCheckNum').value) || getNextCheckNum();
+            item.checkNumber = checkNum;
+            item.paidNote = 'Check #' + checkNum + (notes ? ' — ' + notes : '');
+            localStorage.setItem(CHECK_NUM_KEY, String(checkNum + 1));
+        } else {
+            item.paidNote = 'Paid via ' + method + (notes ? ' — ' + notes : '');
+        }
+
+        saveAP(apData);
+
+        // Sync to calendar bill payment history
+        const calData = loadCalData();
+        if (item.billIdx !== undefined && calData.bills[item.billIdx]) {
+            if (!calData.bills[item.billIdx].payments) calData.bills[item.billIdx].payments = [];
+            calData.bills[item.billIdx].payments.push({
+                method: method, amount: amount, date: new Date().toISOString().split('T')[0],
+                checkNumber: item.checkNumber || null, status: 'paid', queueId: item.id,
+                processedBy: 'Accountant', timestamp: new Date().toISOString()
+            });
+            const pendingEntry = calData.bills[item.billIdx].payments.find(p => p.queueId === item.id && p.status === 'pending');
+            if (pendingEntry) pendingEntry.status = 'paid';
+            saveCalData(calData);
+        }
+
+        closeActionModal();
+        renderQueue();
+        showToast('Payment recorded!');
+    }
+
+    function viewBill(billIdx) { window.location.href = 'bill.html?bill=' + billIdx; }
+
+    function showToast(msg, isError) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = 'toast' + (isError ? ' error' : '');
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    renderQueue();
+    </script>
+    <script>
+    (function(){
+        function initTheme(){ const s=localStorage.getItem('spencers-theme'); if(s)document.documentElement.setAttribute('data-theme',s); updateIcon(); }
+        window.toggleTheme=function(){ const c=document.documentElement.getAttribute('data-theme'); const n=c==='light'?'dark':'light'; document.documentElement.setAttribute('data-theme',n); localStorage.setItem('spencers-theme',n); updateIcon(); };
+        function updateIcon(){ const b=document.querySelector('.theme-toggle'); if(b){ const t=document.documentElement.getAttribute('data-theme'); b.textContent=t==='light'?'\uD83C\uDF19':'\u2600\uFE0F'; } }
+        initTheme();
+    })();
+    </script>
+</body>
+</html>
 
