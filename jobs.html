@@ -5,12 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spencer's Masonry - Jobs</title>
     <style>
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #353535;
+            --bg-card: #2d2d2d;
+            --bg-input: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #999999;
+            --text-muted: #666666;
+            --border-color: #404040;
+            --border-light: #353535;
+            --accent: #f97316;
+            --accent-hover: #ea580c;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #eab308;
+            --card-shadow: rgba(0,0,0,0.3);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #fafafa;
+            --bg-card: #ffffff;
+            --bg-input: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --border-color: #e0e0e0;
+            --border-light: #eeeeee;
+            --card-shadow: rgba(0,0,0,0.1);
+        }
+
+        .theme-toggle { 
+            position: fixed; 
+            bottom: 20px; 
+            right: 20px; 
+            background: var(--bg-secondary); 
+            border: 1px solid var(--border-color); 
+            color: var(--text-primary); 
+            width: 44px; 
+            height: 44px; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            font-size: 1.2rem; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 100; 
+            transition: all 0.2s; 
+            box-shadow: 0 2px 10px var(--card-shadow); 
+        }
+        .theme-toggle:hover { border-color: var(--accent); transform: scale(1.1); }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #1a1a1a;
+            background: var(--bg-primary);
             min-height: 100vh;
-            color: #ffffff;
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
         }
 
         .header {
@@ -86,7 +141,7 @@
 
         .page-header h2 {
             font-size: 1.3rem;
-            color: #f97316;
+            color: var(--accent);
         }
 
         .filter-tabs {
@@ -99,18 +154,18 @@
 
         .filter-tab {
             padding: 10px 20px;
-            background: #2d2d2d;
-            border: 1px solid #404040;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            color: #999;
+            color: var(--text-secondary);
             font-size: 0.9rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
         }
 
-        .filter-tab:hover { border-color: #f97316; color: #fff; }
-        .filter-tab.active { background: #f97316; border-color: #f97316; color: white; }
+        .filter-tab:hover { border-color: var(--accent); color: var(--text-primary); }
+        .filter-tab.active { background: var(--accent); border-color: var(--accent); color: white; }
 
         .filter-tab .count {
             background: rgba(255,255,255,0.2);
@@ -127,8 +182,8 @@
         }
 
         .job-card {
-            background: #2d2d2d;
-            border: 1px solid #404040;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 16px 20px;
             display: grid;
@@ -139,8 +194,8 @@
         }
 
         .job-card:hover {
-            border-color: #f97316;
-            background: #353535;
+            border-color: var(--accent);
+            background: var(--bg-tertiary);
             transform: translateX(4px);
         }
 
@@ -149,7 +204,7 @@
         .job-name {
             font-size: 1.1rem;
             font-weight: 600;
-            color: #fff;
+            color: var(--text-primary);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -175,12 +230,12 @@
 
         .job-client {
             font-size: 0.85rem;
-            color: #999;
+            color: var(--text-secondary);
         }
 
         .job-meta {
             font-size: 0.8rem;
-            color: #666;
+            color: var(--text-muted);
             display: flex;
             gap: 16px;
             flex-wrap: wrap;
@@ -197,12 +252,12 @@
         .job-total {
             font-size: 1.3rem;
             font-weight: 700;
-            color: #f97316;
+            color: var(--accent);
         }
 
         .job-labor {
             font-size: 0.85rem;
-            color: #16a34a;
+            color: var(--success);
         }
 
         .job-balance {
@@ -216,21 +271,21 @@
 
         .job-sf {
             font-size: 0.8rem;
-            color: #999;
+            color: var(--text-secondary);
         }
 
         .job-arrow {
-            color: #666;
+            color: var(--text-muted);
             font-size: 1.2rem;
             align-self: center;
         }
 
-        .job-card:hover .job-arrow { color: #f97316; }
+        .job-card:hover .job-arrow { color: var(--accent); }
 
         .no-jobs {
             text-align: center;
             padding: 60px 20px;
-            color: #666;
+            color: var(--text-muted);
         }
 
         .no-jobs-icon {
@@ -240,7 +295,7 @@
 
         .no-jobs h3 {
             font-size: 1.1rem;
-            color: #999;
+            color: var(--text-secondary);
             margin-bottom: 8px;
         }
 
@@ -264,7 +319,7 @@
         .modal-overlay.show { display: flex; }
 
         .modal {
-            background: #2d2d2d;
+            background: var(--bg-secondary);
             border-radius: 16px;
             width: 100%;
             max-width: 500px;
@@ -272,21 +327,21 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            border: 1px solid #404040;
+            border: 1px solid var(--border-color);
         }
 
         .modal-header {
             padding: 16px 20px;
-            border-bottom: 1px solid #404040;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #353535;
+            background: var(--bg-tertiary);
         }
 
-        .modal-header h3 { font-size: 1.1rem; color: #f97316; }
-        .modal-close { background: none; border: none; color: #999; font-size: 1.5rem; cursor: pointer; }
-        .modal-close:hover { color: #fff; }
+        .modal-header h3 { font-size: 1.1rem; color: var(--accent); }
+        .modal-close { background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; }
+        .modal-close:hover { color: var(--text-primary); }
 
         .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
 
@@ -295,7 +350,7 @@
         .form-group label {
             display: block;
             font-size: 0.85rem;
-            color: #999;
+            color: var(--text-secondary);
             margin-bottom: 6px;
             font-weight: 500;
         }
@@ -305,10 +360,10 @@
         .form-group textarea {
             width: 100%;
             padding: 12px 14px;
-            border: 1px solid #404040;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            background: #1a1a1a;
-            color: #fff;
+            background: var(--bg-input);
+            color: var(--text-primary);
             font-size: 0.95rem;
             transition: border-color 0.2s;
         }
@@ -317,11 +372,11 @@
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #f97316;
+            border-color: var(--accent);
         }
 
         .form-group input::placeholder,
-        .form-group textarea::placeholder { color: #525252; }
+        .form-group textarea::placeholder { color: var(--text-muted); }
 
         .form-group textarea { resize: vertical; min-height: 80px; }
 
@@ -333,7 +388,7 @@
 
         .form-hint {
             font-size: 0.75rem;
-            color: #666;
+            color: var(--text-muted);
             margin-top: 4px;
         }
 
@@ -347,11 +402,11 @@
 
         .modal-footer {
             padding: 16px 20px;
-            border-top: 1px solid #404040;
+            border-top: 1px solid var(--border-color);
             display: flex;
             gap: 12px;
             justify-content: flex-end;
-            background: #353535;
+            background: var(--bg-tertiary);
         }
 
         .toast {
@@ -380,16 +435,16 @@
         }
 
         .summary-card {
-            background: #2d2d2d;
+            background: var(--bg-secondary);
             padding: 14px 18px;
             border-radius: 10px;
-            border: 1px solid #404040;
+            border: 1px solid var(--border-color);
         }
 
-        .summary-card .label { font-size: 0.75rem; color: #999; text-transform: uppercase; margin-bottom: 4px; }
+        .summary-card .label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 4px; }
         .summary-card .value { font-size: 1.3rem; font-weight: 700; }
-        .summary-card .value.orange { color: #f97316; }
-        .summary-card .value.green { color: #16a34a; }
+        .summary-card .value.orange { color: var(--accent); }
+        .summary-card .value.green { color: var(--success); }
         .summary-card .value.purple { color: #a78bfa; }
         .summary-card .value.pink { color: #f472b6; }
 
@@ -404,6 +459,8 @@
     </style>
 </head>
 <body>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀️</button>
+    
     <header class="header">
         <div class="header-left">
             <a href="index.html" class="btn btn-back">← Menu</a>
@@ -910,6 +967,30 @@
             if (e.target === this) closeModal();
         });
     </script>
+
+    <script>
+    (function(){
+        function initTheme(){
+            const s=localStorage.getItem('spencers-theme');
+            if(s)document.documentElement.setAttribute('data-theme',s);
+            updateIcon();
+        }
+        window.toggleTheme=function(){
+            const c=document.documentElement.getAttribute('data-theme');
+            const n=c==='light'?'dark':'light';
+            document.documentElement.setAttribute('data-theme',n);
+            localStorage.setItem('spencers-theme',n);
+            updateIcon();
+        };
+        function updateIcon(){
+            const b=document.querySelector('.theme-toggle');
+            if(b){
+                const t=document.documentElement.getAttribute('data-theme');
+                b.textContent=t==='light'?'🌙':'☀️';
+            }
+        }
+        initTheme();
+    })();
+    </script>
 </body>
 </html>
-
