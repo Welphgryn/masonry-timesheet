@@ -738,17 +738,16 @@
     </header>
 
     <div class="tabs">
-        <button class="tab active" data-tab="summary">Summary</button>
-        <button class="tab" data-tab="info">Job Info</button>
+        <button class="tab active" data-tab="info">Job Info</button>
         <button class="tab" data-tab="labor">Labor</button>
         <button class="tab" data-tab="equipment">Equipment</button>
         <button class="tab" data-tab="materials">Materials</button>
-
+        <button class="tab" data-tab="summary">Summary</button>
     </div>
 
     <div class="main-content">
         <!-- Job Info Tab -->
-        <div class="tab-content" id="infoTab">
+        <div class="tab-content active" id="infoTab">
             <div class="section">
                 <div class="section-header">
                     <h3>Job Details</h3>
@@ -913,7 +912,7 @@
         </div>
 
         <!-- Summary Tab -->
-        <div class="tab-content active" id="summaryTab">
+        <div class="tab-content" id="summaryTab">
             <div class="summary-section">
                 <div class="summary-breakdown">
                     <h3 style="color: var(--accent); margin-bottom: 16px;">Cost Breakdown</h3>
