@@ -1893,27 +1893,6 @@
             
             y += 25;
             
-            // Balance Due
-            let balanceLabel, balanceValue;
-            if (currentJob.jobType === 'contract') {
-                balanceLabel = 'REMAINING BALANCE';
-                balanceValue = (currentJob.contractAmount || 0) - totalDraws;
-            } else {
-                balanceLabel = 'AMOUNT OWED';
-                balanceValue = Math.round(total) - totalDraws;
-            }
-            
-            doc.setFillColor(245, 245, 245);
-            doc.roundedRect(margin, y, contentWidth, 20, 3, 3, 'F');
-            doc.setTextColor(...lightGray);
-            doc.setFontSize(9);
-            doc.setFont('helvetica', 'normal');
-            doc.text(balanceLabel, margin + 8, y + 8);
-            doc.setTextColor(currentJob.jobType === 'contract' ? 167 : 244, currentJob.jobType === 'contract' ? 139 : 114, currentJob.jobType === 'contract' ? 250 : 182);
-            doc.setFontSize(14);
-            doc.setFont('helvetica', 'bold');
-            doc.text('$' + balanceValue.toLocaleString(), margin + 8, y + 16);
-            
             // Footer on page 1
             doc.setTextColor(...lightGray);
             doc.setFontSize(8);
