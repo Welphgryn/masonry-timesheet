@@ -1058,6 +1058,11 @@
         let jobId = null;
         let saveTimeout = null;
 
+        // Format money with 2 decimal places
+        function fmtMoney(n) {
+            return '$' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
         // Get job ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         jobId = urlParams.get('id');
@@ -1293,7 +1298,7 @@
 
         function updateDrawTotals() {
             const totalDraws = (currentJob.draws || []).reduce((sum, d) => sum + (d.amount || 0), 0);
-            document.getElementById('totalDraws').textContent = '$' + totalDraws.toLocaleString();
+            document.getElementById('totalDraws').textContent = fmtMoney(totalDraws);
             
             const balanceBox = document.getElementById('balanceBox');
             const balanceLabel = document.getElementById('balanceLabel');
@@ -1303,13 +1308,13 @@
                 const balance = (currentJob.contractAmount || 0) - totalDraws;
                 balanceBox.className = 'balance-box contract';
                 balanceLabel.textContent = 'Remaining Balance';
-                balanceValue.textContent = '$' + balance.toLocaleString();
+                balanceValue.textContent = fmtMoney(balance);
             } else {
                 const jobTotal = calculateJobTotal();
                 const owed = jobTotal - totalDraws;
                 balanceBox.className = 'balance-box hourly';
                 balanceLabel.textContent = 'Amount Owed';
-                balanceValue.textContent = '$' + owed.toLocaleString();
+                balanceValue.textContent = fmtMoney(owed);
             }
         }
 
@@ -1363,21 +1368,21 @@
                         <div class="week-block">
                             <div class="week-header" onclick="toggleWeek(${i})">
                                 <span class="week-title">${formatDateShort(weekStart)} - ${formatDateShort(weekEnd)}</span>
-                                <span class="week-total">$${week.weekTotal.toLocaleString()}</span>
+                                <span class="week-total">${fmtMoney(week.weekTotal)}</span>
                             </div>
                             <div class="week-body" id="weekBody${i}">
-                                ${renderWeekGrid(week.dayData)}
+                                ${renderWeekGrid(week.dayData, week.weekKey, payrollKey)}
                             </div>
                         </div>
                     `;
                 }).join('');
             }
             
-            document.getElementById('totalPayrollLabor').textContent = '$' + totalPayrollLabor.toLocaleString();
+            document.getElementById('totalPayrollLabor').textContent = fmtMoney(totalPayrollLabor);
             updateLaborTotals();
         }
 
-        function renderWeekGrid(dayData) {
+        function renderWeekGrid(dayData, weekKey, payrollKey) {
             const days = Object.keys(dayData).sort();
             const workersInWeek = new Set();
             days.forEach(d => Object.keys(dayData[d]).forEach(w => workersInWeek.add(w)));
@@ -1399,6 +1404,12 @@
                     const data = dayData[dayKey][w];
                     html += `<div class="labor-cell">${data ? data.hours : '-'}</div>`;
                 });
+
+                // Check for notes on this day for this job
+                const dayNote = allData._notes && allData._notes[weekKey] && allData._notes[weekKey][dayKey] && allData._notes[weekKey][dayKey][payrollKey];
+                if (dayNote) {
+                    html += `<div class="labor-cell day-label" style="grid-column: 1 / -1; color: var(--accent); font-size: 0.75rem; font-style: italic; padding: 4px 10px; background: rgba(249,115,22,0.08); border-left: 3px solid var(--accent);">📝 ${dayNote}</div>`;
+                }
             });
             
             // Totals
@@ -1461,8 +1472,8 @@
         function updateLaborTotals() {
             const payrollLabor = parseFloat(document.getElementById('totalPayrollLabor').textContent.replace(/[$,]/g, '')) || 0;
             const additionalLabor = (currentJob.additionalLabor || []).reduce((sum, i) => sum + (i.amount || 0), 0);
-            document.getElementById('totalAdditionalLabor').textContent = '$' + additionalLabor.toLocaleString();
-            document.getElementById('totalAllLabor').textContent = '$' + (payrollLabor + additionalLabor).toLocaleString();
+            document.getElementById('totalAdditionalLabor').textContent = fmtMoney(additionalLabor);
+            document.getElementById('totalAllLabor').textContent = fmtMoney(payrollLabor + additionalLabor);
         }
 
         // Equipment
@@ -1487,7 +1498,7 @@
                         <span class="equipment-name">${eq.name}</span>
                         <span class="equipment-rate">$${eq.rate}/hr</span>
                         <input type="number" value="${hours || ''}" placeholder="0" onchange="updateEquipment('${eq.name}', this.value)">
-                        <span class="equipment-total">$${total.toLocaleString()}</span>
+                        <span class="equipment-total">${fmtMoney(total)}</span>
                     </div>
                 `;
             });
@@ -1509,7 +1520,7 @@
                 const hours = (currentJob.equipment || {})[eq.name] || 0;
                 total += hours * eq.rate;
             });
-            document.getElementById('totalEquipment').textContent = '$' + total.toLocaleString();
+            document.getElementById('totalEquipment').textContent = fmtMoney(total);
         }
 
         // Materials
@@ -1554,7 +1565,7 @@
 
         function updateMaterialsTotal() {
             const total = (currentJob.materials || []).reduce((sum, i) => sum + (i.amount || 0), 0);
-            document.getElementById('totalMaterials').textContent = '$' + total.toLocaleString();
+            document.getElementById('totalMaterials').textContent = fmtMoney(total);
         }
 
         // Summary
@@ -1572,26 +1583,26 @@
             const tax = subtotal3 * ((currentJob.geTaxPercent || 4.712) / 100);
             const total = subtotal3 + tax;
             
-            document.getElementById('sumPayrollLabor').textContent = '$' + payrollLabor.toLocaleString();
-            document.getElementById('sumAdditionalLabor').textContent = '$' + additionalLabor.toLocaleString();
-            document.getElementById('sumEquipment').textContent = '$' + equipmentTotal.toLocaleString();
-            document.getElementById('sumMaterials').textContent = '$' + materialsTotal.toLocaleString();
-            document.getElementById('sumSubtotal1').textContent = '$' + subtotal1.toLocaleString();
+            document.getElementById('sumPayrollLabor').textContent = fmtMoney(payrollLabor);
+            document.getElementById('sumAdditionalLabor').textContent = fmtMoney(additionalLabor);
+            document.getElementById('sumEquipment').textContent = fmtMoney(equipmentTotal);
+            document.getElementById('sumMaterials').textContent = fmtMoney(materialsTotal);
+            document.getElementById('sumSubtotal1').textContent = fmtMoney(subtotal1);
             document.getElementById('overheadPct').textContent = currentJob.overheadPercent || 18;
-            document.getElementById('sumOverhead').textContent = '$' + Math.round(overhead).toLocaleString();
-            document.getElementById('sumSubtotal2').textContent = '$' + Math.round(subtotal2).toLocaleString();
+            document.getElementById('sumOverhead').textContent = fmtMoney(overhead);
+            document.getElementById('sumSubtotal2').textContent = fmtMoney(subtotal2);
             document.getElementById('profitPct').textContent = currentJob.profitPercent || 10;
-            document.getElementById('sumProfit').textContent = '$' + Math.round(profit).toLocaleString();
-            document.getElementById('sumSubtotal3').textContent = '$' + Math.round(subtotal3).toLocaleString();
+            document.getElementById('sumProfit').textContent = fmtMoney(profit);
+            document.getElementById('sumSubtotal3').textContent = fmtMoney(subtotal3);
             document.getElementById('taxPct').textContent = currentJob.geTaxPercent || 4.712;
-            document.getElementById('sumTax').textContent = '$' + Math.round(tax).toLocaleString();
-            document.getElementById('sumTotal').textContent = '$' + Math.round(total).toLocaleString();
+            document.getElementById('sumTax').textContent = fmtMoney(tax);
+            document.getElementById('sumTotal').textContent = fmtMoney(total);
             
             // Metrics
             const sf = currentJob.squareFootage || 0;
             document.getElementById('sumSF').value = sf;
             document.getElementById('sumCostPerSF').textContent = sf > 0 ? '$' + (total / sf).toFixed(2) : '$0.00';
-            document.getElementById('sumProfitAmount').textContent = '$' + Math.round(overhead + profit).toLocaleString();
+            document.getElementById('sumProfitAmount').textContent = fmtMoney(overhead + profit);
             
             // Balance
             const totalDraws = (currentJob.draws || []).reduce((sum, d) => sum + (d.amount || 0), 0);
@@ -1602,12 +1613,12 @@
             if (currentJob.jobType === 'contract') {
                 const balance = (currentJob.contractAmount || 0) - totalDraws;
                 balanceLabel.textContent = 'Remaining Balance';
-                balanceValue.textContent = '$' + balance.toLocaleString();
+                balanceValue.textContent = fmtMoney(balance);
                 balanceValue.className = 'value purple';
             } else {
-                const owed = Math.round(total) - totalDraws;
+                const owed = total - totalDraws;
                 balanceLabel.textContent = 'Amount Owed';
-                balanceValue.textContent = '$' + owed.toLocaleString();
+                balanceValue.textContent = fmtMoney(owed);
                 balanceValue.className = 'value pink';
             }
         }
@@ -1659,7 +1670,7 @@
             const afterProfit = afterOverhead + profit;
             const tax = afterProfit * ((currentJob.geTaxPercent || 4.712) / 100);
             
-            return Math.round(afterProfit + tax);
+            return afterProfit + tax;
         }
 
         // Report
@@ -1684,21 +1695,21 @@
             report += `+ ${currentJob.profitPercent || 10}% Profit: ${document.getElementById('sumProfit').textContent}\n`;
             report += `+ ${currentJob.geTaxPercent || 4.712}% GE Tax: ${document.getElementById('sumTax').textContent}\n\n`;
             report += `${'═'.repeat(45)}\n`;
-            report += `TOTAL DUE: $${total.toLocaleString()}\n`;
+            report += `TOTAL DUE: ${fmtMoney(total)}\n`;
             report += `${'═'.repeat(45)}\n\n`;
             
             if (sf > 0) report += `Square Footage: ${sf.toLocaleString()} SF\n`;
-            if (sf > 0) report += `Cost per SF: $${(total / sf).toFixed(2)}\n\n`;
+            if (sf > 0) report += `Cost per SF: ${fmtMoney(total / sf)}\n\n`;
             
             if (currentJob.jobType === 'contract') {
-                report += `Contract Amount: $${(currentJob.contractAmount || 0).toLocaleString()}\n`;
+                report += `Contract Amount: ${fmtMoney(currentJob.contractAmount || 0)}\n`;
             }
-            report += `Total Draws: $${totalDraws.toLocaleString()}\n`;
+            report += `Total Draws: ${fmtMoney(totalDraws)}\n`;
             
             if (currentJob.jobType === 'contract') {
-                report += `Remaining Balance: $${((currentJob.contractAmount || 0) - totalDraws).toLocaleString()}\n`;
+                report += `Remaining Balance: ${fmtMoney((currentJob.contractAmount || 0) - totalDraws)}\n`;
             } else {
-                report += `Amount Owed: $${(total - totalDraws).toLocaleString()}\n`;
+                report += `Amount Owed: ${fmtMoney(total - totalDraws)}\n`;
             }
             
             navigator.clipboard.writeText(report).then(() => showToast('Report copied!'));
@@ -1826,7 +1837,7 @@
                 }
                 doc.setFontSize(10);
                 doc.text(item.label, margin + 5, y);
-                doc.text('$' + Math.round(item.value).toLocaleString(), pageWidth - margin - 5, y, { align: 'right' });
+                doc.text(fmtMoney(item.value), pageWidth - margin - 5, y, { align: 'right' });
                 y += 8;
             });
             
@@ -1839,7 +1850,7 @@
             doc.setFontSize(14);
             doc.setFont('helvetica', 'bold');
             doc.text('TOTAL DUE', margin + 8, y + 12);
-            doc.text('$' + Math.round(total).toLocaleString(), pageWidth - margin - 8, y + 12, { align: 'right' });
+            doc.text(fmtMoney(total), pageWidth - margin - 8, y + 12, { align: 'right' });
             
             y += 30;
             
@@ -1879,7 +1890,7 @@
                 doc.setTextColor(167, 139, 250);
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'bold');
-                doc.text('$' + (currentJob.contractAmount || 0).toLocaleString(), pageWidth - margin - 60, metricsY + 8);
+                doc.text(fmtMoney(currentJob.contractAmount || 0), pageWidth - margin - 60, metricsY + 8);
             }
             
             doc.setTextColor(...lightGray);
@@ -1889,7 +1900,7 @@
             doc.setTextColor(234, 179, 8);
             doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
-            doc.text('$' + totalDraws.toLocaleString(), pageWidth - margin - 120, metricsY + 8);
+            doc.text(fmtMoney(totalDraws), pageWidth - margin - 120, metricsY + 8);
             
             y += 25;
             
@@ -1988,7 +1999,7 @@
                     doc.text(data.hours.toFixed(1), margin + 80, y);
                     doc.text('$' + data.rate.toFixed(2), margin + 110, y);
                     doc.setFont('helvetica', 'bold');
-                    doc.text('$' + Math.round(data.cost).toLocaleString(), pageWidth - margin - 5, y, { align: 'right' });
+                    doc.text(fmtMoney(data.cost), pageWidth - margin - 5, y, { align: 'right' });
                     y += 8;
                     
                     // Check for page break
@@ -2008,7 +2019,7 @@
                 doc.text('PAYROLL TOTAL', margin + 5, y + 2);
                 doc.text(totalLaborHours.toFixed(1) + ' hrs', margin + 80, y + 2);
                 doc.setTextColor(...orange);
-                doc.text('$' + Math.round(totalLaborCost).toLocaleString(), pageWidth - margin - 5, y + 2, { align: 'right' });
+                doc.text(fmtMoney(totalLaborCost), pageWidth - margin - 5, y + 2, { align: 'right' });
                 y += 20;
             }
             
@@ -2031,7 +2042,7 @@
                     doc.setFont('helvetica', 'normal');
                     doc.text(item.desc || 'Item ' + (i + 1), margin + 5, y);
                     doc.setFont('helvetica', 'bold');
-                    doc.text('$' + (item.amount || 0).toLocaleString(), pageWidth - margin - 5, y, { align: 'right' });
+                    doc.text(fmtMoney(item.amount || 0), pageWidth - margin - 5, y, { align: 'right' });
                     y += 8;
                 });
                 
@@ -2043,7 +2054,7 @@
                 doc.setFont('helvetica', 'bold');
                 doc.text('ADDITIONAL LABOR TOTAL', margin + 5, y + 2);
                 doc.setTextColor(...orange);
-                doc.text('$' + additionalLabor.toLocaleString(), pageWidth - margin - 5, y + 2, { align: 'right' });
+                doc.text(fmtMoney(additionalLabor), pageWidth - margin - 5, y + 2, { align: 'right' });
                 y += 20;
             }
             
@@ -2073,7 +2084,7 @@
                         doc.text(eq.name, margin + 5, y);
                         doc.text(hours + ' hrs @ $' + eq.rate + '/hr', margin + 80, y);
                         doc.setFont('helvetica', 'bold');
-                        doc.text('$' + (hours * eq.rate).toLocaleString(), pageWidth - margin - 5, y, { align: 'right' });
+                        doc.text(fmtMoney(hours * eq.rate), pageWidth - margin - 5, y, { align: 'right' });
                         y += 8;
                     }
                 });
@@ -2086,7 +2097,7 @@
                 doc.setFont('helvetica', 'bold');
                 doc.text('EQUIPMENT TOTAL', margin + 5, y + 2);
                 doc.setTextColor(...orange);
-                doc.text('$' + equipmentTotal.toLocaleString(), pageWidth - margin - 5, y + 2, { align: 'right' });
+                doc.text(fmtMoney(equipmentTotal), pageWidth - margin - 5, y + 2, { align: 'right' });
                 y += 20;
             }
             
@@ -2114,7 +2125,7 @@
                     doc.setFont('helvetica', 'normal');
                     doc.text(item.desc || 'Item ' + (i + 1), margin + 5, y);
                     doc.setFont('helvetica', 'bold');
-                    doc.text('$' + (item.amount || 0).toLocaleString(), pageWidth - margin - 5, y, { align: 'right' });
+                    doc.text(fmtMoney(item.amount || 0), pageWidth - margin - 5, y, { align: 'right' });
                     y += 8;
                     
                     if (y > pageHeight - 30) {
@@ -2131,7 +2142,7 @@
                 doc.setFont('helvetica', 'bold');
                 doc.text('MATERIALS TOTAL', margin + 5, y + 2);
                 doc.setTextColor(...orange);
-                doc.text('$' + materialsTotal.toLocaleString(), pageWidth - margin - 5, y + 2, { align: 'right' });
+                doc.text(fmtMoney(materialsTotal), pageWidth - margin - 5, y + 2, { align: 'right' });
             }
             
             // Footer on last page
