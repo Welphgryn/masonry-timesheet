@@ -10,7 +10,7 @@
             --bg-secondary: #2d2d2d;
             --bg-tertiary: #353535;
             --bg-input: #1a1a1a;
-            --border-color: var(--border-color);
+            --border-color: #3d3d3d;
             --border-hover: #525252;
             --text-primary: #ffffff;
             --text-secondary: #999999;
@@ -189,6 +189,7 @@
             color: var(--text-secondary);
             font-size: 0.85rem;
             cursor: pointer;
+            flex-shrink: 0;
         }
 
         .day-tab:hover { border-color: var(--accent); color: var(--text-primary); }
@@ -235,9 +236,7 @@
             user-select: none;
         }
 
-        .employee-summary-header:hover {
-            background: #3d3d3d;
-        }
+        .employee-summary-header:hover { background: #3d3d3d; }
 
         .employee-summary-header h3 {
             font-size: 0.95rem;
@@ -248,28 +247,13 @@
             gap: 8px;
         }
 
-        .employee-summary-header .toggle-icon {
-            transition: transform 0.2s;
-        }
+        .employee-summary-header .toggle-icon { transition: transform 0.2s; }
+        .employee-summary-header.collapsed .toggle-icon { transform: rotate(-90deg); }
 
-        .employee-summary-header.collapsed .toggle-icon {
-            transform: rotate(-90deg);
-        }
+        .employee-summary-content { padding: 16px 20px; display: block; }
+        .employee-summary-content.hidden { display: none; }
 
-        .employee-summary-content {
-            padding: 16px 20px;
-            display: block;
-        }
-
-        .employee-summary-content.hidden {
-            display: none;
-        }
-
-        .employee-summary-actions {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
+        .employee-summary-actions { display: flex; gap: 8px; margin-bottom: 12px; }
 
         .employee-summary-list {
             background: var(--bg-primary);
@@ -284,39 +268,16 @@
             overflow-y: auto;
         }
 
-        .employee-summary-list .summary-title {
-            color: var(--accent);
-            font-weight: bold;
-            margin-bottom: 8px;
-            display: block;
-        }
+        .employee-summary-list .summary-title { color: var(--accent); font-weight: bold; margin-bottom: 8px; display: block; }
+        .employee-summary-list .employee-line { display: flex; justify-content: space-between; padding: 2px 0; }
+        .employee-summary-list .employee-line:hover { background: var(--bg-secondary); }
+        .employee-summary-list .employee-name { color: var(--text-primary); }
+        .employee-summary-list .employee-hours { color: var(--accent); font-weight: 600; }
+        .employee-summary-list .total-line { border-top: 1px solid var(--border-color); margin-top: 8px; padding-top: 8px; font-weight: bold; }
 
-        .employee-summary-list .employee-line {
-            display: flex;
-            justify-content: space-between;
-            padding: 2px 0;
-        }
-
-        .employee-summary-list .employee-line:hover {
-            background: var(--bg-secondary);
-        }
-
-        .employee-summary-list .employee-name {
-            color: var(--text-primary);
-        }
-
-        .employee-summary-list .employee-hours {
-            color: var(--accent);
-            font-weight: 600;
-        }
-
-        .employee-summary-list .total-line {
-            border-top: 1px solid var(--border-color);
-            margin-top: 8px;
-            padding-top: 8px;
-            font-weight: bold;
-        }
-
+        /* ============================================ */
+        /* TIMESHEET TABLE - Sticky Headers for Mobile  */
+        /* ============================================ */
         .timesheet-container {
             background: var(--bg-secondary);
             border-radius: 12px;
@@ -343,55 +304,104 @@
         .legend-dot.direct { background: #16a34a; }
         .legend-dot.indirect { background: #eab308; }
 
-        .timesheet-scroll { overflow-x: auto; }
-
-        .timesheet-grid {
-            display: grid;
-            min-width: 850px;
+        /* The scroll wrapper — this is the key to frozen headers */
+        .timesheet-scroll {
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            max-height: 70vh;
         }
 
-        .grid-header {
-            background: var(--border-color);
+        /* Use a real HTML table for proper sticky behavior */
+        .ts-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: max-content;
+            min-width: 100%;
+        }
+
+        .ts-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: var(--bg-tertiary);
             padding: 10px 6px;
             text-align: center;
             font-weight: 600;
             font-size: 0.8rem;
-            border-bottom: 1px solid #525252;
+            border-bottom: 2px solid var(--accent);
+            white-space: nowrap;
         }
 
-        .grid-header.job-col { text-align: left; padding-left: 14px; }
-        .grid-header .rate { font-size: 0.65rem; color: var(--text-secondary); font-weight: 400; display: block; margin-top: 2px; }
-        .grid-header .rate.hidden { display: none; }
+        /* The job-site column header — sticky both top AND left */
+        .ts-table thead th.job-col {
+            position: sticky;
+            left: 0;
+            z-index: 20; /* Above other sticky headers */
+            text-align: left;
+            padding-left: 10px;
+            min-width: 140px;
+            background: var(--bg-tertiary);
+        }
 
-        .grid-row { display: contents; }
-        .grid-row:hover .grid-cell { background: var(--bg-tertiary); }
+        .ts-table thead th .rate {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            display: block;
+            margin-top: 2px;
+        }
+        .ts-table thead th .rate.hidden { display: none; }
 
-        .grid-cell {
-            padding: 6px;
+        /* All job-name cells — sticky left */
+        .ts-table tbody td.job-cell {
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            background: var(--bg-secondary);
+            padding: 4px 6px 4px 10px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            white-space: nowrap;
             border-bottom: 1px solid var(--border-color);
+            min-width: 140px;
+        }
+
+        .ts-table tbody td.job-cell.indirect { color: #eab308; }
+        .ts-table tbody td.job-cell.direct { color: #16a34a; }
+
+        /* Job cell inner layout: icons + name */
+        .job-cell-inner {
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 2px;
         }
 
-        .grid-cell.job-cell { justify-content: flex-start; padding-left: 14px; font-weight: 500; font-size: 0.85rem; }
-        .grid-cell.job-cell.indirect { color: #eab308; }
-        .grid-cell.job-cell.direct { color: #16a34a; }
-
-        /* Clickable job link */
-        .job-link {
-            color: inherit;
-            text-decoration: none;
+        .job-icon-btn {
+            background: none;
+            border: none;
             cursor: pointer;
-            transition: all 0.2s;
+            padding: 2px;
+            font-size: 0.7rem;
+            opacity: 0.5;
+            transition: opacity 0.15s, transform 0.15s;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .job-icon-btn:hover { opacity: 1; transform: scale(1.2); }
+        .job-icon-btn:active { transform: scale(0.95); }
+        .job-icon-btn.has-note { opacity: 1; }
+
+        .job-name-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .job-link:hover {
-            text-decoration: underline;
-            opacity: 0.8;
+        /* Data cells */
+        .ts-table tbody td.data-cell {
+            padding: 4px 3px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
         }
-
-        .job-link.direct:hover { color: #4ade80; }
 
         .hour-input {
             width: 100%;
@@ -408,8 +418,64 @@
         .hour-input:focus { outline: none; border-color: var(--accent); background: var(--bg-secondary); }
         .hour-input::placeholder { color: #525252; }
 
-        .totals-row .grid-cell { background: var(--border-color); font-weight: 600; border-bottom: none; }
-        .totals-row .total-value { color: var(--accent); }
+        /* Totals row */
+        .ts-table tfoot td {
+            background: var(--bg-tertiary);
+            padding: 8px 6px;
+            font-weight: 600;
+            text-align: center;
+            border-top: 2px solid var(--accent);
+        }
+        .ts-table tfoot td.job-cell {
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            text-align: left;
+            padding-left: 10px;
+            background: var(--bg-tertiary);
+        }
+        .total-value { color: var(--accent); }
+
+        /* Hidden row */
+        .ts-table tr.row-hidden {
+            display: none;
+        }
+
+        /* Hover highlight on data rows */
+        .ts-table tbody tr:not(.row-hidden):hover td {
+            background: var(--bg-tertiary);
+        }
+        .ts-table tbody tr:not(.row-hidden):hover td.job-cell {
+            background: var(--bg-tertiary);
+        }
+
+        /* Hidden jobs bar */
+        .hidden-jobs-bar {
+            display: none;
+            padding: 8px 20px;
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .hidden-jobs-bar.visible { display: flex; }
+
+        .hidden-job-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .hidden-job-chip:hover { border-color: var(--accent); color: var(--accent); }
 
         .action-bar {
             padding: 14px 20px;
@@ -449,6 +515,7 @@
 
         .no-history { text-align: center; padding: 40px; color: var(--text-muted); }
 
+        /* Notes modal */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -459,7 +526,6 @@
             justify-content: center;
             padding: 20px;
         }
-
         .modal-overlay.show { display: flex; }
 
         .modal {
@@ -508,6 +574,30 @@
             background: var(--bg-tertiary);
         }
 
+        /* Notes textarea in modal */
+        .note-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 0.9rem;
+            resize: vertical;
+            line-height: 1.5;
+        }
+        .note-textarea:focus { outline: none; border-color: var(--accent); }
+        .note-textarea::placeholder { color: var(--text-muted); }
+
+        .note-job-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        .note-job-label strong { color: var(--accent); }
+
         .toast {
             position: fixed;
             bottom: 24px;
@@ -522,7 +612,6 @@
             transition: opacity 0.3s;
             z-index: 200;
         }
-
         .toast.show { opacity: 1; }
 
         .loading-overlay {
@@ -534,39 +623,26 @@
             justify-content: center;
             z-index: 300;
         }
-
         .loading-overlay.hidden { display: none; }
+        .loading-text { color: var(--accent); font-size: 1.2rem; }
 
-        .loading-text {
-            color: var(--accent);
-            font-size: 1.2rem;
-        }
-
-        .no-data-message {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-muted);
-        }
-
-        .no-data-message h3 {
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-        }
-
-        .no-data-message a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-
-        .no-data-message a:hover {
-            text-decoration: underline;
-        }
+        .no-data-message { text-align: center; padding: 40px; color: var(--text-muted); }
+        .no-data-message h3 { color: var(--text-secondary); margin-bottom: 10px; }
+        .no-data-message a { color: var(--accent); text-decoration: none; }
+        .no-data-message a:hover { text-decoration: underline; }
 
         @media (max-width: 768px) {
             .header { padding: 12px 16px; }
             .main-content { padding: 16px; }
             .summary-bar { grid-template-columns: repeat(2, 1fr); }
             .week-selector { flex-direction: column; text-align: center; }
+            /* On mobile, make scroll area taller */
+            .timesheet-scroll { max-height: 60vh; }
+            .ts-table thead th { font-size: 0.7rem; padding: 8px 4px; }
+            .ts-table thead th.job-col { min-width: 110px; }
+            .ts-table tbody td.job-cell { min-width: 110px; font-size: 0.78rem; }
+            .hour-input { max-width: 40px; padding: 6px 1px; font-size: 0.85rem; }
+            .job-icon-btn { font-size: 0.65rem; }
         }
     </style>
 </head>
@@ -578,8 +654,8 @@
     <header class="header">
         <div class="header-left">
             <a href="index.html" class="btn btn-back">← Menu</a>
-            <h1> Payroll</h1>
-            <button class="btn btn-secondary" id="toggleRatesBtn" onclick="toggleRates()" style="padding: 6px 12px; font-size: 0.8rem;"> Hide Rates</button>
+            <h1>Payroll</h1>
+            <button class="btn btn-secondary" id="toggleRatesBtn" onclick="toggleRates()" style="padding: 6px 12px; font-size: 0.8rem;">Hide Rates</button>
         </div>
         <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀️</button>
         <div class="save-status" id="saveStatus">
@@ -637,9 +713,7 @@
                         <button class="btn btn-secondary btn-sm" onclick="copyEmployeeSummary(event)">📋 Copy</button>
                         <button class="btn btn-secondary btn-sm" onclick="downloadEmployeeSummary(event)">⬇️ Download</button>
                     </div>
-                    <div class="employee-summary-list" id="employeeSummaryList">
-                        <!-- Populated by JS -->
-                    </div>
+                    <div class="employee-summary-list" id="employeeSummaryList"></div>
                 </div>
             </div>
 
@@ -651,8 +725,17 @@
                         <span><div class="legend-dot direct"></div> Direct</span>
                     </div>
                 </div>
-                <div class="timesheet-scroll">
-                    <div class="timesheet-grid" id="timesheetGrid"></div>
+                <div class="timesheet-scroll" id="timesheetScroll">
+                    <table class="ts-table" id="timesheetGrid">
+                        <thead id="tsHead"></thead>
+                        <tbody id="tsBody"></tbody>
+                        <tfoot id="tsFoot"></tfoot>
+                    </table>
+                </div>
+                <!-- Bar showing hidden jobs as chips to re-show them -->
+                <div class="hidden-jobs-bar" id="hiddenJobsBar">
+                    <span>Hidden:</span>
+                    <div id="hiddenJobsChips"></div>
                 </div>
                 <div class="action-bar">
                     <span style="color: var(--text-secondary); font-size: 0.85rem;">Tab to move • Auto-saves</span>
@@ -670,16 +753,17 @@
         </div>
     </div>
 
+    <!-- Report Modal -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <div class="modal-header">
-                <h3>Weekly Payroll Report</h3>
+                <h3 id="modalTitle">Weekly Payroll Report</h3>
                 <button class="modal-close" onclick="closeModal()">&times;</button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" id="modalBody">
                 <div class="preview-box" id="previewBox"></div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" id="modalFooter">
                 <button class="btn btn-secondary" onclick="closeModal()">Close</button>
                 <button class="btn btn-success" onclick="copyReport()">📋 Copy</button>
             </div>
@@ -693,16 +777,12 @@
         const JSONBIN_BIN_ID = '697a7070d0ea881f408e6063';
         const JSONBIN_API_KEY = '$2a$10$vgUvy.chZeKckQe2eTD36uOX/mfrhx8GKudyoZqZsjWkbtaam8/Nm';
 
-        // Dynamic workers list - populated from allData.employees
         let workers = [];
-
-        // Permanent indirect job sites (always shown)
         const permanentJobSites = [
             { name: 'Baseyard', type: 'indirect', id: null },
             { name: 'Office', type: 'indirect', id: null }
         ];
 
-        // Will be populated from JSONbin
         let jobSites = [];
         let allData = {};
         let currentWeekStart = null;
@@ -710,10 +790,9 @@
         let saveTimeout = null;
         let showRates = true;
         let employeeSummaryCollapsed = false;
+        let hiddenJobs = new Set(); // Track hidden job rows (by jobKey)
 
-        // ============================================
-        // SEED DATA - Initial employees and jobs
-        // ============================================
+        // Seed data
         const seedEmployees = {
             'jordan': { id: 'jordan', name: 'Jordan', rate: 120, status: 'active', sortOrder: 1, created: new Date().toISOString(), modified: new Date().toISOString() },
             'kamalei': { id: 'kamalei', name: 'Kamalei', rate: 100, status: 'active', sortOrder: 2, created: new Date().toISOString(), modified: new Date().toISOString() },
@@ -742,46 +821,32 @@
             'erickson': { id: 'erickson', name: 'Erickson', payrollName: 'Erickson', status: 'active', jobType: 'hourly', created: new Date().toISOString(), modified: new Date().toISOString() }
         };
 
-        // Check if we need to seed data
         async function checkAndSeedData() {
             let needsSave = false;
-
-            // Seed employees if empty or doesn't exist
             if (!allData.employees || Object.keys(allData.employees).length === 0) {
-                console.log('Seeding employees...');
                 allData.employees = seedEmployees;
                 needsSave = true;
             }
-
-            // Seed jobs if empty or only has test data
-            if (!allData.jobs || Object.keys(allData.jobs).length === 0 || 
+            if (!allData.jobs || Object.keys(allData.jobs).length === 0 ||
                 (Object.keys(allData.jobs).length === 1 && allData.jobs['test2'])) {
-                console.log('Seeding jobs...');
                 allData.jobs = seedJobs;
                 needsSave = true;
             }
-
-            if (needsSave) {
-                await saveAllData();
-                console.log('Seed data saved!');
-            }
+            if (needsSave) await saveAllData();
         }
 
-        // Toggle rates visibility
         function toggleRates() {
             showRates = !showRates;
-            document.querySelectorAll('.grid-header .rate').forEach(el => {
+            document.querySelectorAll('.ts-table .rate').forEach(el => {
                 el.classList.toggle('hidden', !showRates);
             });
-            document.getElementById('toggleRatesBtn').textContent = showRates ? '👁️ Hide Rates' : '👁️ Show Rates';
+            document.getElementById('toggleRatesBtn').textContent = showRates ? 'Hide Rates' : 'Show Rates';
         }
 
-        // Toggle employee summary section
         function toggleEmployeeSummary() {
             employeeSummaryCollapsed = !employeeSummaryCollapsed;
             const header = document.querySelector('.employee-summary-header');
             const content = document.getElementById('employeeSummaryContent');
-            
             if (employeeSummaryCollapsed) {
                 header.classList.add('collapsed');
                 content.classList.add('hidden');
@@ -791,53 +856,38 @@
             }
         }
 
-        // Get worker rate for a specific job (or default from employee record)
         function getWorkerRate(workerName, jobName) {
-            // First check if job has custom rate for this worker
             if (allData.jobs) {
-                const job = Object.values(allData.jobs).find(j => 
+                const job = Object.values(allData.jobs).find(j =>
                     j.payrollName === jobName || j.name === jobName
                 );
                 if (job && job.workerRates && job.workerRates[workerName] !== undefined) {
                     return job.workerRates[workerName];
                 }
             }
-            
-            // Fall back to employee's default rate
             if (allData.employees) {
                 const employee = Object.values(allData.employees).find(e => e.name === workerName);
-                if (employee) {
-                    return employee.rate || 0;
-                }
+                if (employee) return employee.rate || 0;
             }
-            
             return 0;
         }
 
-        // Build workers list from employees
         function buildWorkerList() {
             workers = [];
-            
             if (allData.employees) {
-                // Get active employees, sorted by sortOrder
                 const activeEmployees = Object.values(allData.employees)
                     .filter(e => e.status === 'active')
                     .sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999));
-                
                 activeEmployees.forEach(emp => {
                     workers.push({ name: emp.name, rate: emp.rate });
                 });
             }
         }
 
-        // Build job sites from permanent sites + active jobs from JSONbin
         function buildJobSites() {
             jobSites = [...permanentJobSites];
-            
-            // Add active jobs from JSONbin
             if (allData.jobs) {
                 Object.values(allData.jobs).forEach(job => {
-                    // Only include active jobs
                     if (job.status === 'active') {
                         jobSites.push({
                             name: job.payrollName || job.name,
@@ -849,20 +899,217 @@
             }
         }
 
-        // Calculate and render employee weekly hours summary
+        // ============================================
+        // NOTES SYSTEM — per job, per day
+        // ============================================
+        function getNotesKey(jobKey) {
+            const days = getWeekDays(currentWeekStart);
+            const day = days[selectedDayIndex];
+            return `note_${day.key}_${jobKey}`;
+        }
+
+        function getWeekNotesKey() {
+            return `notes_${getWeekKey(currentWeekStart)}`;
+        }
+
+        function getJobNotes(jobKey) {
+            const weekKey = getWeekKey(currentWeekStart);
+            const days = getWeekDays(currentWeekStart);
+            const day = days[selectedDayIndex];
+            if (allData._notes && allData._notes[weekKey] && allData._notes[weekKey][day.key]) {
+                return allData._notes[weekKey][day.key][jobKey] || '';
+            }
+            return '';
+        }
+
+        function openNoteModal(jobKey, jobName, jobType) {
+            const days = getWeekDays(currentWeekStart);
+            const day = days[selectedDayIndex];
+            const note = getJobNotes(jobKey);
+
+            document.getElementById('modalTitle').textContent = 'Job Notes';
+            document.getElementById('modalBody').innerHTML = `
+                <div class="note-job-label">
+                    <strong>${jobName}</strong> — ${formatDate(day.date, 'long')}
+                </div>
+                <textarea class="note-textarea" id="noteInput" placeholder="Add notes for this job on this day...">${note}</textarea>
+            `;
+            document.getElementById('modalFooter').innerHTML = `
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-success" onclick="saveNote('${jobKey}')">💾 Save</button>
+            `;
+            document.getElementById('modalOverlay').classList.add('show');
+            // Focus the textarea
+            setTimeout(() => document.getElementById('noteInput').focus(), 100);
+        }
+
+        async function saveNote(jobKey) {
+            const weekKey = getWeekKey(currentWeekStart);
+            const days = getWeekDays(currentWeekStart);
+            const day = days[selectedDayIndex];
+            const note = document.getElementById('noteInput').value.trim();
+
+            if (!allData._notes) allData._notes = {};
+            if (!allData._notes[weekKey]) allData._notes[weekKey] = {};
+            if (!allData._notes[weekKey][day.key]) allData._notes[weekKey][day.key] = {};
+
+            if (note) {
+                allData._notes[weekKey][day.key][jobKey] = note;
+            } else {
+                delete allData._notes[weekKey][day.key][jobKey];
+            }
+
+            await saveAllData();
+            closeModal();
+            updateNoteIndicators();
+            showToast('Note saved!');
+        }
+
+        function updateNoteIndicators() {
+            const weekKey = getWeekKey(currentWeekStart);
+            const days = getWeekDays(currentWeekStart);
+            const day = days[selectedDayIndex];
+            const dayNotes = (allData._notes && allData._notes[weekKey] && allData._notes[weekKey][day.key]) || {};
+
+            document.querySelectorAll('.note-btn').forEach(btn => {
+                const jobKey = btn.dataset.jobkey;
+                if (dayNotes[jobKey]) {
+                    btn.classList.add('has-note');
+                    btn.textContent = '📝';
+                    btn.title = 'Has note — click to edit';
+                } else {
+                    btn.classList.remove('has-note');
+                    btn.textContent = '📝';
+                    btn.title = 'Add note';
+                }
+            });
+        }
+
+        // ============================================
+        // HIDE JOBS SYSTEM
+        // ============================================
+        function toggleJobVisibility(jobKey, jobName) {
+            const row = document.getElementById(`row_${jobKey}`);
+            if (!row) return;
+
+            if (hiddenJobs.has(jobKey)) {
+                hiddenJobs.delete(jobKey);
+                row.classList.remove('row-hidden');
+            } else {
+                hiddenJobs.add(jobKey);
+                row.classList.add('row-hidden');
+            }
+            updateHideIcons();
+            updateHiddenJobsBar();
+        }
+
+        function showJob(jobKey) {
+            hiddenJobs.delete(jobKey);
+            const row = document.getElementById(`row_${jobKey}`);
+            if (row) row.classList.remove('row-hidden');
+            updateHideIcons();
+            updateHiddenJobsBar();
+        }
+
+        function updateHideIcons() {
+            document.querySelectorAll('.hide-btn').forEach(btn => {
+                const jobKey = btn.dataset.jobkey;
+                if (hiddenJobs.has(jobKey)) {
+                    btn.textContent = '👁️‍🗨️';
+                    btn.title = 'Show this job';
+                } else {
+                    btn.textContent = '👁️';
+                    btn.title = 'Hide this job';
+                }
+            });
+        }
+
+        function updateHiddenJobsBar() {
+            const bar = document.getElementById('hiddenJobsBar');
+            const chips = document.getElementById('hiddenJobsChips');
+
+            if (hiddenJobs.size === 0) {
+                bar.classList.remove('visible');
+                return;
+            }
+
+            bar.classList.add('visible');
+            let html = '';
+            hiddenJobs.forEach(jobKey => {
+                const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKey);
+                const name = job ? job.name : jobKey;
+                html += `<span class="hidden-job-chip" onclick="showJob('${jobKey}')">${name} ✕</span>`;
+            });
+            chips.innerHTML = html;
+        }
+
+        // ============================================
+        // BUILD THE TABLE (with sticky headers)
+        // ============================================
+        function buildGrid() {
+            const thead = document.getElementById('tsHead');
+            const tbody = document.getElementById('tsBody');
+            const tfoot = document.getElementById('tsFoot');
+
+            // HEADER ROW
+            let headHtml = '<tr><th class="job-col">Job Site</th>';
+            workers.forEach(w => {
+                headHtml += `<th>${w.name}<span class="rate ${showRates ? '' : 'hidden'}">$${w.rate}/hr</span></th>`;
+            });
+            headHtml += '</tr>';
+            thead.innerHTML = headHtml;
+
+            // DATA ROWS
+            let bodyHtml = '';
+            jobSites.forEach(job => {
+                const jobKey = job.name.replace(/[^a-zA-Z]/g, '');
+                const isHidden = hiddenJobs.has(jobKey);
+
+                bodyHtml += `<tr id="row_${jobKey}" class="${isHidden ? 'row-hidden' : ''}">`;
+                bodyHtml += `<td class="job-cell ${job.type}">`;
+                bodyHtml += `<div class="job-cell-inner">`;
+                // Note icon
+                bodyHtml += `<button class="job-icon-btn note-btn" data-jobkey="${jobKey}" data-jobname="${job.name}" data-jobtype="${job.type}" onclick="openNoteModal('${jobKey}','${job.name.replace(/'/g, "\\'")}','${job.type}')" title="Add note">📝</button>`;
+                // Hide icon
+                bodyHtml += `<button class="job-icon-btn hide-btn" data-jobkey="${jobKey}" onclick="toggleJobVisibility('${jobKey}','${job.name.replace(/'/g, "\\'")}')" title="Hide this job">👁️</button>`;
+                // Job name
+                if (job.id) {
+                    bodyHtml += `<span class="job-name-text"><a href="job.html?id=${job.id}" class="job-link ${job.type}" style="color:inherit;">${job.name}</a></span>`;
+                } else {
+                    bodyHtml += `<span class="job-name-text">${job.name}</span>`;
+                }
+                bodyHtml += `</div></td>`;
+
+                workers.forEach(w => {
+                    const inputId = `${jobKey}_${w.name}`;
+                    const rate = getWorkerRate(w.name, job.name);
+                    bodyHtml += `<td class="data-cell"><input type="number" class="hour-input" id="${inputId}" data-worker="${w.name}" data-job="${job.name}" data-type="${job.type}" data-rate="${rate}" placeholder="-" min="0" max="24" step="0.5" oninput="onInput()"></td>`;
+                });
+                bodyHtml += '</tr>';
+            });
+            tbody.innerHTML = bodyHtml;
+
+            // TOTALS ROW
+            let footHtml = '<tr><td class="job-cell" style="font-weight:700;">TOTALS</td>';
+            workers.forEach(w => {
+                footHtml += `<td style="text-align:center;"><span class="total-value" id="total_${w.name}">0</span></td>`;
+            });
+            footHtml += '</tr>';
+            tfoot.innerHTML = footHtml;
+        }
+
+        // ============================================
+        // Employee summary
+        // ============================================
         function updateEmployeeSummary() {
             const weekKey = getWeekKey(currentWeekStart);
             const weekData = allData[weekKey] || {};
             const weekEnd = new Date(currentWeekStart);
             weekEnd.setDate(weekEnd.getDate() + 6);
-            
-            // Calculate hours per employee
+
             const employeeHours = {};
-            workers.forEach(w => {
-                employeeHours[w.name] = 0;
-            });
-            
-            // Sum hours from all days
+            workers.forEach(w => { employeeHours[w.name] = 0; });
+
             Object.values(weekData).forEach(dayData => {
                 if (typeof dayData === 'object') {
                     Object.entries(dayData).forEach(([inputId, hours]) => {
@@ -874,18 +1121,13 @@
                     });
                 }
             });
-            
-            // Calculate total
+
             let totalHours = 0;
             Object.values(employeeHours).forEach(h => totalHours += h);
-            
-            // Update header total
             document.getElementById('summaryTotalHours').textContent = `${totalHours} total hrs`;
-            
-            // Build display - only show employees with hours
+
             const container = document.getElementById('employeeSummaryList');
             let html = `<span class="summary-title">Week of ${formatDate(currentWeekStart)} - ${formatDate(weekEnd)}, ${currentWeekStart.getFullYear()}</span>`;
-            
             let hasAnyHours = false;
             workers.forEach(w => {
                 const hours = employeeHours[w.name];
@@ -894,29 +1136,24 @@
                     html += `<div class="employee-line"><span class="employee-name">${w.name}:</span><span class="employee-hours">${hours} hrs</span></div>`;
                 }
             });
-            
+
             if (!hasAnyHours) {
                 html += `<div style="color: var(--text-muted); font-style: italic;">No hours logged this week</div>`;
             } else {
                 html += `<div class="employee-line total-line"><span class="employee-name">TOTAL:</span><span class="employee-hours">${totalHours} hrs</span></div>`;
             }
-            
             container.innerHTML = html;
         }
 
-        // Generate plain text summary for copying/downloading
         function getEmployeeSummaryText() {
             const weekKey = getWeekKey(currentWeekStart);
             const weekData = allData[weekKey] || {};
             const weekEnd = new Date(currentWeekStart);
             weekEnd.setDate(weekEnd.getDate() + 6);
-            
-            // Calculate hours per employee
+
             const employeeHours = {};
-            workers.forEach(w => {
-                employeeHours[w.name] = 0;
-            });
-            
+            workers.forEach(w => { employeeHours[w.name] = 0; });
+
             Object.values(weekData).forEach(dayData => {
                 if (typeof dayData === 'object') {
                     Object.entries(dayData).forEach(([inputId, hours]) => {
@@ -928,37 +1165,24 @@
                     });
                 }
             });
-            
+
             let totalHours = 0;
             let text = `Week of ${formatDate(currentWeekStart)} - ${formatDate(weekEnd)}, ${currentWeekStart.getFullYear()}\n\n`;
-            
             workers.forEach(w => {
                 const hours = employeeHours[w.name];
-                if (hours > 0) {
-                    text += `${w.name}: ${hours} hrs\n`;
-                    totalHours += hours;
-                }
+                if (hours > 0) { text += `${w.name}: ${hours} hrs\n`; totalHours += hours; }
             });
-            
-            if (totalHours > 0) {
-                text += `\nTOTAL: ${totalHours} hrs`;
-            }
-            
+            if (totalHours > 0) text += `\nTOTAL: ${totalHours} hrs`;
             return text;
         }
 
-        // Copy employee summary to clipboard
         function copyEmployeeSummary(event) {
-            event.stopPropagation(); // Prevent toggle
-            const text = getEmployeeSummaryText();
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('Copied to clipboard!');
-            });
+            event.stopPropagation();
+            navigator.clipboard.writeText(getEmployeeSummaryText()).then(() => showToast('Copied to clipboard!'));
         }
 
-        // Download employee summary as txt file
         function downloadEmployeeSummary(event) {
-            event.stopPropagation(); // Prevent toggle
+            event.stopPropagation();
             const text = getEmployeeSummaryText();
             const weekKey = getWeekKey(currentWeekStart);
             const blob = new Blob([text], { type: 'text/plain' });
@@ -973,27 +1197,24 @@
             showToast('Downloaded!');
         }
 
-        // Init
+        // ============================================
+        // INIT
+        // ============================================
         loadAllData().then(async () => {
-            // Check and seed data if needed
             await checkAndSeedData();
-            
-            // Build dynamic lists
             buildWorkerList();
             buildJobSites();
-            
-            // Check if we have data to display
+
             if (workers.length === 0) {
-                document.getElementById('timesheetGrid').innerHTML = `
-                    <div class="no-data-message">
+                document.getElementById('tsBody').innerHTML = `
+                    <tr><td colspan="20" class="no-data-message">
                         <h3>No Active Employees</h3>
                         <p>Add employees in the <a href="employees.html">Employees</a> page to start tracking payroll.</p>
-                    </div>
-                `;
+                    </td></tr>`;
                 document.getElementById('loadingOverlay').classList.add('hidden');
                 return;
             }
-            
+
             const today = new Date();
             currentWeekStart = getWeekStart(today);
             const days = getWeekDays(currentWeekStart);
@@ -1007,12 +1228,14 @@
             loadDayData();
             calculateWeekTotal();
             updateEmployeeSummary();
-            
-            // Hide loading overlay
+            updateNoteIndicators();
+
             document.getElementById('loadingOverlay').classList.add('hidden');
         });
 
-        // Storage
+        // ============================================
+        // STORAGE
+        // ============================================
         async function loadAllData() {
             updateSaveStatus('loading');
             try {
@@ -1054,7 +1277,9 @@
             else { el.className = 'save-status'; el.innerHTML = '<span>●</span> Save failed'; }
         }
 
-        // Date utils
+        // ============================================
+        // DATE UTILS
+        // ============================================
         function getWeekStart(date) {
             const d = new Date(date);
             d.setHours(0, 0, 0, 0);
@@ -1078,13 +1303,15 @@
         function getWeekKey(weekStart) { return weekStart.toISOString().split('T')[0]; }
 
         function formatDate(date, format = 'short') {
-            const options = format === 'long' 
+            const options = format === 'long'
                 ? { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
                 : { month: 'short', day: 'numeric' };
             return date.toLocaleDateString('en-US', options);
         }
 
-        // Week navigation
+        // ============================================
+        // WEEK NAV
+        // ============================================
         function updateWeekDisplay() {
             const weekEnd = new Date(currentWeekStart);
             weekEnd.setDate(weekEnd.getDate() + 6);
@@ -1095,16 +1322,18 @@
         function prevWeek() {
             currentWeekStart.setDate(currentWeekStart.getDate() - 7);
             selectedDayIndex = 0;
-            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal(); updateEmployeeSummary();
+            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal(); updateEmployeeSummary(); updateNoteIndicators();
         }
 
         function nextWeek() {
             currentWeekStart.setDate(currentWeekStart.getDate() + 7);
             selectedDayIndex = 0;
-            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal(); updateEmployeeSummary();
+            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal(); updateEmployeeSummary(); updateNoteIndicators();
         }
 
-        // Day tabs
+        // ============================================
+        // DAY TABS
+        // ============================================
         function buildDayTabs() {
             const container = document.getElementById('dayTabs');
             const days = getWeekDays(currentWeekStart);
@@ -1120,46 +1349,12 @@
             selectedDayIndex = index;
             document.querySelectorAll('.day-tab').forEach((tab, i) => tab.classList.toggle('active', i === index));
             loadDayData();
+            updateNoteIndicators();
         }
 
-        // Grid
-        function buildGrid() {
-            const grid = document.getElementById('timesheetGrid');
-            const numCols = workers.length + 1; // +1 for job site column
-            grid.style.gridTemplateColumns = `130px repeat(${workers.length}, 1fr)`;
-            
-            let html = '<div class="grid-header job-col">Job Site</div>';
-            workers.forEach(w => {
-                html += `<div class="grid-header">${w.name}<span class="rate ${showRates ? '' : 'hidden'}">$${w.rate}/hr</span></div>`;
-            });
-
-            jobSites.forEach(job => {
-                const jobKey = job.name.replace(/[^a-zA-Z]/g, '');
-                
-                // Create job cell - clickable if it has an id (linked to jobs.html)
-                let jobCellContent;
-                if (job.id) {
-                    jobCellContent = `<a href="job.html?id=${job.id}" class="job-link ${job.type}">${job.name}</a>`;
-                } else {
-                    jobCellContent = job.name;
-                }
-                
-                html += `<div class="grid-row"><div class="grid-cell job-cell ${job.type}">${jobCellContent}</div>`;
-                workers.forEach(w => {
-                    const inputId = `${jobKey}_${w.name}`;
-                    const rate = getWorkerRate(w.name, job.name);
-                    html += `<div class="grid-cell"><input type="number" class="hour-input" id="${inputId}" data-worker="${w.name}" data-job="${job.name}" data-type="${job.type}" data-rate="${rate}" placeholder="-" min="0" max="24" step="0.5" oninput="onInput()"></div>`;
-                });
-                html += `</div>`;
-            });
-
-            html += `<div class="grid-row totals-row"><div class="grid-cell job-cell">TOTALS</div>`;
-            workers.forEach(w => html += `<div class="grid-cell"><span class="total-value" id="total_${w.name}">0</span></div>`);
-            html += `</div>`;
-
-            grid.innerHTML = html;
-        }
-
+        // ============================================
+        // DATA
+        // ============================================
         function loadDayData() {
             const days = getWeekDays(currentWeekStart);
             const day = days[selectedDayIndex];
@@ -1175,6 +1370,7 @@
             });
 
             calculateTotals();
+            updateNoteIndicators();
         }
 
         function onInput() {
@@ -1230,7 +1426,6 @@
                         const parts = inputId.split('_');
                         const workerName = parts[parts.length - 1];
                         const jobKey = parts.slice(0, -1).join('_');
-                        // Find job name from jobKey
                         const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKey);
                         const jobName = job ? job.name : jobKey;
                         const rate = getWorkerRate(workerName, jobName);
@@ -1249,7 +1444,9 @@
             updateEmployeeSummary();
         }
 
-        // Tabs
+        // ============================================
+        // TABS
+        // ============================================
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -1265,7 +1462,7 @@
 
         function renderHistory() {
             const container = document.getElementById('historyList');
-            const weeks = Object.keys(allData).filter(k => k !== 'bids' && k !== 'jobs' && k !== 'employees' && k.match(/^\d{4}-\d{2}-\d{2}$/)).sort().reverse();
+            const weeks = Object.keys(allData).filter(k => k !== 'bids' && k !== 'jobs' && k !== 'employees' && k !== '_notes' && k.match(/^\d{4}-\d{2}-\d{2}$/)).sort().reverse();
             if (weeks.length === 0) {
                 container.innerHTML = '<div class="no-history">No payroll history yet.</div>';
                 return;
@@ -1310,10 +1507,12 @@
             currentWeekStart = new Date(weekKey + 'T00:00:00');
             selectedDayIndex = 0;
             switchTab('timesheet');
-            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal(); updateEmployeeSummary();
+            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal(); updateEmployeeSummary(); updateNoteIndicators();
         }
 
-        // Report
+        // ============================================
+        // REPORT
+        // ============================================
         function generateReport() {
             const weekKey = getWeekKey(currentWeekStart);
             const weekData = allData[weekKey] || {};
@@ -1329,6 +1528,10 @@
                 const dayData = weekData[day.key] || {};
                 if (Object.keys(dayData).length === 0) return;
                 report += `${formatDate(day.date, 'long')}\n${'-'.repeat(35)}\n`;
+
+                // Include notes for this day
+                const dayNotes = (allData._notes && allData._notes[weekKey] && allData._notes[weekKey][day.key]) || {};
+
                 const byJob = {};
                 Object.entries(dayData).forEach(([inputId, hours]) => {
                     const parts = inputId.split('_');
@@ -1341,6 +1544,7 @@
                 });
                 Object.entries(byJob).forEach(([jobName, entries]) => {
                     const job = jobSites.find(j => j.name === jobName);
+                    const jobKey = jobName.replace(/[^a-zA-Z]/g, '');
                     report += `  ${jobName}${job?.type === 'indirect' ? ' (Indirect)' : ''}\n`;
                     entries.forEach(e => {
                         report += `    ${e.worker}: ${e.hours} hrs\n`;
@@ -1349,6 +1553,10 @@
                         if (job?.type === 'indirect') weekIndirectCost += e.hours * rate;
                         else weekDirectCost += e.hours * rate;
                     });
+                    // Add note if exists
+                    if (dayNotes[jobKey]) {
+                        report += `    📝 Note: ${dayNotes[jobKey]}\n`;
+                    }
                 });
                 report += '\n';
             });
@@ -1360,17 +1568,29 @@
             report += `  Total Labor Cost: $${(weekDirectCost + weekIndirectCost).toLocaleString()}\n`;
             report += `${'═'.repeat(45)}`;
 
+            // Reset modal to report mode
+            document.getElementById('modalTitle').textContent = 'Weekly Payroll Report';
+            document.getElementById('modalBody').innerHTML = `<div class="preview-box" id="previewBox"></div>`;
             document.getElementById('previewBox').textContent = report;
+            document.getElementById('modalFooter').innerHTML = `
+                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                <button class="btn btn-success" onclick="copyReport()">📋 Copy</button>
+            `;
             document.getElementById('modalOverlay').classList.add('show');
         }
 
-        // Modal
+        // ============================================
+        // MODAL / TOAST
+        // ============================================
         function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
         function copyReport() {
-            navigator.clipboard.writeText(document.getElementById('previewBox').textContent).then(() => {
-                showToast('Copied to clipboard!');
-                closeModal();
-            });
+            const previewBox = document.getElementById('previewBox');
+            if (previewBox) {
+                navigator.clipboard.writeText(previewBox.textContent).then(() => {
+                    showToast('Copied to clipboard!');
+                    closeModal();
+                });
+            }
         }
         function showToast(msg) {
             const toast = document.getElementById('toast');
