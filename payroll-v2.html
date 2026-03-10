@@ -790,7 +790,7 @@
         let saveTimeout = null;
         let showRates = true;
         let employeeSummaryCollapsed = false;
-        let hiddenJobs = new Set(); // Track hidden job rows (by jobKey)
+        let hiddenJobs = new Set(); // Track hidden job rows (by jobKey) — persisted to JSONbin — persisted to JSONbin
 
         // Seed data
         const seedEmployees = {
@@ -1001,6 +1001,7 @@
             }
             updateHideIcons();
             updateHiddenJobsBar();
+            persistHiddenJobs();
         }
 
         function showJob(jobKey) {
@@ -1009,6 +1010,25 @@
             if (row) row.classList.remove('row-hidden');
             updateHideIcons();
             updateHiddenJobsBar();
+            persistHiddenJobs();
+        }
+
+        function persistHiddenJobs() {
+            allData._hiddenJobs = Array.from(hiddenJobs);
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => saveAllData(), 500);
+        }
+
+        function restoreHiddenJobs() {
+            if (allData._hiddenJobs && Array.isArray(allData._hiddenJobs)) {
+                hiddenJobs = new Set(allData._hiddenJobs);
+                hiddenJobs.forEach(jobKey => {
+                    const row = document.getElementById(`row_${jobKey}`);
+                    if (row) row.classList.add('row-hidden');
+                });
+                updateHideIcons();
+                updateHiddenJobsBar();
+            }
         }
 
         function updateHideIcons() {
@@ -1223,6 +1243,7 @@
             if (selectedDayIndex === -1) selectedDayIndex = 0;
 
             buildGrid();
+            restoreHiddenJobs();
             updateWeekDisplay();
             buildDayTabs();
             loadDayData();
@@ -1462,7 +1483,7 @@
 
         function renderHistory() {
             const container = document.getElementById('historyList');
-            const weeks = Object.keys(allData).filter(k => k !== 'bids' && k !== 'jobs' && k !== 'employees' && k !== '_notes' && k.match(/^\d{4}-\d{2}-\d{2}$/)).sort().reverse();
+            const weeks = Object.keys(allData).filter(k => k !== 'bids' && k !== 'jobs' && k !== 'employees' && k !== '_notes' && k !== '_hiddenJobs' && k.match(/^\d{4}-\d{2}-\d{2}$/)).sort().reverse();
             if (weeks.length === 0) {
                 container.innerHTML = '<div class="no-history">No payroll history yet.</div>';
                 return;
