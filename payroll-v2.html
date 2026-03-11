@@ -449,6 +449,29 @@
             background: var(--bg-tertiary);
         }
 
+        /* Grid mode toggle (Employees / Equipment) */
+        .grid-mode-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+        }
+
+        .grid-mode-tab {
+            flex: 1;
+            padding: 10px 16px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .grid-mode-tab:hover { color: var(--text-primary); background: var(--bg-tertiary); }
+        .grid-mode-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
         /* Hidden jobs bar */
         .hidden-jobs-bar {
             display: none;
@@ -725,6 +748,10 @@
                         <span><div class="legend-dot direct"></div> Direct</span>
                     </div>
                 </div>
+                <div class="grid-mode-tabs">
+                    <button class="grid-mode-tab active" id="modeEmployees" onclick="switchGridMode('employees')">👷 Employees</button>
+                    <button class="grid-mode-tab" id="modeEquipment" onclick="switchGridMode('equipment')">🚜 Equipment</button>
+                </div>
                 <div class="timesheet-scroll" id="timesheetScroll">
                     <table class="ts-table" id="timesheetGrid">
                         <thead id="tsHead"></thead>
@@ -790,7 +817,23 @@
         let saveTimeout = null;
         let showRates = true;
         let employeeSummaryCollapsed = false;
-        let hiddenJobs = new Set(); // Track hidden job rows (by jobKey) — persisted to JSONbin — persisted to JSONbin
+        let hiddenJobs = new Set(); // Track hidden job rows (by jobKey) — persisted to JSONbin
+        let gridMode = 'employees'; // 'employees' or 'equipment'
+
+        // Equipment list (matches job.html)
+        const equipmentList = [
+            { name: 'TL12', rate: 200 },
+            { name: '290 Excavator', rate: 290 },
+            { name: '290 Skid', rate: 200 },
+            { name: '145 Mini Ex', rate: 195 },
+            { name: '240 Skid', rate: 180 },
+            { name: '197 Skid', rate: 200 },
+            { name: 'Masons', rate: 900 },
+            { name: 'Pump', rate: 500 },
+            { name: '450 Truck', rate: 200 },
+            { name: '650 Truck', rate: 900 },
+            { name: '750 Truck', rate: 650 }
+        ];
 
         // Seed data
         const seedEmployees = {
@@ -1064,6 +1107,18 @@
         }
 
         // ============================================
+        // GRID MODE SWITCHING
+        // ============================================
+        function switchGridMode(mode) {
+            gridMode = mode;
+            document.getElementById('modeEmployees').classList.toggle('active', mode === 'employees');
+            document.getElementById('modeEquipment').classList.toggle('active', mode === 'equipment');
+            buildGrid();
+            restoreHiddenJobs();
+            loadDayData();
+        }
+
+        // ============================================
         // BUILD THE TABLE (with sticky headers)
         // ============================================
         function buildGrid() {
@@ -1071,10 +1126,15 @@
             const tbody = document.getElementById('tsBody');
             const tfoot = document.getElementById('tsFoot');
 
+            // Determine columns based on mode
+            const columns = gridMode === 'equipment'
+                ? equipmentList.map(eq => ({ name: eq.name, rate: eq.rate }))
+                : workers;
+
             // HEADER ROW
             let headHtml = '<tr><th class="job-col">Job Site</th>';
-            workers.forEach(w => {
-                headHtml += `<th>${w.name}<span class="rate ${showRates ? '' : 'hidden'}">$${w.rate}/hr</span></th>`;
+            columns.forEach(col => {
+                headHtml += `<th>${col.name}<span class="rate ${showRates ? '' : 'hidden'}">$${col.rate}/hr</span></th>`;
             });
             headHtml += '</tr>';
             thead.innerHTML = headHtml;
@@ -1100,10 +1160,13 @@
                 }
                 bodyHtml += `</div></td>`;
 
-                workers.forEach(w => {
-                    const inputId = `${jobKey}_${w.name}`;
-                    const rate = getWorkerRate(w.name, job.name);
-                    bodyHtml += `<td class="data-cell"><input type="number" class="hour-input" id="${inputId}" data-worker="${w.name}" data-job="${job.name}" data-type="${job.type}" data-rate="${rate}" placeholder="-" min="0" max="24" step="0.5" oninput="onInput()"></td>`;
+                columns.forEach(col => {
+                    // Equipment inputs get an "eq_" prefix to avoid collisions
+                    const inputId = gridMode === 'equipment'
+                        ? `${jobKey}_eq_${col.name.replace(/[^a-zA-Z0-9]/g, '')}`
+                        : `${jobKey}_${col.name}`;
+                    const rate = gridMode === 'equipment' ? col.rate : getWorkerRate(col.name, job.name);
+                    bodyHtml += `<td class="data-cell"><input type="number" class="hour-input" id="${inputId}" data-col="${col.name}" data-job="${job.name}" data-type="${job.type}" data-rate="${rate}" data-mode="${gridMode}" placeholder="-" min="0" max="24" step="0.5" oninput="onInput()"></td>`;
                 });
                 bodyHtml += '</tr>';
             });
@@ -1111,8 +1174,11 @@
 
             // TOTALS ROW
             let footHtml = '<tr><td class="job-cell" style="font-weight:700;">TOTALS</td>';
-            workers.forEach(w => {
-                footHtml += `<td style="text-align:center;"><span class="total-value" id="total_${w.name}">0</span></td>`;
+            columns.forEach(col => {
+                const totalId = gridMode === 'equipment'
+                    ? `total_eq_${col.name.replace(/[^a-zA-Z0-9]/g, '')}`
+                    : `total_${col.name}`;
+                footHtml += `<td style="text-align:center;"><span class="total-value" id="${totalId}">0</span></td>`;
             });
             footHtml += '</tr>';
             tfoot.innerHTML = footHtml;
@@ -1408,30 +1474,56 @@
             const weekKey = getWeekKey(currentWeekStart);
 
             if (!allData[weekKey]) allData[weekKey] = {};
+
+            // Start from existing day data so we don't overwrite the other mode's entries
+            const existingDayData = allData[weekKey][day.key] || {};
             const dayData = {};
+
+            // Keep entries from the OTHER mode
+            Object.entries(existingDayData).forEach(([key, hours]) => {
+                const isEquipEntry = key.includes('_eq_');
+                if (gridMode === 'employees' && isEquipEntry) {
+                    dayData[key] = hours; // preserve equipment data while in employee mode
+                } else if (gridMode === 'equipment' && !isEquipEntry) {
+                    dayData[key] = hours; // preserve employee data while in equipment mode
+                }
+            });
+
+            // Add current mode's data from DOM
             document.querySelectorAll('.hour-input').forEach(input => {
                 const hours = parseFloat(input.value) || 0;
                 if (hours > 0) dayData[input.id] = hours;
             });
+
             allData[weekKey][day.key] = dayData;
             await saveAllData();
         }
 
         function calculateTotals() {
             let totalHours = 0, directCost = 0, indirectCost = 0;
-            workers.forEach(w => {
-                let workerTotal = 0;
-                document.querySelectorAll(`input[data-worker="${w.name}"]`).forEach(input => {
+
+            const columns = gridMode === 'equipment'
+                ? equipmentList.map(eq => ({ name: eq.name, rate: eq.rate, idKey: `eq_${eq.name.replace(/[^a-zA-Z0-9]/g, '')}` }))
+                : workers.map(w => ({ name: w.name, rate: w.rate, idKey: w.name }));
+
+            columns.forEach(col => {
+                let colTotal = 0;
+                document.querySelectorAll(`input[data-col="${col.name}"]`).forEach(input => {
                     const hours = parseFloat(input.value) || 0;
-                    workerTotal += hours;
-                    const rate = getWorkerRate(w.name, input.dataset.job);
+                    colTotal += hours;
+                    const rate = parseFloat(input.dataset.rate) || 0;
                     if (input.dataset.type === 'direct') directCost += hours * rate;
                     else indirectCost += hours * rate;
                 });
-                const totalEl = document.getElementById(`total_${w.name}`);
-                if (totalEl) totalEl.textContent = workerTotal || '0';
-                totalHours += workerTotal;
+
+                const totalId = gridMode === 'equipment'
+                    ? `total_eq_${col.name.replace(/[^a-zA-Z0-9]/g, '')}`
+                    : `total_${col.name}`;
+                const totalEl = document.getElementById(totalId);
+                if (totalEl) totalEl.textContent = colTotal || '0';
+                totalHours += colTotal;
             });
+
             document.getElementById('dayHours').textContent = totalHours;
             document.getElementById('directLabor').textContent = '$' + directCost.toLocaleString();
             document.getElementById('indirectLabor').textContent = '$' + indirectCost.toLocaleString();
@@ -1444,13 +1536,22 @@
             Object.values(weekData).forEach(dayData => {
                 if (typeof dayData === 'object') {
                     Object.entries(dayData).forEach(([inputId, hours]) => {
-                        const parts = inputId.split('_');
-                        const workerName = parts[parts.length - 1];
-                        const jobKey = parts.slice(0, -1).join('_');
-                        const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKey);
-                        const jobName = job ? job.name : jobKey;
-                        const rate = getWorkerRate(workerName, jobName);
-                        weekTotal += hours * rate;
+                        // Check if this is an equipment entry
+                        if (inputId.includes('_eq_')) {
+                            // Equipment — find rate from equipmentList
+                            const eqKey = inputId.split('_eq_')[1];
+                            const eq = equipmentList.find(e => e.name.replace(/[^a-zA-Z0-9]/g, '') === eqKey);
+                            weekTotal += hours * (eq ? eq.rate : 0);
+                        } else {
+                            // Employee
+                            const parts = inputId.split('_');
+                            const workerName = parts[parts.length - 1];
+                            const jobKey = parts.slice(0, -1).join('_');
+                            const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKey);
+                            const jobName = job ? job.name : jobKey;
+                            const rate = getWorkerRate(workerName, jobName);
+                            weekTotal += hours * rate;
+                        }
                     });
                 }
             });
@@ -1499,13 +1600,19 @@
                     if (typeof dayData === 'object') {
                         Object.entries(dayData).forEach(([inputId, hours]) => {
                             totalHours += hours;
-                            const parts = inputId.split('_');
-                            const workerName = parts[parts.length - 1];
-                            const jobKey = parts.slice(0, -1).join('_');
-                            const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKey);
-                            const jobName = job ? job.name : jobKey;
-                            const rate = getWorkerRate(workerName, jobName);
-                            totalCost += hours * rate;
+                            if (inputId.includes('_eq_')) {
+                                const eqKey = inputId.split('_eq_')[1];
+                                const eq = equipmentList.find(e => e.name.replace(/[^a-zA-Z0-9]/g, '') === eqKey);
+                                totalCost += hours * (eq ? eq.rate : 0);
+                            } else {
+                                const parts = inputId.split('_');
+                                const workerName = parts[parts.length - 1];
+                                const jobKey = parts.slice(0, -1).join('_');
+                                const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKey);
+                                const jobName = job ? job.name : jobKey;
+                                const rate = getWorkerRate(workerName, jobName);
+                                totalCost += hours * rate;
+                            }
                         });
                     }
                 });
@@ -1545,24 +1652,49 @@
             report += `Week: ${formatDate(currentWeekStart)} - ${formatDate(weekEnd)}, ${currentWeekStart.getFullYear()}\n\n`;
 
             let weekTotalHours = 0, weekDirectCost = 0, weekIndirectCost = 0;
+            let weekEquipHours = 0, weekEquipCost = 0;
+
             days.forEach(day => {
                 const dayData = weekData[day.key] || {};
                 if (Object.keys(dayData).length === 0) return;
-                report += `${formatDate(day.date, 'long')}\n${'-'.repeat(35)}\n`;
 
-                // Include notes for this day
                 const dayNotes = (allData._notes && allData._notes[weekKey] && allData._notes[weekKey][day.key]) || {};
 
+                // Separate employee entries from equipment entries
                 const byJob = {};
+                const byJobEquip = {};
+
                 Object.entries(dayData).forEach(([inputId, hours]) => {
-                    const parts = inputId.split('_');
-                    const workerName = parts[parts.length - 1];
-                    const jobName = parts.slice(0, -1).join('_');
-                    const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobName);
-                    const actualJobName = job ? job.name : jobName;
-                    if (!byJob[actualJobName]) byJob[actualJobName] = [];
-                    byJob[actualJobName].push({ worker: workerName, hours });
+                    if (inputId.includes('_eq_')) {
+                        // Equipment entry
+                        const parts = inputId.split('_eq_');
+                        const jobKeyRaw = parts[0];
+                        const eqKey = parts[1];
+                        const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKeyRaw);
+                        const actualJobName = job ? job.name : jobKeyRaw;
+                        const eq = equipmentList.find(e => e.name.replace(/[^a-zA-Z0-9]/g, '') === eqKey);
+                        const eqName = eq ? eq.name : eqKey;
+                        if (!byJobEquip[actualJobName]) byJobEquip[actualJobName] = [];
+                        byJobEquip[actualJobName].push({ equipment: eqName, hours, rate: eq ? eq.rate : 0 });
+                    } else {
+                        // Employee entry
+                        const parts = inputId.split('_');
+                        const workerName = parts[parts.length - 1];
+                        const jobName = parts.slice(0, -1).join('_');
+                        const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobName);
+                        const actualJobName = job ? job.name : jobName;
+                        if (!byJob[actualJobName]) byJob[actualJobName] = [];
+                        byJob[actualJobName].push({ worker: workerName, hours });
+                    }
                 });
+
+                const hasLabor = Object.keys(byJob).length > 0;
+                const hasEquip = Object.keys(byJobEquip).length > 0;
+                if (!hasLabor && !hasEquip) return;
+
+                report += `${formatDate(day.date, 'long')}\n${'-'.repeat(35)}\n`;
+
+                // Labor entries
                 Object.entries(byJob).forEach(([jobName, entries]) => {
                     const job = jobSites.find(j => j.name === jobName);
                     const jobKey = jobName.replace(/[^a-zA-Z]/g, '');
@@ -1574,19 +1706,38 @@
                         if (job?.type === 'indirect') weekIndirectCost += e.hours * rate;
                         else weekDirectCost += e.hours * rate;
                     });
-                    // Add note if exists
                     if (dayNotes[jobKey]) {
                         report += `    📝 Note: ${dayNotes[jobKey]}\n`;
                     }
                 });
+
+                // Equipment entries
+                if (hasEquip) {
+                    Object.entries(byJobEquip).forEach(([jobName, entries]) => {
+                        const job = jobSites.find(j => j.name === jobName);
+                        report += `  ${jobName} — Equipment\n`;
+                        entries.forEach(e => {
+                            const cost = e.hours * e.rate;
+                            report += `    🚜 ${e.equipment}: ${e.hours} hrs ($${e.rate}/hr = $${cost.toLocaleString()})\n`;
+                            weekEquipHours += e.hours;
+                            weekEquipCost += cost;
+                        });
+                    });
+                }
+
                 report += '\n';
             });
 
             report += `${'═'.repeat(45)}\nWEEKLY SUMMARY\n`;
-            report += `  Total Hours: ${weekTotalHours}\n`;
+            report += `  Labor Hours: ${weekTotalHours}\n`;
             report += `  Direct Labor: $${weekDirectCost.toLocaleString()}\n`;
             report += `  Indirect Labor: $${weekIndirectCost.toLocaleString()}\n`;
             report += `  Total Labor Cost: $${(weekDirectCost + weekIndirectCost).toLocaleString()}\n`;
+            if (weekEquipHours > 0) {
+                report += `  Equipment Hours: ${weekEquipHours}\n`;
+                report += `  Equipment Cost: $${weekEquipCost.toLocaleString()}\n`;
+            }
+            report += `  GRAND TOTAL: $${(weekDirectCost + weekIndirectCost + weekEquipCost).toLocaleString()}\n`;
             report += `${'═'.repeat(45)}`;
 
             // Reset modal to report mode
