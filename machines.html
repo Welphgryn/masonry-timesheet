@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spencer's Masonry - Machines</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #353535;
+            --bg-input: #1a1a1a;
+            --border-color: #3d3d3d;
+            --border-hover: #525252;
+            --text-primary: #ffffff;
+            --text-secondary: #999999;
+            --text-muted: #666666;
+            --accent: #f97316;
+            --accent-hover: #ea580c;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --card-shadow: rgba(0,0,0,0.3);
+        }
+        [data-theme="light"] {
+            --bg-primary: #f5f5f5; --bg-secondary: #ffffff; --bg-tertiary: #fafafa;
+            --bg-input: #ffffff; --border-color: #e0e0e0; --border-hover: #d0d0d0;
+            --text-primary: #1a1a1a; --text-secondary: #666666; --text-muted: #999999;
+            --card-shadow: rgba(0,0,0,0.1);
+        }
+        .theme-toggle { position: fixed; bottom: 20px; right: 20px; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; z-index: 100; transition: all 0.2s; box-shadow: 0 2px 10px var(--card-shadow); }
+        .theme-toggle:hover { border-color: var(--accent); transform: scale(1.1); }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-primary); min-height: 100vh; color: var(--text-primary); transition: background 0.3s, color 0.3s; }
+        .header { background: #f97316; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header h1 { font-size: 1.1rem; color: white; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-back { background: rgba(255,255,255,0.2); color: white; padding: 8px 16px; font-size: 0.85rem; }
+        .btn-back:hover { background: rgba(255,255,255,0.3); }
+        .btn-primary { background: #f97316; color: white; }
+        .btn-primary:hover { background: #ea580c; }
+        .btn-secondary { background: var(--border-color); color: var(--text-primary); }
+        .btn-secondary:hover { background: #525252; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-small { padding: 6px 12px; font-size: 0.8rem; }
+        .save-status { font-size: 0.85rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+        .save-status.saving { color: var(--accent); }
+        .save-status.saved { color: #16a34a; }
+        .main-content { padding: 24px; max-width: 800px; margin: 0 auto; }
+        .section { background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; overflow: hidden; }
+        .section-header { padding: 14px 20px; background: var(--bg-tertiary); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .section-header h3 { font-size: 1rem; color: var(--accent); }
+        .section-header .count { font-size: 0.85rem; color: var(--text-secondary); }
+        .machine-list { display: flex; flex-direction: column; }
+        .machine-item { display: grid; grid-template-columns: 32px 1fr 110px 70px; gap: 10px; align-items: center; padding: 12px 20px; border-bottom: 1px solid var(--border-color); transition: background 0.1s; }
+        .machine-item:last-child { border-bottom: none; }
+        .machine-item:hover { background: var(--bg-tertiary); }
+        .machine-item.inactive { opacity: 0.45; }
+        .machine-order { color: var(--text-muted); font-size: 0.75rem; text-align: center; font-weight: 600; }
+        .machine-info { display: flex; flex-direction: column; gap: 2px; }
+        .machine-name-input { background: transparent; border: 1px solid transparent; color: var(--text-primary); font-size: 0.95rem; font-weight: 500; padding: 4px 8px; border-radius: 6px; width: 100%; }
+        .machine-name-input:hover { border-color: var(--border-color); }
+        .machine-name-input:focus { outline: none; border-color: var(--accent); background: var(--bg-input); }
+        .machine-status { font-size: 0.7rem; color: var(--text-muted); padding-left: 8px; }
+        .machine-rate-group { display: flex; align-items: center; gap: 2px; }
+        .machine-rate-group span { color: var(--text-secondary); font-size: 0.85rem; }
+        .machine-rate-input { width: 65px; padding: 6px 8px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--accent); font-size: 0.95rem; font-weight: 600; text-align: right; }
+        .machine-rate-input:hover { border-color: var(--border-color); }
+        .machine-rate-input:focus { outline: none; border-color: var(--accent); background: var(--bg-input); }
+        .machine-actions { display: flex; gap: 2px; justify-content: flex-end; }
+        .icon-btn { background: none; border: none; cursor: pointer; padding: 4px 5px; font-size: 0.8rem; opacity: 0.5; transition: opacity 0.15s, transform 0.15s; border-radius: 4px; }
+        .icon-btn:hover { opacity: 1; transform: scale(1.15); }
+        .add-form { display: flex; gap: 10px; padding: 16px 20px; background: var(--bg-tertiary); border-top: 1px solid var(--border-color); align-items: center; flex-wrap: wrap; }
+        .add-form input { padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-input); color: var(--text-primary); font-size: 0.9rem; }
+        .add-form input:focus { outline: none; border-color: var(--accent); }
+        .add-form .name-input { flex: 1; min-width: 140px; }
+        .add-form .rate-input { width: 100px; text-align: right; }
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+        .empty-state h3 { color: var(--text-secondary); margin-bottom: 8px; }
+        .inactive-section .section-header { cursor: pointer; user-select: none; }
+        .inactive-section .section-header:hover h3 { opacity: 0.8; }
+        .inactive-section .toggle-icon { transition: transform 0.2s; display: inline-block; }
+        .inactive-section.collapsed .toggle-icon { transform: rotate(-90deg); }
+        .inactive-section.collapsed .section-body { display: none; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: var(--bg-secondary); border-radius: 16px; width: 100%; max-width: 400px; border: 1px solid var(--border-color); }
+        .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-tertiary); border-radius: 16px 16px 0 0; }
+        .modal-header h3 { color: var(--accent); }
+        .modal-close { background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; }
+        .modal-body { padding: 20px; }
+        .modal-body p { color: var(--text-secondary); line-height: 1.5; }
+        .modal-body .del-name { color: var(--accent); font-weight: 600; }
+        .modal-footer { padding: 16px 20px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; justify-content: flex-end; background: var(--bg-tertiary); border-radius: 0 0 16px 16px; }
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #16a34a; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 600; opacity: 0; transition: opacity 0.3s; z-index: 200; }
+        .toast.error { background: #dc2626; }
+        .toast.show { opacity: 1; }
+        .loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; z-index: 300; }
+        .loading-overlay.hidden { display: none; }
+        .loading-text { color: var(--accent); font-size: 1.2rem; }
+        @media (max-width: 768px) {
+            .header { padding: 12px 16px; }
+            .main-content { padding: 16px; }
+            .machine-item { grid-template-columns: 28px 1fr 95px 56px; gap: 6px; padding: 10px 14px; }
+            .machine-name-input { font-size: 0.85rem; }
+            .machine-rate-input { width: 55px; font-size: 0.85rem; }
+            .add-form { flex-direction: column; }
+            .add-form .name-input { min-width: 100%; }
+            .add-form .rate-input { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay"><div class="loading-text">Loading...</div></div>
+
+    <header class="header">
+        <div class="header-left">
+            <a href="index.html" class="btn btn-back">← Menu</a>
+            <h1>🚜 Machines</h1>
+        </div>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀️</button>
+        <div class="save-status" id="saveStatus"><span>●</span> All changes saved</div>
+    </header>
+
+    <div class="main-content">
+        <div class="section">
+            <div class="section-header">
+                <h3>Active Machines</h3>
+                <span class="count" id="activeCount">0 machines</span>
+            </div>
+            <div class="section-body">
+                <div class="machine-list" id="activeMachineList"></div>
+            </div>
+            <div class="add-form">
+                <input type="text" class="name-input" id="newName" placeholder="Machine name (e.g. 335 Excavator)" onkeydown="if(event.key==='Enter')addMachine()">
+                <input type="number" class="rate-input" id="newRate" placeholder="$/hr" step="5" onkeydown="if(event.key==='Enter')addMachine()">
+                <button class="btn btn-primary btn-small" onclick="addMachine()">+ Add</button>
+            </div>
+        </div>
+
+        <div class="section inactive-section collapsed" id="inactiveSection">
+            <div class="section-header" onclick="toggleInactive()">
+                <h3><span class="toggle-icon">▼</span> Inactive Machines</h3>
+                <span class="count" id="inactiveCount">0</span>
+            </div>
+            <div class="section-body">
+                <div class="machine-list" id="inactiveMachineList"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <div class="modal-header"><h3>Delete Machine?</h3><button class="modal-close" onclick="closeDelete()">&times;</button></div>
+            <div class="modal-body"><p>Delete <span class="del-name" id="delName"></span>? This cannot be undone.</p></div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeDelete()">Cancel</button><button class="btn btn-danger" onclick="doDelete()">Delete</button></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Saved!</div>
+
+    <script>
+        const JSONBIN_BIN_ID = '697a7070d0ea881f408e6063';
+        const JSONBIN_API_KEY = '$2a$10$vgUvy.chZeKckQe2eTD36uOX/mfrhx8GKudyoZqZsjWkbtaam8/Nm';
+
+        let allData = {};
+        let delId = null;
+        let saveTimeout = null;
+
+        const seedMachines = {
+            'tl12': { id: 'tl12', name: 'TL12', rate: 200, status: 'active', sortOrder: 1 },
+            '290-excavator': { id: '290-excavator', name: '290 Excavator', rate: 290, status: 'active', sortOrder: 2 },
+            '290-skid': { id: '290-skid', name: '290 Skid', rate: 200, status: 'active', sortOrder: 3 },
+            '145-mini-ex': { id: '145-mini-ex', name: '145 Mini Ex', rate: 195, status: 'active', sortOrder: 4 },
+            '240-skid': { id: '240-skid', name: '240 Skid', rate: 180, status: 'active', sortOrder: 5 },
+            '197-skid': { id: '197-skid', name: '197 Skid', rate: 200, status: 'active', sortOrder: 6 },
+            'masons': { id: 'masons', name: 'Masons', rate: 900, status: 'active', sortOrder: 7 },
+            'pump': { id: 'pump', name: 'Pump', rate: 500, status: 'active', sortOrder: 8 },
+            '450-truck': { id: '450-truck', name: '450 Truck', rate: 200, status: 'active', sortOrder: 9 },
+            '650-truck': { id: '650-truck', name: '650 Truck', rate: 900, status: 'active', sortOrder: 10 },
+            '750-truck': { id: '750-truck', name: '750 Truck', rate: 650, status: 'active', sortOrder: 11 }
+        };
+
+        // Init
+        loadAllData().then(async () => {
+            if (!allData.machines || Object.keys(allData.machines).length === 0) {
+                allData.machines = seedMachines;
+                await saveAllData();
+            }
+            renderAll();
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        });
+
+        async function loadAllData() {
+            updateSaveStatus('loading');
+            try {
+                const r = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, { headers: { 'X-Access-Key': JSONBIN_API_KEY } });
+                const d = await r.json();
+                allData = d.record || {};
+                if (!allData.machines) allData.machines = {};
+                updateSaveStatus('saved');
+            } catch (e) {
+                console.error('Load error:', e);
+                allData = { machines: {} };
+                updateSaveStatus('saved');
+            }
+        }
+
+        async function saveAllData() {
+            updateSaveStatus('saving');
+            try {
+                await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-Access-Key': JSONBIN_API_KEY },
+                    body: JSON.stringify(allData)
+                });
+                updateSaveStatus('saved');
+                return true;
+            } catch (e) {
+                console.error('Save failed:', e);
+                updateSaveStatus('error');
+                return false;
+            }
+        }
+
+        function autoSave() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => saveAllData(), 800);
+        }
+
+        function updateSaveStatus(s) {
+            const el = document.getElementById('saveStatus');
+            if (s === 'loading') { el.className = 'save-status saving'; el.innerHTML = '<span>●</span> Loading...'; }
+            else if (s === 'saving') { el.className = 'save-status saving'; el.innerHTML = '<span>●</span> Saving...'; }
+            else if (s === 'saved') { el.className = 'save-status saved'; el.innerHTML = '<span>●</span> All changes saved'; }
+            else { el.className = 'save-status'; el.innerHTML = '<span>●</span> Save failed'; }
+        }
+
+        // Render
+        function renderAll() {
+            const all = Object.values(allData.machines);
+            const active = all.filter(m => m.status === 'active').sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999));
+            const inactive = all.filter(m => m.status !== 'active').sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+            document.getElementById('activeCount').textContent = `${active.length} machine${active.length !== 1 ? 's' : ''}`;
+            document.getElementById('inactiveCount').textContent = `${inactive.length}`;
+
+            renderList('activeMachineList', active);
+            renderList('inactiveMachineList', inactive);
+            document.getElementById('inactiveSection').style.display = inactive.length > 0 ? '' : 'none';
+        }
+
+        function renderList(id, machines) {
+            const el = document.getElementById(id);
+            if (machines.length === 0) {
+                el.innerHTML = '<div class="empty-state">No machines here</div>';
+                return;
+            }
+            el.innerHTML = machines.map((m, i) => `
+                <div class="machine-item ${m.status !== 'active' ? 'inactive' : ''}" data-id="${m.id}">
+                    <div class="machine-order">${i + 1}</div>
+                    <div class="machine-info">
+                        <input type="text" class="machine-name-input" value="${escHtml(m.name)}"
+                            onchange="updateM('${m.id}','name',this.value)" placeholder="Machine name">
+                        <span class="machine-status">${m.status === 'active' ? 'Active' : 'Inactive'}</span>
+                    </div>
+                    <div class="machine-rate-group">
+                        <span>$</span>
+                        <input type="number" class="machine-rate-input" value="${m.rate}" step="5"
+                            onchange="updateM('${m.id}','rate',this.value)" placeholder="0">
+                        <span>/hr</span>
+                    </div>
+                    <div class="machine-actions">
+                        ${m.status === 'active'
+                            ? `<button class="icon-btn" onclick="moveUp('${m.id}')" title="Move up">⬆️</button>
+                               <button class="icon-btn" onclick="moveDown('${m.id}')" title="Move down">⬇️</button>
+                               <button class="icon-btn" onclick="toggleStatus('${m.id}')" title="Deactivate">⏸️</button>`
+                            : `<button class="icon-btn" onclick="toggleStatus('${m.id}')" title="Reactivate">▶️</button>`
+                        }
+                        <button class="icon-btn" onclick="promptDel('${m.id}')" title="Delete">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function escHtml(s) { return String(s).replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+        // CRUD
+        function addMachine() {
+            const nameEl = document.getElementById('newName');
+            const rateEl = document.getElementById('newRate');
+            const name = nameEl.value.trim();
+            const rate = parseFloat(rateEl.value) || 0;
+            if (!name) { showToast('Enter a machine name', true); nameEl.focus(); return; }
+
+            const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + Date.now().toString(36);
+            const maxSort = Math.max(0, ...Object.values(allData.machines).map(m => m.sortOrder || 0));
+
+            allData.machines[id] = {
+                id, name, rate, status: 'active', sortOrder: maxSort + 1,
+                created: new Date().toISOString(), modified: new Date().toISOString()
+            };
+
+            nameEl.value = '';
+            rateEl.value = '';
+            nameEl.focus();
+            renderAll();
+            saveAllData().then(() => showToast(`${name} added!`));
+        }
+
+        function updateM(id, field, value) {
+            if (!allData.machines[id]) return;
+            if (field === 'rate') value = parseFloat(value) || 0;
+            allData.machines[id][field] = value;
+            allData.machines[id].modified = new Date().toISOString();
+            autoSave();
+        }
+
+        function toggleStatus(id) {
+            if (!allData.machines[id]) return;
+            const m = allData.machines[id];
+            m.status = m.status === 'active' ? 'inactive' : 'active';
+            m.modified = new Date().toISOString();
+            renderAll();
+            saveAllData().then(() => showToast(`${m.name} ${m.status}`));
+        }
+
+        function moveUp(id) {
+            const active = Object.values(allData.machines).filter(m => m.status === 'active').sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999));
+            const idx = active.findIndex(m => m.id === id);
+            if (idx <= 0) return;
+            const prevOrder = active[idx - 1].sortOrder;
+            active[idx - 1].sortOrder = active[idx].sortOrder;
+            active[idx].sortOrder = prevOrder;
+            renderAll();
+            autoSave();
+        }
+
+        function moveDown(id) {
+            const active = Object.values(allData.machines).filter(m => m.status === 'active').sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999));
+            const idx = active.findIndex(m => m.id === id);
+            if (idx < 0 || idx >= active.length - 1) return;
+            const nextOrder = active[idx + 1].sortOrder;
+            active[idx + 1].sortOrder = active[idx].sortOrder;
+            active[idx].sortOrder = nextOrder;
+            renderAll();
+            autoSave();
+        }
+
+        function promptDel(id) {
+            if (!allData.machines[id]) return;
+            delId = id;
+            document.getElementById('delName').textContent = allData.machines[id].name;
+            document.getElementById('deleteModal').classList.add('show');
+        }
+
+        function doDelete() {
+            if (!delId || !allData.machines[delId]) return;
+            const name = allData.machines[delId].name;
+            delete allData.machines[delId];
+            delId = null;
+            closeDelete();
+            renderAll();
+            saveAllData().then(() => showToast(`${name} deleted`));
+        }
+
+        function closeDelete() { document.getElementById('deleteModal').classList.remove('show'); delId = null; }
+        function toggleInactive() { document.getElementById('inactiveSection').classList.toggle('collapsed'); }
+
+        function showToast(msg, isError = false) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast' + (isError ? ' error' : '');
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+        }
+
+        document.getElementById('deleteModal').addEventListener('click', function(e) { if (e.target === this) closeDelete(); });
+    </script>
+
+    <script>
+    (function(){
+        function initTheme(){ const s=localStorage.getItem('spencers-theme'); if(s)document.documentElement.setAttribute('data-theme',s); updateIcon(); }
+        window.toggleTheme=function(){ const c=document.documentElement.getAttribute('data-theme'); const n=c==='light'?'dark':'light'; document.documentElement.setAttribute('data-theme',n); localStorage.setItem('spencers-theme',n); updateIcon(); };
+        function updateIcon(){ const b=document.getElementById('themeToggle'); if(b){ const t=document.documentElement.getAttribute('data-theme'); b.textContent=t==='light'?'🌙':'☀️'; } }
+        initTheme();
+    })();
+    </script>
+</body>
+</html>
