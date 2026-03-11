@@ -13,7 +13,7 @@
             --text-primary: #ffffff;
             --text-secondary: #999999;
             --text-muted: #666666;
-            --border-color: var(--border-color);
+            --border-color: #3d3d3d;
             --accent: #f97316;
             --accent-hover: #ea580c;
             --success: #16a34a;
@@ -39,11 +39,7 @@
             --login-input-text: #1a1a1a;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -54,233 +50,93 @@
         }
 
         .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            z-index: 1000;
+            position: fixed; top: 20px; right: 20px;
+            background: var(--bg-tertiary); border: 1px solid var(--border-color);
+            color: var(--text-primary); width: 44px; height: 44px; border-radius: 50%;
+            cursor: pointer; font-size: 1.2rem; display: flex; align-items: center;
+            justify-content: center; transition: all 0.2s; z-index: 1000;
         }
-
-        .theme-toggle:hover {
-            border-color: var(--accent);
-            transform: scale(1.05);
-        }
+        .theme-toggle:hover { border-color: var(--accent); transform: scale(1.05); }
 
         .login-screen {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            padding: 20px; background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
         }
 
         .login-box {
-            background: var(--login-box-bg);
-            padding: 40px;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 360px;
-            text-align: center;
+            background: var(--login-box-bg); padding: 40px; border-radius: 16px;
+            width: 100%; max-width: 360px; text-align: center;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
-
-        .login-box h1 {
-            font-size: 1.6rem;
-            margin-bottom: 4px;
-            color: var(--accent);
-        }
-
-        .login-box p {
-            color: var(--text-secondary);
-            margin-bottom: 24px;
-            font-size: 0.9rem;
-        }
-
+        .login-box h1 { font-size: 1.6rem; margin-bottom: 4px; color: var(--accent); }
+        .login-box p { color: var(--text-secondary); margin-bottom: 24px; font-size: 0.9rem; }
         .login-box input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid var(--login-input-border);
-            border-radius: 8px;
-            background: var(--login-input-bg);
-            color: var(--login-input-text);
-            font-size: 1rem;
-            margin-bottom: 12px;
+            width: 100%; padding: 14px 16px; border: 2px solid var(--login-input-border);
+            border-radius: 8px; background: var(--login-input-bg); color: var(--login-input-text);
+            font-size: 1rem; margin-bottom: 12px;
         }
-
-        .login-box input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
+        .login-box input:focus { outline: none; border-color: var(--accent); }
         .login-box button {
-            width: 100%;
-            padding: 14px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
+            width: 100%; padding: 14px; background: var(--accent); color: white; border: none;
+            border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s;
         }
-
-        .login-box button:hover {
-            background: var(--accent-hover);
-        }
-
-        .login-error {
-            color: var(--danger);
-            font-size: 0.9rem;
-            margin-bottom: 12px;
-            display: none;
-        }
+        .login-box button:hover { background: var(--accent-hover); }
+        .login-error { color: var(--danger); font-size: 0.9rem; margin-bottom: 12px; display: none; }
 
         .splash-screen {
-            display: none;
-            min-height: 100vh;
-            padding: 20px;
+            display: none; min-height: 100vh; padding: 20px;
             background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
         }
+        .splash-screen.show { display: block; }
 
-        .splash-screen.show {
-            display: block;
-        }
-
-        .splash-header {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .splash-header h1 {
-            font-size: 2rem;
-            color: var(--accent);
-            margin-bottom: 8px;
-        }
-
-        .splash-header p {
-            color: var(--text-secondary);
-            font-size: 1rem;
-        }
+        .splash-header { text-align: center; padding: 40px 20px; }
+        .splash-header h1 { font-size: 2rem; color: var(--accent); margin-bottom: 8px; }
+        .splash-header p { color: var(--text-secondary); font-size: 1rem; }
 
         .splash-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px;
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 0 20px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px; max-width: 900px; margin: 40px auto; padding: 0 20px;
         }
 
         .splash-card {
-            background: var(--bg-secondary);
-            border: 2px solid var(--border-color);
-            border-radius: 16px;
-            padding: 40px 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            color: inherit;
-            display: block;
+            background: var(--bg-secondary); border: 2px solid var(--border-color);
+            border-radius: 16px; padding: 40px 30px; text-align: center; cursor: pointer;
+            transition: all 0.3s; text-decoration: none; color: inherit; display: block;
         }
-
         .splash-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-4px);
+            border-color: var(--accent); transform: translateY(-4px);
             box-shadow: 0 10px 40px rgba(249, 115, 22, 0.2);
         }
+        .splash-card .icon { font-size: 3rem; margin-bottom: 16px; }
+        .splash-card h2 { font-size: 1.4rem; margin-bottom: 8px; color: var(--text-primary); }
+        .splash-card p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; }
 
-        .splash-card .icon {
-            font-size: 3rem;
-            margin-bottom: 16px;
-        }
-
-        .splash-card h2 {
-            font-size: 1.4rem;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-        }
-
-        .splash-card p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-
-        .splash-card.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .splash-card.disabled:hover {
-            transform: none;
-            border-color: var(--border-color);
-            box-shadow: none;
-        }
+        .splash-card.disabled { opacity: 0.5; cursor: not-allowed; }
+        .splash-card.disabled:hover { transform: none; border-color: var(--border-color); box-shadow: none; }
 
         .coming-soon {
-            display: inline-block;
-            background: var(--border-color);
-            color: var(--text-secondary);
-            font-size: 0.7rem;
-            padding: 4px 8px;
-            border-radius: 4px;
-            margin-top: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            display: inline-block; background: var(--border-color); color: var(--text-secondary);
+            font-size: 0.7rem; padding: 4px 8px; border-radius: 4px; margin-top: 8px;
+            text-transform: uppercase; letter-spacing: 1px;
         }
 
-        .splash-footer {
-            text-align: center;
-            margin-top: 40px;
-        }
-
+        .splash-footer { text-align: center; margin-top: 40px; }
         .splash-footer button {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            padding: 10px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
+            background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary);
+            padding: 10px 24px; border-radius: 8px; cursor: pointer; transition: all 0.2s;
         }
-
-        .splash-footer button:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
+        .splash-footer button:hover { border-color: var(--accent); color: var(--accent); }
 
         @media (max-width: 768px) {
-            .splash-header h1 {
-                font-size: 1.5rem;
-            }
-
-            .splash-card {
-                padding: 30px 20px;
-            }
-
-            .splash-card .icon {
-                font-size: 2.5rem;
-            }
+            .splash-header h1 { font-size: 1.5rem; }
+            .splash-card { padding: 30px 20px; }
+            .splash-card .icon { font-size: 2.5rem; }
         }
     </style>
 </head>
 <body>
     <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">🌙</button>
-    
+
     <div class="login-screen" id="loginScreen">
         <div class="login-box">
             <h1>🧱 Spencer's Masonry</h1>
@@ -305,20 +161,25 @@
             <a href="jobs.html" class="splash-card">
                 <div class="icon">📋</div>
                 <h2>Jobs</h2>
-                <p>Manage active jobs, track labor costs, materials, equipment, and billing.</p>
+                <p>Manage active jobs, track labor costs, materials, machines, and billing.</p>
             </a>
             <a href="employees.html" class="splash-card">
                 <div class="icon">👷</div>
                 <h2>Employees</h2>
                 <p>Manage workers, set hourly rates, and track employee information.</p>
             </a>
+            <a href="machines.html" class="splash-card">
+                <div class="icon">🚜</div>
+                <h2>Machines</h2>
+                <p>Manage your fleet, set default hourly rates, and track machine status.</p>
+            </a>
             <a href="bidcalc.html" class="splash-card">
                 <div class="icon">🧮</div>
                 <h2>Bid Calculator</h2>
-                <p>Create job estimates with labor, equipment, materials, and overhead.</p>
+                <p>Create job estimates with labor, machines, materials, and overhead.</p>
             </a>
             <a href="calendar.html" class="splash-card">
-            <div class="icon">📅</div>
+                <div class="icon">📅</div>
                 <h2>Calendar</h2>
                 <p>View scheduled jobs, deadlines, and crew assignments at a glance.</p>
             </a>
@@ -344,7 +205,6 @@
     <script>
         const PASSWORD = 'mason2026';
 
-        // Check if already logged in
         if (sessionStorage.getItem('loggedIn') === 'true') {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('splashScreen').classList.add('show');
