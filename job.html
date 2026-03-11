@@ -892,15 +892,36 @@
 
             <div class="section">
                 <div class="section-header">
-                    <h3>Machine Hours</h3>
+                    <h3>Payroll Machines</h3>
+                    <span style="color: var(--text-secondary); font-size: 0.85rem;">Auto-pulled from timesheet</span>
+                </div>
+                <div class="section-body">
+                    <div id="machineWeeks">
+                        <div class="loading">Loading machine data...</div>
+                    </div>
+                    <div class="line-item-total">
+                        <span>Total Payroll Machines</span>
+                        <span class="value" id="totalPayrollMachines">$0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h3>Additional Machine Hours</h3>
                 </div>
                 <div class="section-body">
                     <div class="equipment-grid" id="equipmentGrid"></div>
                     <div class="line-item-total" style="margin-top: 20px;">
-                        <span>Total Machines</span>
+                        <span>Total Additional Machines</span>
                         <span class="value" id="totalEquipment">$0</span>
                     </div>
                 </div>
+            </div>
+
+            <div class="line-item-total" style="background: #f97316; margin-top: 20px;">
+                <span style="color: white; font-weight: 700;">TOTAL ALL MACHINES</span>
+                <span style="color: white; font-weight: 700;" id="totalAllMachines">$0</span>
             </div>
         </div>
 
@@ -935,7 +956,11 @@
                         <span class="value" id="sumAdditionalLabor">$0</span>
                     </div>
                     <div class="summary-line">
-                        <span class="label">Machines</span>
+                        <span class="label">Payroll Machines</span>
+                        <span class="value" id="sumPayrollMachines">$0</span>
+                    </div>
+                    <div class="summary-line">
+                        <span class="label">Additional Machines</span>
                         <span class="value" id="sumEquipment">$0</span>
                     </div>
                     <div class="summary-line">
@@ -1197,6 +1222,7 @@
             renderMachineRates();
             renderLabor();
             renderAdditionalLabor();
+            renderPayrollMachines();
             renderEquipment();
             renderMaterials();
             calculateSummary();
@@ -1513,6 +1539,120 @@
             body.classList.toggle('show');
         }
 
+        function toggleMachineWeek(index) {
+            const body = document.getElementById('machineWeekBody' + index);
+            body.classList.toggle('show');
+        }
+
+        // Payroll Machines — mirrors renderLabor but for _eq_ entries
+        function renderPayrollMachines() {
+            const container = document.getElementById('machineWeeks');
+            const payrollName = currentJob.payrollName || currentJob.name;
+            const payrollKey = payrollName.replace(/[^a-zA-Z]/g, '');
+            const eqPrefix = payrollKey + '_eq_';
+
+            const weekKeys = Object.keys(allData).filter(k => k.match(/^\d{4}-\d{2}-\d{2}$/) && k !== 'jobs').sort().reverse();
+
+            let totalPayrollMachines = 0;
+            const weeksWithData = [];
+
+            weekKeys.forEach(weekKey => {
+                const weekData = allData[weekKey];
+                let weekTotal = 0;
+                const dayData = {};
+
+                Object.entries(weekData).forEach(([dayKey, day]) => {
+                    if (typeof day === 'object') {
+                        Object.entries(day).forEach(([inputId, hours]) => {
+                            if (inputId.startsWith(eqPrefix)) {
+                                const machineKey = inputId.split('_eq_')[1];
+                                // Find machine name from key
+                                const machine = machines.find(m => (m.payrollName || m.name).replace(/[^a-zA-Z0-9]/g, '') === machineKey);
+                                const machineName = machine ? (machine.payrollName || machine.name) : machineKey;
+                                const rate = machine ? getMachineRate(machineName) : 0;
+                                const cost = hours * rate;
+                                weekTotal += cost;
+                                if (!dayData[dayKey]) dayData[dayKey] = {};
+                                dayData[dayKey][machineName] = { hours, cost, rate };
+                            }
+                        });
+                    }
+                });
+
+                if (weekTotal > 0) {
+                    weeksWithData.push({ weekKey, weekTotal, dayData });
+                    totalPayrollMachines += weekTotal;
+                }
+            });
+
+            if (weeksWithData.length === 0) {
+                container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">No machine hours found for this job</div>';
+            } else {
+                container.innerHTML = weeksWithData.map((week, i) => {
+                    const weekStart = new Date(week.weekKey + 'T00:00:00');
+                    const weekEnd = new Date(weekStart);
+                    weekEnd.setDate(weekEnd.getDate() + 6);
+
+                    return `
+                        <div class="week-block">
+                            <div class="week-header" onclick="toggleMachineWeek(${i})">
+                                <span class="week-title">${formatDateShort(weekStart)} - ${formatDateShort(weekEnd)}</span>
+                                <span class="week-total">${fmtMoney(week.weekTotal)}</span>
+                            </div>
+                            <div class="week-body" id="machineWeekBody${i}">
+                                ${renderMachineWeekGrid(week.dayData)}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            document.getElementById('totalPayrollMachines').textContent = fmtMoney(totalPayrollMachines);
+            updateMachineTotals();
+        }
+
+        function renderMachineWeekGrid(dayData) {
+            const days = Object.keys(dayData).sort();
+            const machinesInWeek = new Set();
+            days.forEach(d => Object.keys(dayData[d]).forEach(m => machinesInWeek.add(m)));
+            const machineList = Array.from(machinesInWeek);
+
+            if (machineList.length === 0) return '<div style="color: var(--text-muted);padding:10px;">No data</div>';
+
+            let html = '<div class="labor-grid" style="grid-template-columns: 80px repeat(' + machineList.length + ', 1fr);">';
+
+            // Header
+            html += '<div class="labor-cell header">Day</div>';
+            machineList.forEach(m => html += `<div class="labor-cell header">${m}</div>`);
+
+            // Days
+            days.forEach(dayKey => {
+                const d = new Date(dayKey + 'T00:00:00');
+                html += `<div class="labor-cell day-label">${d.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' })}</div>`;
+                machineList.forEach(m => {
+                    const data = dayData[dayKey][m];
+                    html += `<div class="labor-cell">${data ? data.hours : '-'}</div>`;
+                });
+            });
+
+            // Totals
+            html += '<div class="labor-cell total-row">Total</div>';
+            machineList.forEach(m => {
+                let total = 0;
+                days.forEach(d => { if (dayData[d][m]) total += dayData[d][m].hours; });
+                html += `<div class="labor-cell total-row">${total}</div>`;
+            });
+
+            html += '</div>';
+            return html;
+        }
+
+        function updateMachineTotals() {
+            const payrollMachines = parseFloat(document.getElementById('totalPayrollMachines').textContent.replace(/[$,]/g, '')) || 0;
+            const additionalMachines = calculateEquipmentTotal();
+            document.getElementById('totalAllMachines').textContent = fmtMoney(payrollMachines + additionalMachines);
+        }
+
         // Additional Labor
         function renderAdditionalLabor() {
             const container = document.getElementById('additionalLaborList');
@@ -1658,10 +1798,11 @@
         function calculateSummary() {
             const payrollLabor = calculatePayrollLabor();
             const additionalLabor = (currentJob.additionalLabor || []).reduce((sum, i) => sum + (i.amount || 0), 0);
-            const equipmentTotal = calculateEquipmentTotal();
+            const payrollMachines = calculatePayrollMachines();
+            const additionalMachines = calculateEquipmentTotal();
             const materialsTotal = (currentJob.materials || []).reduce((sum, i) => sum + (i.amount || 0), 0);
             
-            const subtotal1 = payrollLabor + additionalLabor + equipmentTotal + materialsTotal;
+            const subtotal1 = payrollLabor + additionalLabor + payrollMachines + additionalMachines + materialsTotal;
             const overhead = subtotal1 * ((currentJob.overheadPercent || 18) / 100);
             const subtotal2 = subtotal1 + overhead;
             const profit = subtotal2 * ((currentJob.profitPercent || 10) / 100);
@@ -1671,7 +1812,8 @@
             
             document.getElementById('sumPayrollLabor').textContent = fmtMoney(payrollLabor);
             document.getElementById('sumAdditionalLabor').textContent = fmtMoney(additionalLabor);
-            document.getElementById('sumEquipment').textContent = fmtMoney(equipmentTotal);
+            document.getElementById('sumPayrollMachines').textContent = fmtMoney(payrollMachines);
+            document.getElementById('sumEquipment').textContent = fmtMoney(additionalMachines);
             document.getElementById('sumMaterials').textContent = fmtMoney(materialsTotal);
             document.getElementById('sumSubtotal1').textContent = fmtMoney(subtotal1);
             document.getElementById('overheadPct').textContent = currentJob.overheadPercent || 18;
@@ -1720,7 +1862,8 @@
                     Object.values(weekData).forEach(dayData => {
                         if (typeof dayData === 'object') {
                             Object.entries(dayData).forEach(([inputId, hours]) => {
-                                if (inputId.startsWith(payrollKey + '_')) {
+                                // Only employee entries — must start with payrollKey_ but NOT contain _eq_
+                                if (inputId.startsWith(payrollKey + '_') && !inputId.includes('_eq_')) {
                                     const workerName = inputId.split('_').pop();
                                     const rate = getWorkerRate(workerName);
                                     total += hours * rate;
@@ -1731,6 +1874,34 @@
                 }
             });
             
+            return total;
+        }
+
+        function calculatePayrollMachines() {
+            const payrollName = currentJob.payrollName || currentJob.name;
+            const payrollKey = payrollName.replace(/[^a-zA-Z]/g, '');
+            const eqPrefix = payrollKey + '_eq_';
+            let total = 0;
+
+            Object.keys(allData).forEach(key => {
+                if (key.match(/^\d{4}-\d{2}-\d{2}$/) && key !== 'jobs') {
+                    const weekData = allData[key];
+                    Object.values(weekData).forEach(dayData => {
+                        if (typeof dayData === 'object') {
+                            Object.entries(dayData).forEach(([inputId, hours]) => {
+                                if (inputId.startsWith(eqPrefix)) {
+                                    const machineKey = inputId.split('_eq_')[1];
+                                    const machine = machines.find(m => (m.payrollName || m.name).replace(/[^a-zA-Z0-9]/g, '') === machineKey);
+                                    const machineName = machine ? (machine.payrollName || machine.name) : machineKey;
+                                    const rate = getMachineRate(machineName);
+                                    total += hours * rate;
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+
             return total;
         }
 
@@ -1747,10 +1918,11 @@
         function calculateJobTotal() {
             const payrollLabor = calculatePayrollLabor();
             const additionalLabor = (currentJob.additionalLabor || []).reduce((sum, i) => sum + (i.amount || 0), 0);
-            const equipmentTotal = calculateEquipmentTotal();
+            const payrollMachines = calculatePayrollMachines();
+            const additionalMachines = calculateEquipmentTotal();
             const materialsTotal = (currentJob.materials || []).reduce((sum, i) => sum + (i.amount || 0), 0);
             
-            const subtotal = payrollLabor + additionalLabor + equipmentTotal + materialsTotal;
+            const subtotal = payrollLabor + additionalLabor + payrollMachines + additionalMachines + materialsTotal;
             const overhead = subtotal * ((currentJob.overheadPercent || 18) / 100);
             const afterOverhead = subtotal + overhead;
             const profit = afterOverhead * ((currentJob.profitPercent || 10) / 100);
@@ -1775,7 +1947,8 @@
             report += `${'─'.repeat(45)}\nCOST BREAKDOWN\n${'─'.repeat(45)}\n`;
             report += `Payroll Labor: ${document.getElementById('sumPayrollLabor').textContent}\n`;
             report += `Additional Labor: ${document.getElementById('sumAdditionalLabor').textContent}\n`;
-            report += `Machines: ${document.getElementById('sumEquipment').textContent}\n`;
+            report += `Payroll Machines: ${document.getElementById('sumPayrollMachines').textContent}\n`;
+            report += `Additional Machines: ${document.getElementById('sumEquipment').textContent}\n`;
             report += `Materials: ${document.getElementById('sumMaterials').textContent}\n`;
             report += `Subtotal: ${document.getElementById('sumSubtotal1').textContent}\n`;
             report += `+ ${currentJob.overheadPercent || 18}% Overhead: ${document.getElementById('sumOverhead').textContent}\n`;
@@ -1888,10 +2061,11 @@
             // Calculate all values
             const payrollLabor = calculatePayrollLabor();
             const additionalLabor = (currentJob.additionalLabor || []).reduce((sum, i) => sum + (i.amount || 0), 0);
-            const equipmentTotal = calculateEquipmentTotal();
+            const payrollMachinesTotal = calculatePayrollMachines();
+            const additionalMachinesTotal = calculateEquipmentTotal();
             const materialsTotal = (currentJob.materials || []).reduce((sum, i) => sum + (i.amount || 0), 0);
             
-            const subtotal1 = payrollLabor + additionalLabor + equipmentTotal + materialsTotal;
+            const subtotal1 = payrollLabor + additionalLabor + payrollMachinesTotal + additionalMachinesTotal + materialsTotal;
             const overhead = subtotal1 * ((currentJob.overheadPercent || 18) / 100);
             const subtotal2 = subtotal1 + overhead;
             const profit = subtotal2 * ((currentJob.profitPercent || 10) / 100);
@@ -1905,7 +2079,8 @@
             const lineItems = [
                 { label: 'Payroll Labor', value: payrollLabor },
                 { label: 'Additional Labor', value: additionalLabor },
-                { label: 'Machines', value: equipmentTotal },
+                { label: 'Payroll Machines', value: payrollMachinesTotal },
+                { label: 'Additional Machines', value: additionalMachinesTotal },
                 { label: 'Materials', value: materialsTotal },
                 { label: 'Subtotal', value: subtotal1, bold: true },
                 { label: `Overhead (${currentJob.overheadPercent || 18}%)`, value: overhead },
