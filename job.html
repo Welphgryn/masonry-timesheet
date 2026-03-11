@@ -741,7 +741,7 @@
         <button class="tab active" data-tab="summary">Summary</button>
         <button class="tab" data-tab="info">Job Info</button>
         <button class="tab" data-tab="labor">Labor</button>
-        <button class="tab" data-tab="equipment">Equipment</button>
+        <button class="tab" data-tab="machines">Machines</button>
         <button class="tab" data-tab="materials">Materials</button>
     </div>
 
@@ -878,16 +878,26 @@
             </div>
         </div>
 
-        <!-- Equipment Tab -->
-        <div class="tab-content" id="equipmentTab">
+        <!-- Machines Tab -->
+        <div class="tab-content" id="machinesTab">
             <div class="section">
                 <div class="section-header">
-                    <h3>Equipment / Machines</h3>
+                    <h3>Machine Rates for This Job</h3>
+                    <span style="color: var(--text-secondary); font-size: 0.85rem;">Custom rates override defaults • <a href="machines.html" style="color:var(--accent);">Manage Machines</a></span>
+                </div>
+                <div class="section-body">
+                    <div class="worker-rates-grid" id="machineRatesGrid"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h3>Machine Hours</h3>
                 </div>
                 <div class="section-body">
                     <div class="equipment-grid" id="equipmentGrid"></div>
                     <div class="line-item-total" style="margin-top: 20px;">
-                        <span>Total Equipment</span>
+                        <span>Total Machines</span>
                         <span class="value" id="totalEquipment">$0</span>
                     </div>
                 </div>
@@ -925,7 +935,7 @@
                         <span class="value" id="sumAdditionalLabor">$0</span>
                     </div>
                     <div class="summary-line">
-                        <span class="label">Equipment</span>
+                        <span class="label">Machines</span>
                         <span class="value" id="sumEquipment">$0</span>
                     </div>
                     <div class="summary-line">
@@ -1038,20 +1048,50 @@
             return defaultWorkerRates[workerName] || 0;
         }
 
-        // Equipment
-        const equipment = [
-            { name: 'TL12', rate: 200 },
-            { name: '290 Excavator', rate: 290 },
-            { name: '290 Skid', rate: 200 },
-            { name: '145 Mini Ex', rate: 195 },
-            { name: '240 Skid', rate: 180 },
-            { name: '197 Skid', rate: 200 },
-            { name: 'Masons', rate: 900 },
-            { name: 'Pump', rate: 500 },
-            { name: '450 Truck', rate: 200 },
-            { name: '650 Truck', rate: 900 },
-            { name: '750 Truck', rate: 650 }
+        // Machines — dynamic list from allData.machines
+        const defaultMachines = [
+            { id: 'tl12', name: 'TL12', rate: 200, status: 'active', sortOrder: 1 },
+            { id: '290-excavator', name: '290 Excavator', rate: 290, status: 'active', sortOrder: 2 },
+            { id: '290-skid', name: '290 Skid', rate: 200, status: 'active', sortOrder: 3 },
+            { id: '145-mini-ex', name: '145 Mini Ex', rate: 195, status: 'active', sortOrder: 4 },
+            { id: '240-skid', name: '240 Skid', rate: 180, status: 'active', sortOrder: 5 },
+            { id: '197-skid', name: '197 Skid', rate: 200, status: 'active', sortOrder: 6 },
+            { id: 'masons', name: 'Masons', rate: 900, status: 'active', sortOrder: 7 },
+            { id: 'pump', name: 'Pump', rate: 500, status: 'active', sortOrder: 8 },
+            { id: '450-truck', name: '450 Truck', rate: 200, status: 'active', sortOrder: 9 },
+            { id: '650-truck', name: '650 Truck', rate: 900, status: 'active', sortOrder: 10 },
+            { id: '750-truck', name: '750 Truck', rate: 650, status: 'active', sortOrder: 11 }
         ];
+
+        let machines = []; // Built from allData.machines
+
+        function getMachineRate(machineName) {
+            if (currentJob && currentJob.machineRates && currentJob.machineRates[machineName] !== undefined) {
+                return currentJob.machineRates[machineName];
+            }
+            // Fall back to default from master list
+            const m = machines.find(e => e.name === machineName);
+            return m ? m.rate : 0;
+        }
+
+        function buildMachinesList() {
+            machines = [];
+            if (allData.machines) {
+                machines = Object.values(allData.machines)
+                    .filter(e => e.status === 'active')
+                    .sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999));
+            }
+            // Seed if empty
+            if (machines.length === 0) {
+                defaultMachines.forEach(m => {
+                    if (!allData.machines) allData.machines = {};
+                    allData.machines[m.id] = { ...m, payrollName: m.name, created: new Date().toISOString(), modified: new Date().toISOString() };
+                });
+                machines = Object.values(allData.machines)
+                    .filter(e => e.status === 'active')
+                    .sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999));
+            }
+        }
 
         let allData = {};
         let currentJob = null;
@@ -1104,6 +1144,9 @@
                 }
                 
                 currentJob = allData.jobs[jobId];
+
+                // Build machines list from allData.machines
+                buildMachinesList();
                 renderAll();
             } catch (e) {
                 console.error('Error loading:', e);
@@ -1146,10 +1189,12 @@
 
         // Render all
         function renderAll() {
+            buildMachinesList();
             renderHeader();
             renderJobInfo();
             renderDraws();
             renderWorkerRates();
+            renderMachineRates();
             renderLabor();
             renderAdditionalLabor();
             renderEquipment();
@@ -1194,6 +1239,45 @@
             
             // Recalculate labor with new rates
             renderLabor();
+            calculateSummary();
+            scheduleAutoSave();
+        }
+
+        // Machine Rates (per-job overrides)
+        function renderMachineRates() {
+            const container = document.getElementById('machineRatesGrid');
+            if (!currentJob.machineRates) currentJob.machineRates = {};
+
+            container.innerHTML = machines.map(m => {
+                const defaultRate = m.rate || 0;
+                const customRate = currentJob.machineRates[m.name];
+                const displayRate = customRate !== undefined ? customRate : '';
+
+                return `
+                    <div class="worker-rate-item">
+                        <span class="worker-name">${m.name}</span>
+                        <div class="rate-input-group">
+                            <span>$</span>
+                            <input type="number" value="${displayRate}" placeholder="${defaultRate}"
+                                   onchange="updateMachineRate('${m.name.replace(/'/g, "\\'")}', this.value)" step="5">
+                            <span>/hr</span>
+                        </div>
+                        <span class="default-rate">Default: $${defaultRate}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateMachineRate(machineName, value) {
+            if (!currentJob.machineRates) currentJob.machineRates = {};
+
+            if (value === '' || value === null) {
+                delete currentJob.machineRates[machineName];
+            } else {
+                currentJob.machineRates[machineName] = parseFloat(value) || 0;
+            }
+
+            renderEquipment();
             calculateSummary();
             scheduleAutoSave();
         }
@@ -1476,7 +1560,7 @@
             document.getElementById('totalAllLabor').textContent = fmtMoney(payrollLabor + additionalLabor);
         }
 
-        // Equipment
+        // Machines (Equipment)
         function renderEquipment() {
             const container = document.getElementById('equipmentGrid');
             const jobEquipment = currentJob.equipment || {};
@@ -1490,14 +1574,15 @@
                 </div>
             `;
             
-            equipment.forEach(eq => {
-                const hours = jobEquipment[eq.name] || 0;
-                const total = hours * eq.rate;
+            machines.forEach(m => {
+                const hours = jobEquipment[m.name] || 0;
+                const rate = getMachineRate(m.name);
+                const total = hours * rate;
                 html += `
                     <div class="equipment-row">
-                        <span class="equipment-name">${eq.name}</span>
-                        <span class="equipment-rate">$${eq.rate}/hr</span>
-                        <input type="number" value="${hours || ''}" placeholder="0" onchange="updateEquipment('${eq.name}', this.value)">
+                        <span class="equipment-name">${m.name}</span>
+                        <span class="equipment-rate">$${rate}/hr</span>
+                        <input type="number" value="${hours || ''}" placeholder="0" onchange="updateEquipment('${m.name.replace(/'/g, "\\'")}', this.value)">
                         <span class="equipment-total">${fmtMoney(total)}</span>
                     </div>
                 `;
@@ -1516,9 +1601,10 @@
 
         function updateEquipmentTotal() {
             let total = 0;
-            equipment.forEach(eq => {
-                const hours = (currentJob.equipment || {})[eq.name] || 0;
-                total += hours * eq.rate;
+            machines.forEach(m => {
+                const hours = (currentJob.equipment || {})[m.name] || 0;
+                const rate = getMachineRate(m.name);
+                total += hours * rate;
             });
             document.getElementById('totalEquipment').textContent = fmtMoney(total);
         }
@@ -1650,9 +1736,10 @@
 
         function calculateEquipmentTotal() {
             let total = 0;
-            equipment.forEach(eq => {
-                const hours = (currentJob.equipment || {})[eq.name] || 0;
-                total += hours * eq.rate;
+            machines.forEach(m => {
+                const hours = (currentJob.equipment || {})[m.name] || 0;
+                const rate = getMachineRate(m.name);
+                total += hours * rate;
             });
             return total;
         }
@@ -1688,7 +1775,7 @@
             report += `${'─'.repeat(45)}\nCOST BREAKDOWN\n${'─'.repeat(45)}\n`;
             report += `Payroll Labor: ${document.getElementById('sumPayrollLabor').textContent}\n`;
             report += `Additional Labor: ${document.getElementById('sumAdditionalLabor').textContent}\n`;
-            report += `Equipment: ${document.getElementById('sumEquipment').textContent}\n`;
+            report += `Machines: ${document.getElementById('sumEquipment').textContent}\n`;
             report += `Materials: ${document.getElementById('sumMaterials').textContent}\n`;
             report += `Subtotal: ${document.getElementById('sumSubtotal1').textContent}\n`;
             report += `+ ${currentJob.overheadPercent || 18}% Overhead: ${document.getElementById('sumOverhead').textContent}\n`;
@@ -1818,7 +1905,7 @@
             const lineItems = [
                 { label: 'Payroll Labor', value: payrollLabor },
                 { label: 'Additional Labor', value: additionalLabor },
-                { label: 'Equipment', value: equipmentTotal },
+                { label: 'Machines', value: equipmentTotal },
                 { label: 'Materials', value: materialsTotal },
                 { label: 'Subtotal', value: subtotal1, bold: true },
                 { label: `Overhead (${currentJob.overheadPercent || 18}%)`, value: overhead },
@@ -2068,12 +2155,13 @@
                 doc.setTextColor(...darkGray);
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'bold');
-                doc.text('Equipment', margin, y);
+                doc.text('Machines', margin, y);
                 y += 10;
                 
-                equipment.forEach((eq, i) => {
-                    const hours = (currentJob.equipment || {})[eq.name] || 0;
+                machines.forEach((m, i) => {
+                    const hours = (currentJob.equipment || {})[m.name] || 0;
                     if (hours > 0) {
+                        const rate = getMachineRate(m.name);
                         if (i % 2 === 0) {
                             doc.setFillColor(250, 250, 250);
                             doc.rect(margin, y - 4, contentWidth, 8, 'F');
@@ -2081,10 +2169,10 @@
                         doc.setTextColor(...darkGray);
                         doc.setFontSize(9);
                         doc.setFont('helvetica', 'normal');
-                        doc.text(eq.name, margin + 5, y);
-                        doc.text(hours + ' hrs @ $' + eq.rate + '/hr', margin + 80, y);
+                        doc.text(m.name, margin + 5, y);
+                        doc.text(hours + ' hrs @ $' + rate + '/hr', margin + 80, y);
                         doc.setFont('helvetica', 'bold');
-                        doc.text(fmtMoney(hours * eq.rate), pageWidth - margin - 5, y, { align: 'right' });
+                        doc.text(fmtMoney(hours * rate), pageWidth - margin - 5, y, { align: 'right' });
                         y += 8;
                     }
                 });
@@ -2095,7 +2183,7 @@
                 doc.setTextColor(...darkGray);
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'bold');
-                doc.text('EQUIPMENT TOTAL', margin + 5, y + 2);
+                doc.text('MACHINES TOTAL', margin + 5, y + 2);
                 doc.setTextColor(...orange);
                 doc.text(fmtMoney(equipmentTotal), pageWidth - margin - 5, y + 2, { align: 'right' });
                 y += 20;
