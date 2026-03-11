@@ -750,7 +750,7 @@
                 </div>
                 <div class="grid-mode-tabs">
                     <button class="grid-mode-tab active" id="modeEmployees" onclick="switchGridMode('employees')">👷 Employees</button>
-                    <button class="grid-mode-tab" id="modeEquipment" onclick="switchGridMode('equipment')">🚜 Equipment</button>
+                    <button class="grid-mode-tab" id="modeEquipment" onclick="switchGridMode('machines')">🚜 Machines</button>
                 </div>
                 <div class="timesheet-scroll" id="timesheetScroll">
                     <table class="ts-table" id="timesheetGrid">
@@ -818,22 +818,25 @@
         let showRates = true;
         let employeeSummaryCollapsed = false;
         let hiddenJobs = new Set(); // Track hidden job rows (by jobKey) — persisted to JSONbin
-        let gridMode = 'employees'; // 'employees' or 'equipment'
+        let gridMode = 'employees'; // 'employees' or 'machines'
 
-        // Equipment list (matches job.html)
-        const equipmentList = [
-            { name: 'TL12', rate: 200 },
-            { name: '290 Excavator', rate: 290 },
-            { name: '290 Skid', rate: 200 },
-            { name: '145 Mini Ex', rate: 195 },
-            { name: '240 Skid', rate: 180 },
-            { name: '197 Skid', rate: 200 },
-            { name: 'Masons', rate: 900 },
-            { name: 'Pump', rate: 500 },
-            { name: '450 Truck', rate: 200 },
-            { name: '650 Truck', rate: 900 },
-            { name: '750 Truck', rate: 650 }
-        ];
+        // Machines list — populated dynamically from allData.machines
+        let machinesList = [];
+
+        // Seed machines — used if allData.machines doesn't exist yet
+        const seedMachines = {
+            'tl12': { id: 'tl12', name: 'TL12', payrollName: 'TL12', rate: 200, status: 'active', sortOrder: 1 },
+            '290-excavator': { id: '290-excavator', name: '290 Excavator', payrollName: '290 Excavator', rate: 290, status: 'active', sortOrder: 2 },
+            '290-skid': { id: '290-skid', name: '290 Skid', payrollName: '290 Skid', rate: 200, status: 'active', sortOrder: 3 },
+            '145-mini-ex': { id: '145-mini-ex', name: '145 Mini Ex', payrollName: '145 Mini Ex', rate: 195, status: 'active', sortOrder: 4 },
+            '240-skid': { id: '240-skid', name: '240 Skid', payrollName: '240 Skid', rate: 180, status: 'active', sortOrder: 5 },
+            '197-skid': { id: '197-skid', name: '197 Skid', payrollName: '197 Skid', rate: 200, status: 'active', sortOrder: 6 },
+            'masons': { id: 'masons', name: 'Masons', payrollName: 'Masons', rate: 900, status: 'active', sortOrder: 7 },
+            'pump': { id: 'pump', name: 'Pump', payrollName: 'Pump', rate: 500, status: 'active', sortOrder: 8 },
+            '450-truck': { id: '450-truck', name: '450 Truck', payrollName: '450 Truck', rate: 200, status: 'active', sortOrder: 9 },
+            '650-truck': { id: '650-truck', name: '650 Truck', payrollName: '650 Truck', rate: 900, status: 'active', sortOrder: 10 },
+            '750-truck': { id: '750-truck', name: '750 Truck', payrollName: '750 Truck', rate: 650, status: 'active', sortOrder: 11 }
+        };
 
         // Seed data
         const seedEmployees = {
@@ -875,7 +878,23 @@
                 allData.jobs = seedJobs;
                 needsSave = true;
             }
+            if (!allData.machines || Object.keys(allData.machines).length === 0) {
+                allData.machines = seedMachines;
+                needsSave = true;
+            }
             if (needsSave) await saveAllData();
+        }
+
+        function buildMachinesList() {
+            machinesList = [];
+            if (allData.machines) {
+                const activeMachines = Object.values(allData.machines)
+                    .filter(m => m.status === 'active')
+                    .sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999));
+                activeMachines.forEach(m => {
+                    machinesList.push({ name: m.payrollName || m.name, rate: m.rate, id: m.id });
+                });
+            }
         }
 
         function toggleRates() {
@@ -1112,7 +1131,7 @@
         function switchGridMode(mode) {
             gridMode = mode;
             document.getElementById('modeEmployees').classList.toggle('active', mode === 'employees');
-            document.getElementById('modeEquipment').classList.toggle('active', mode === 'equipment');
+            document.getElementById('modeEquipment').classList.toggle('active', mode === 'machines');
             buildGrid();
             restoreHiddenJobs();
             loadDayData();
@@ -1127,8 +1146,8 @@
             const tfoot = document.getElementById('tsFoot');
 
             // Determine columns based on mode
-            const columns = gridMode === 'equipment'
-                ? equipmentList.map(eq => ({ name: eq.name, rate: eq.rate }))
+            const columns = gridMode === 'machines'
+                ? machinesList.map(eq => ({ name: eq.name, rate: eq.rate }))
                 : workers;
 
             // HEADER ROW
@@ -1162,10 +1181,10 @@
 
                 columns.forEach(col => {
                     // Equipment inputs get an "eq_" prefix to avoid collisions
-                    const inputId = gridMode === 'equipment'
+                    const inputId = gridMode === 'machines'
                         ? `${jobKey}_eq_${col.name.replace(/[^a-zA-Z0-9]/g, '')}`
                         : `${jobKey}_${col.name}`;
-                    const rate = gridMode === 'equipment' ? col.rate : getWorkerRate(col.name, job.name);
+                    const rate = gridMode === 'machines' ? col.rate : getWorkerRate(col.name, job.name);
                     bodyHtml += `<td class="data-cell"><input type="number" class="hour-input" id="${inputId}" data-col="${col.name}" data-job="${job.name}" data-type="${job.type}" data-rate="${rate}" data-mode="${gridMode}" placeholder="-" min="0" max="24" step="0.5" oninput="onInput()"></td>`;
                 });
                 bodyHtml += '</tr>';
@@ -1175,7 +1194,7 @@
             // TOTALS ROW
             let footHtml = '<tr><td class="job-cell" style="font-weight:700;">TOTALS</td>';
             columns.forEach(col => {
-                const totalId = gridMode === 'equipment'
+                const totalId = gridMode === 'machines'
                     ? `total_eq_${col.name.replace(/[^a-zA-Z0-9]/g, '')}`
                     : `total_${col.name}`;
                 footHtml += `<td style="text-align:center;"><span class="total-value" id="${totalId}">0</span></td>`;
@@ -1290,6 +1309,7 @@
             await checkAndSeedData();
             buildWorkerList();
             buildJobSites();
+            buildMachinesList();
 
             if (workers.length === 0) {
                 document.getElementById('tsBody').innerHTML = `
@@ -1484,7 +1504,7 @@
                 const isEquipEntry = key.includes('_eq_');
                 if (gridMode === 'employees' && isEquipEntry) {
                     dayData[key] = hours; // preserve equipment data while in employee mode
-                } else if (gridMode === 'equipment' && !isEquipEntry) {
+                } else if (gridMode === 'machines' && !isEquipEntry) {
                     dayData[key] = hours; // preserve employee data while in equipment mode
                 }
             });
@@ -1502,8 +1522,8 @@
         function calculateTotals() {
             let totalHours = 0, directCost = 0, indirectCost = 0;
 
-            const columns = gridMode === 'equipment'
-                ? equipmentList.map(eq => ({ name: eq.name, rate: eq.rate, idKey: `eq_${eq.name.replace(/[^a-zA-Z0-9]/g, '')}` }))
+            const columns = gridMode === 'machines'
+                ? machinesList.map(eq => ({ name: eq.name, rate: eq.rate, idKey: `eq_${eq.name.replace(/[^a-zA-Z0-9]/g, '')}` }))
                 : workers.map(w => ({ name: w.name, rate: w.rate, idKey: w.name }));
 
             columns.forEach(col => {
@@ -1516,7 +1536,7 @@
                     else indirectCost += hours * rate;
                 });
 
-                const totalId = gridMode === 'equipment'
+                const totalId = gridMode === 'machines'
                     ? `total_eq_${col.name.replace(/[^a-zA-Z0-9]/g, '')}`
                     : `total_${col.name}`;
                 const totalEl = document.getElementById(totalId);
@@ -1538,9 +1558,9 @@
                     Object.entries(dayData).forEach(([inputId, hours]) => {
                         // Check if this is an equipment entry
                         if (inputId.includes('_eq_')) {
-                            // Equipment — find rate from equipmentList
+                            // Equipment — find rate from machinesList
                             const eqKey = inputId.split('_eq_')[1];
-                            const eq = equipmentList.find(e => e.name.replace(/[^a-zA-Z0-9]/g, '') === eqKey);
+                            const eq = machinesList.find(e => e.name.replace(/[^a-zA-Z0-9]/g, '') === eqKey);
                             weekTotal += hours * (eq ? eq.rate : 0);
                         } else {
                             // Employee
@@ -1584,7 +1604,7 @@
 
         function renderHistory() {
             const container = document.getElementById('historyList');
-            const weeks = Object.keys(allData).filter(k => k !== 'bids' && k !== 'jobs' && k !== 'employees' && k !== '_notes' && k !== '_hiddenJobs' && k.match(/^\d{4}-\d{2}-\d{2}$/)).sort().reverse();
+            const weeks = Object.keys(allData).filter(k => k !== 'bids' && k !== 'jobs' && k !== 'employees' && k !== 'machines' && k !== '_notes' && k !== '_hiddenJobs' && k.match(/^\d{4}-\d{2}-\d{2}$/)).sort().reverse();
             if (weeks.length === 0) {
                 container.innerHTML = '<div class="no-history">No payroll history yet.</div>';
                 return;
@@ -1602,7 +1622,7 @@
                             totalHours += hours;
                             if (inputId.includes('_eq_')) {
                                 const eqKey = inputId.split('_eq_')[1];
-                                const eq = equipmentList.find(e => e.name.replace(/[^a-zA-Z0-9]/g, '') === eqKey);
+                                const eq = machinesList.find(e => e.name.replace(/[^a-zA-Z0-9]/g, '') === eqKey);
                                 totalCost += hours * (eq ? eq.rate : 0);
                             } else {
                                 const parts = inputId.split('_');
@@ -1672,7 +1692,7 @@
                         const eqKey = parts[1];
                         const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKeyRaw);
                         const actualJobName = job ? job.name : jobKeyRaw;
-                        const eq = equipmentList.find(e => e.name.replace(/[^a-zA-Z0-9]/g, '') === eqKey);
+                        const eq = machinesList.find(e => e.name.replace(/[^a-zA-Z0-9]/g, '') === eqKey);
                         const eqName = eq ? eq.name : eqKey;
                         if (!byJobEquip[actualJobName]) byJobEquip[actualJobName] = [];
                         byJobEquip[actualJobName].push({ equipment: eqName, hours, rate: eq ? eq.rate : 0 });
