@@ -2148,13 +2148,43 @@
             doc.text('TOTAL DUE', margin + 8, y + 12);
             doc.text(fmtMoney(total), pageWidth - margin - 8, y + 12, { align: 'right' });
             
-            y += 30;
+            y += 25;
             
-            // Metrics Row
+            // Payments Made row
+            doc.setFillColor(245, 245, 245);
+            doc.roundedRect(margin, y, contentWidth, 14, 3, 3, 'F');
+            doc.setTextColor(...darkGray);
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Payments Made', margin + 8, y + 10);
+            doc.setTextColor(234, 179, 8);
+            doc.setFont('helvetica', 'bold');
+            doc.text(fmtMoney(totalDraws), pageWidth - margin - 8, y + 10, { align: 'right' });
+            
+            y += 18;
+            
+            // Remaining Balance row - stands out
+            const remainingBase = (currentJob.jobType === 'contract' && (currentJob.contractAmount || 0) > 0) ? currentJob.contractAmount : total;
+            const remainingBalance = remainingBase - totalDraws;
+            const balColor = remainingBalance >= 0 ? [22, 163, 74] : [220, 38, 38];
+            
+            doc.setFillColor(...(remainingBalance >= 0 ? [220, 252, 231] : [254, 226, 226]));
+            doc.roundedRect(margin, y, contentWidth, 18, 3, 3, 'F');
+            doc.setDrawColor(...balColor);
+            doc.setLineWidth(0.5);
+            doc.roundedRect(margin, y, contentWidth, 18, 3, 3, 'S');
+            doc.setTextColor(...balColor);
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'bold');
+            doc.text('REMAINING BALANCE', margin + 8, y + 12);
+            doc.text(fmtMoney(remainingBalance), pageWidth - margin - 8, y + 12, { align: 'right' });
+            
+            y += 25;
+            
+            // Metrics Row (SF, Cost per SF, Contract Amount if applicable)
             const sf = currentJob.squareFootage || 0;
             const metricsY = y;
             
-            // Square Footage
             if (sf > 0) {
                 doc.setTextColor(...lightGray);
                 doc.setFontSize(8);
@@ -2165,7 +2195,6 @@
                 doc.setFont('helvetica', 'bold');
                 doc.text(sf.toLocaleString() + ' SF', margin, metricsY + 8);
                 
-                // Cost per SF
                 doc.setTextColor(...lightGray);
                 doc.setFontSize(8);
                 doc.setFont('helvetica', 'normal');
@@ -2176,12 +2205,11 @@
                 doc.text('$' + (total / sf).toFixed(2), margin + 60, metricsY + 8);
             }
             
-            // Balance/Owed
-            doc.setTextColor(...lightGray);
-            doc.setFontSize(8);
-            doc.setFont('helvetica', 'normal');
-            
-            if (currentJob.jobType === 'contract') {
+            // Contract Amount - only show for non-cash contract jobs
+            if (currentJob.jobType === 'contract' && !isCash) {
+                doc.setTextColor(...lightGray);
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
                 doc.text('CONTRACT AMOUNT', pageWidth - margin - 60, metricsY);
                 doc.setTextColor(167, 139, 250);
                 doc.setFontSize(12);
@@ -2189,16 +2217,7 @@
                 doc.text(fmtMoney(currentJob.contractAmount || 0), pageWidth - margin - 60, metricsY + 8);
             }
             
-            doc.setTextColor(...lightGray);
-            doc.setFontSize(8);
-            doc.setFont('helvetica', 'normal');
-            doc.text('TOTAL DRAWS', pageWidth - margin - 120, metricsY);
-            doc.setTextColor(234, 179, 8);
-            doc.setFontSize(12);
-            doc.setFont('helvetica', 'bold');
-            doc.text(fmtMoney(totalDraws), pageWidth - margin - 120, metricsY + 8);
-            
-            y += 25;
+            y = metricsY + 20;
             
             // Footer on page 1
             doc.setTextColor(...lightGray);
@@ -2322,6 +2341,11 @@
             // Additional Labor Section
             const additionalLaborItems = currentJob.additionalLabor || [];
             if (additionalLaborItems.length > 0) {
+                if (y > pageHeight - 60) {
+                    doc.addPage();
+                    y = 30;
+                }
+                
                 doc.setTextColor(...darkGray);
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'bold');
@@ -2329,6 +2353,10 @@
                 y += 10;
                 
                 additionalLaborItems.forEach((item, i) => {
+                    if (y > pageHeight - 30) {
+                        doc.addPage();
+                        y = 30;
+                    }
                     if (i % 2 === 0) {
                         doc.setFillColor(250, 250, 250);
                         doc.rect(margin, y - 4, contentWidth, 8, 'F');
@@ -2342,6 +2370,10 @@
                     y += 8;
                 });
                 
+                if (y > pageHeight - 30) {
+                    doc.addPage();
+                    y = 30;
+                }
                 y += 2;
                 doc.setFillColor(240, 240, 240);
                 doc.rect(margin, y - 4, contentWidth, 10, 'F');
@@ -2356,7 +2388,7 @@
             
             // Equipment Section
             if (equipmentTotal > 0) {
-                if (y > pageHeight - 80) {
+                if (y > pageHeight - 60) {
                     doc.addPage();
                     y = 30;
                 }
@@ -2367,11 +2399,16 @@
                 doc.text('Machines', margin, y);
                 y += 10;
                 
-                machines.forEach((m, i) => {
+                let machineRowIdx = 0;
+                machines.forEach((m) => {
                     const hours = (currentJob.equipment || {})[m.name] || 0;
                     if (hours > 0) {
+                        if (y > pageHeight - 30) {
+                            doc.addPage();
+                            y = 30;
+                        }
                         const rate = getMachineRate(m.name);
-                        if (i % 2 === 0) {
+                        if (machineRowIdx % 2 === 0) {
                             doc.setFillColor(250, 250, 250);
                             doc.rect(margin, y - 4, contentWidth, 8, 'F');
                         }
@@ -2383,9 +2420,14 @@
                         doc.setFont('helvetica', 'bold');
                         doc.text(fmtMoney(hours * rate), pageWidth - margin - 5, y, { align: 'right' });
                         y += 8;
+                        machineRowIdx++;
                     }
                 });
                 
+                if (y > pageHeight - 30) {
+                    doc.addPage();
+                    y = 30;
+                }
                 y += 2;
                 doc.setFillColor(240, 240, 240);
                 doc.rect(margin, y - 4, contentWidth, 10, 'F');
@@ -2401,7 +2443,7 @@
             // Materials Section
             const materialItems = currentJob.materials || [];
             if (materialItems.length > 0) {
-                if (y > pageHeight - 80) {
+                if (y > pageHeight - 60) {
                     doc.addPage();
                     y = 30;
                 }
@@ -2413,6 +2455,10 @@
                 y += 10;
                 
                 materialItems.forEach((item, i) => {
+                    if (y > pageHeight - 30) {
+                        doc.addPage();
+                        y = 30;
+                    }
                     if (i % 2 === 0) {
                         doc.setFillColor(250, 250, 250);
                         doc.rect(margin, y - 4, contentWidth, 8, 'F');
@@ -2424,13 +2470,12 @@
                     doc.setFont('helvetica', 'bold');
                     doc.text(fmtMoney(item.amount || 0), pageWidth - margin - 5, y, { align: 'right' });
                     y += 8;
-                    
-                    if (y > pageHeight - 30) {
-                        doc.addPage();
-                        y = 30;
-                    }
                 });
                 
+                if (y > pageHeight - 30) {
+                    doc.addPage();
+                    y = 30;
+                }
                 y += 2;
                 doc.setFillColor(240, 240, 240);
                 doc.rect(margin, y - 4, contentWidth, 10, 'F');
