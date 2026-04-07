@@ -729,6 +729,7 @@
             <div class="header-badges">
                 <span class="badge" id="statusBadge">Active</span>
                 <span class="badge" id="typeBadge">Contract</span>
+                <span class="badge" id="cashBadge" style="display:none;background:rgba(34,197,94,0.3);color:#4ade80;">CASH</span>
             </div>
         </div>
         <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀️</button>
@@ -797,6 +798,12 @@
                         <div class="form-group" id="contractAmountGroup">
                             <label>Contract Amount</label>
                             <input type="number" id="infoContractAmount">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                                <input type="checkbox" id="infoCashJob" style="width:18px;height:18px;accent-color:#f97316;cursor:pointer;">
+                                Cash Job <span style="font-weight:normal;color:#999;font-size:12px;">(no profit / no GE tax)</span>
+                            </label>
                         </div>
                         <div class="form-group full-width">
                             <label>Notes</label>
@@ -979,15 +986,15 @@
                         <span class="label">Subtotal</span>
                         <span class="value" id="sumSubtotal2">$0</span>
                     </div>
-                    <div class="summary-line">
+                    <div class="summary-line" id="sumProfitRow">
                         <span class="label">Profit (<span id="profitPct">10</span>%)</span>
                         <span class="value" id="sumProfit">$0</span>
                     </div>
-                    <div class="summary-line subtotal">
+                    <div class="summary-line subtotal" id="sumSubtotal3Row">
                         <span class="label">Subtotal</span>
                         <span class="value" id="sumSubtotal3">$0</span>
                     </div>
-                    <div class="summary-line">
+                    <div class="summary-line" id="sumTaxRow">
                         <span class="label">GE Tax (<span id="taxPct">4.712</span>%)</span>
                         <span class="value" id="sumTax">$0</span>
                     </div>
@@ -1319,6 +1326,9 @@
             const typeBadge = document.getElementById('typeBadge');
             typeBadge.textContent = (currentJob.jobType || 'hourly').toUpperCase();
             typeBadge.className = 'badge ' + (currentJob.jobType || 'hourly');
+            
+            const cashBadge = document.getElementById('cashBadge');
+            cashBadge.style.display = currentJob.isCash ? 'inline-block' : 'none';
         }
 
         // Job Info
@@ -1332,6 +1342,7 @@
             document.getElementById('infoStatus').value = currentJob.status || 'active';
             document.getElementById('infoType').value = currentJob.jobType || 'hourly';
             document.getElementById('infoContractAmount').value = currentJob.contractAmount || '';
+            document.getElementById('infoCashJob').checked = currentJob.isCash || false;
             document.getElementById('infoNotes').value = currentJob.notes || '';
             
             toggleContractAmount();
@@ -1353,6 +1364,7 @@
             currentJob.status = document.getElementById('infoStatus').value;
             currentJob.jobType = document.getElementById('infoType').value;
             currentJob.contractAmount = currentJob.jobType === 'contract' ? (parseFloat(document.getElementById('infoContractAmount').value) || 0) : 0;
+            currentJob.isCash = document.getElementById('infoCashJob').checked;
             currentJob.notes = document.getElementById('infoNotes').value.trim();
             
             allData.jobs[jobId] = currentJob;
@@ -1804,13 +1816,15 @@
             const additionalMachines = calculateEquipmentTotal();
             const materialsTotal = (currentJob.materials || []).reduce((sum, i) => sum + (i.amount || 0), 0);
             
+            const isCash = currentJob.isCash || false;
+            
             const subtotal1 = payrollLabor + additionalLabor + payrollMachines + additionalMachines + materialsTotal;
             const overhead = subtotal1 * ((currentJob.overheadPercent || 18) / 100);
             const subtotal2 = subtotal1 + overhead;
-            const profit = subtotal2 * ((currentJob.profitPercent || 10) / 100);
+            const profit = isCash ? 0 : subtotal2 * ((currentJob.profitPercent || 10) / 100);
             const subtotal3 = subtotal2 + profit;
-            const tax = subtotal3 * ((currentJob.geTaxPercent || 4.712) / 100);
-            const total = subtotal3 + tax;
+            const tax = isCash ? 0 : subtotal3 * ((currentJob.geTaxPercent || 4.712) / 100);
+            const total = isCash ? subtotal2 : subtotal3 + tax;
             
             document.getElementById('sumPayrollLabor').textContent = fmtMoney(payrollLabor);
             document.getElementById('sumAdditionalLabor').textContent = fmtMoney(additionalLabor);
@@ -1828,11 +1842,16 @@
             document.getElementById('sumTax').textContent = fmtMoney(tax);
             document.getElementById('sumTotal').textContent = fmtMoney(total);
             
+            // Hide/show profit and GE tax rows for cash jobs
+            document.getElementById('sumProfitRow').style.display = isCash ? 'none' : '';
+            document.getElementById('sumSubtotal3Row').style.display = isCash ? 'none' : '';
+            document.getElementById('sumTaxRow').style.display = isCash ? 'none' : '';
+            
             // Metrics
             const sf = currentJob.squareFootage || 0;
             document.getElementById('sumSF').value = sf;
             document.getElementById('sumCostPerSF').textContent = sf > 0 ? '$' + (total / sf).toFixed(2) : '$0.00';
-            document.getElementById('sumProfitAmount').textContent = fmtMoney(overhead + profit);
+            document.getElementById('sumProfitAmount').textContent = fmtMoney(isCash ? overhead : overhead + profit);
             
             // Balance
             const totalDraws = (currentJob.draws || []).reduce((sum, d) => sum + (d.amount || 0), 0);
@@ -1919,6 +1938,7 @@
         }
 
         function calculateJobTotal() {
+            const isCash = currentJob.isCash || false;
             const payrollLabor = calculatePayrollLabor();
             const additionalLabor = (currentJob.additionalLabor || []).reduce((sum, i) => sum + (i.amount || 0), 0);
             const payrollMachines = calculatePayrollMachines();
@@ -1928,6 +1948,9 @@
             const subtotal = payrollLabor + additionalLabor + payrollMachines + additionalMachines + materialsTotal;
             const overhead = subtotal * ((currentJob.overheadPercent || 18) / 100);
             const afterOverhead = subtotal + overhead;
+            
+            if (isCash) return afterOverhead;
+            
             const profit = afterOverhead * ((currentJob.profitPercent || 10) / 100);
             const afterProfit = afterOverhead + profit;
             const tax = afterProfit * ((currentJob.geTaxPercent || 4.712) / 100);
@@ -1945,7 +1968,7 @@
             report += `Job: ${currentJob.name}\n`;
             report += `Client: ${currentJob.client || 'N/A'}\n`;
             report += `Address: ${currentJob.address || 'N/A'}\n`;
-            report += `Type: ${(currentJob.jobType || 'hourly').toUpperCase()}\n\n`;
+            report += `Type: ${(currentJob.jobType || 'hourly').toUpperCase()}${currentJob.isCash ? ' (CASH)' : ''}\n\n`;
             
             report += `${'─'.repeat(45)}\nCOST BREAKDOWN\n${'─'.repeat(45)}\n`;
             report += `Payroll Labor: ${document.getElementById('sumPayrollLabor').textContent}\n`;
@@ -1955,9 +1978,11 @@
             report += `Materials: ${document.getElementById('sumMaterials').textContent}\n`;
             report += `Subtotal: ${document.getElementById('sumSubtotal1').textContent}\n`;
             report += `+ ${currentJob.overheadPercent || 18}% Overhead: ${document.getElementById('sumOverhead').textContent}\n`;
-            report += `+ ${currentJob.profitPercent || 10}% Profit: ${document.getElementById('sumProfit').textContent}\n`;
-            report += `+ ${currentJob.geTaxPercent || 4.712}% GE Tax: ${document.getElementById('sumTax').textContent}\n\n`;
-            report += `${'═'.repeat(45)}\n`;
+            if (!currentJob.isCash) {
+                report += `+ ${currentJob.profitPercent || 10}% Profit: ${document.getElementById('sumProfit').textContent}\n`;
+                report += `+ ${currentJob.geTaxPercent || 4.712}% GE Tax: ${document.getElementById('sumTax').textContent}\n`;
+            }
+            report += `\n${'═'.repeat(45)}\n`;
             report += `TOTAL DUE: ${fmtMoney(total)}\n`;
             report += `${'═'.repeat(45)}\n\n`;
             
@@ -2025,7 +2050,7 @@
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(...lightGray);
             
-            const jobType = (currentJob.jobType || 'hourly').toUpperCase();
+            const jobType = (currentJob.jobType || 'hourly').toUpperCase() + (currentJob.isCash ? ' • CASH' : '');
             const status = formatStatus(currentJob.status || 'active');
             doc.text(`${jobType} • ${status}`, margin, y);
             y += 15;
@@ -2064,6 +2089,7 @@
             y += 15;
             
             // Calculate all values
+            const isCash = currentJob.isCash || false;
             const payrollLabor = calculatePayrollLabor();
             const additionalLabor = (currentJob.additionalLabor || []).reduce((sum, i) => sum + (i.amount || 0), 0);
             const payrollMachinesTotal = calculatePayrollMachines();
@@ -2073,10 +2099,10 @@
             const subtotal1 = payrollLabor + additionalLabor + payrollMachinesTotal + additionalMachinesTotal + materialsTotal;
             const overhead = subtotal1 * ((currentJob.overheadPercent || 18) / 100);
             const subtotal2 = subtotal1 + overhead;
-            const profit = subtotal2 * ((currentJob.profitPercent || 10) / 100);
+            const profit = isCash ? 0 : subtotal2 * ((currentJob.profitPercent || 10) / 100);
             const subtotal3 = subtotal2 + profit;
-            const tax = subtotal3 * ((currentJob.geTaxPercent || 4.712) / 100);
-            const total = subtotal3 + tax;
+            const tax = isCash ? 0 : subtotal3 * ((currentJob.geTaxPercent || 4.712) / 100);
+            const total = isCash ? subtotal2 : subtotal3 + tax;
             
             const totalDraws = (currentJob.draws || []).reduce((sum, d) => sum + (d.amount || 0), 0);
             const equipmentTotal = additionalMachinesTotal;
@@ -2090,9 +2116,11 @@
                 { label: 'Materials', value: materialsTotal },
                 { label: 'Subtotal', value: subtotal1, bold: true },
                 { label: `Overhead (${currentJob.overheadPercent || 18}%)`, value: overhead },
-                { label: `Profit (${currentJob.profitPercent || 10}%)`, value: profit },
-                { label: `GE Tax (${currentJob.geTaxPercent || 4.712}%)`, value: tax }
             ];
+            if (!isCash) {
+                lineItems.push({ label: `Profit (${currentJob.profitPercent || 10}%)`, value: profit });
+                lineItems.push({ label: `GE Tax (${currentJob.geTaxPercent || 4.712}%)`, value: tax });
+            }
             
             doc.setTextColor(...darkGray);
             lineItems.forEach((item, i) => {
