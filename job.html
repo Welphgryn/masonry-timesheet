@@ -1415,7 +1415,9 @@
             const balanceValue = document.getElementById('balanceValue');
             
             if (currentJob.jobType === 'contract') {
-                const balance = (currentJob.contractAmount || 0) - totalDraws;
+                const jobTotal = calculateJobTotal();
+                const base = (currentJob.contractAmount || 0) > 0 ? currentJob.contractAmount : jobTotal;
+                const balance = base - totalDraws;
                 balanceBox.className = 'balance-box contract';
                 balanceLabel.textContent = 'Remaining Balance';
                 balanceValue.textContent = fmtMoney(balance);
@@ -1839,7 +1841,8 @@
             const balanceValue = document.getElementById('sumBalanceValue');
             
             if (currentJob.jobType === 'contract') {
-                const balance = (currentJob.contractAmount || 0) - totalDraws;
+                const base = (currentJob.contractAmount || 0) > 0 ? currentJob.contractAmount : total;
+                const balance = base - totalDraws;
                 balanceLabel.textContent = 'Remaining Balance';
                 balanceValue.textContent = fmtMoney(balance);
                 balanceValue.className = 'value purple';
@@ -1967,7 +1970,8 @@
             report += `Total Draws: ${fmtMoney(totalDraws)}\n`;
             
             if (currentJob.jobType === 'contract') {
-                report += `Remaining Balance: ${fmtMoney((currentJob.contractAmount || 0) - totalDraws)}\n`;
+                const base = (currentJob.contractAmount || 0) > 0 ? currentJob.contractAmount : total;
+                report += `Remaining Balance: ${fmtMoney(base - totalDraws)}\n`;
             } else {
                 report += `Amount Owed: ${fmtMoney(total - totalDraws)}\n`;
             }
@@ -1977,6 +1981,7 @@
 
         // Create Invoice PDF
         function createInvoice() {
+          try {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
@@ -2074,6 +2079,7 @@
             const total = subtotal3 + tax;
             
             const totalDraws = (currentJob.draws || []).reduce((sum, d) => sum + (d.amount || 0), 0);
+            const equipmentTotal = additionalMachinesTotal;
             
             // Line items
             const lineItems = [
@@ -2423,6 +2429,10 @@
             const fileName = (currentJob.name || 'job').replace(/[^a-zA-Z0-9]/g, '_') + '_invoice.pdf';
             doc.save(fileName);
             showToast('Invoice created!');
+          } catch (err) {
+            console.error('Invoice generation error:', err);
+            showToast('Error creating invoice: ' + err.message, true);
+          }
         }
 
         // Delete
