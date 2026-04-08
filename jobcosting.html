@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spencer's Masonry - Job Costing</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #353535;
+            --bg-input: #1a1a1a;
+            --border-color: #3d3d3d;
+            --border-hover: #525252;
+            --text-primary: #ffffff;
+            --text-secondary: #999999;
+            --text-muted: #666666;
+            --accent: #f97316;
+            --accent-hover: #ea580c;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --card-shadow: rgba(0,0,0,0.3);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #fafafa;
+            --bg-input: #ffffff;
+            --border-color: #e0e0e0;
+            --border-hover: #d0d0d0;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --card-shadow: rgba(0,0,0,0.1);
+        }
+
+        .theme-toggle { position: fixed; bottom: 20px; right: 20px; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; z-index: 100; transition: all 0.2s; box-shadow: 0 2px 10px var(--card-shadow); }
+        .theme-toggle:hover { border-color: var(--accent); transform: scale(1.1); }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .header {
+            background: #f97316;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header h1 { font-size: 1.1rem; color: white; }
+
+        .btn {
+            padding: 10px 20px; border: none; border-radius: 8px;
+            font-size: 0.95rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; text-decoration: none;
+        }
+        .btn-back { background: rgba(255,255,255,0.2); color: white; padding: 8px 16px; font-size: 0.85rem; }
+        .btn-back:hover { background: rgba(255,255,255,0.3); }
+        .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+        .btn-secondary { background: var(--border-color); color: var(--text-primary); }
+        .btn-secondary:hover { background: #525252; }
+
+        .main-content { padding: 24px; max-width: 1400px; margin: 0 auto; }
+
+        /* Summary cards */
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px; margin-bottom: 24px;
+        }
+        .summary-card {
+            background: var(--bg-secondary); padding: 18px;
+            border-radius: 12px; border: 1px solid var(--border-color);
+        }
+        .summary-card .label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .summary-card .value { font-size: 1.3rem; font-weight: 700; }
+        .summary-card .value.green { color: #16a34a; }
+        .summary-card .value.orange { color: var(--accent); }
+        .summary-card .value.red { color: #dc2626; }
+
+        /* Section */
+        .section {
+            background: var(--bg-secondary); border-radius: 12px;
+            border: 1px solid var(--border-color); margin-bottom: 24px; overflow: hidden;
+        }
+        .section-header {
+            padding: 14px 20px; background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 8px;
+        }
+        .section-header h3 { font-size: 1rem; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+        .section-header .count {
+            font-size: 0.75rem; background: var(--accent); color: white;
+            padding: 2px 8px; border-radius: 10px; font-weight: 700;
+        }
+
+        /* Sort */
+        .sort-controls { display: flex; gap: 4px; }
+        .sort-btn {
+            padding: 5px 10px; background: transparent; border: 1px solid var(--border-color);
+            border-radius: 6px; color: var(--text-secondary); font-size: 0.75rem;
+            cursor: pointer; transition: all 0.15s;
+        }
+        .sort-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .sort-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+        /* Job costing table */
+        .jc-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+        .jc-table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        .jc-table thead th {
+            padding: 10px 12px; text-align: left; font-size: 0.75rem;
+            color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--accent); background: var(--bg-tertiary);
+            white-space: nowrap; position: sticky; top: 0; z-index: 5;
+        }
+        .jc-table thead th.right { text-align: right; }
+
+        .jc-table tbody tr { border-bottom: 1px solid var(--border-color); cursor: pointer; transition: background 0.15s; }
+        .jc-table tbody tr:hover { background: var(--bg-tertiary); }
+
+        .jc-table tbody td { padding: 12px; font-size: 0.85rem; white-space: nowrap; }
+        .jc-table tbody td.right { text-align: right; font-family: 'Courier New', monospace; }
+        .jc-table tbody td.job-name-cell { font-weight: 600; max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
+
+        .badge {
+            display: inline-block; font-size: 0.65rem; font-weight: 700;
+            padding: 3px 8px; border-radius: 12px; text-transform: uppercase;
+            margin-left: 6px; vertical-align: middle;
+        }
+        .badge.contract { background: rgba(167, 139, 250, 0.2); color: #c4b5fd; }
+        .badge.hourly { background: rgba(244, 114, 182, 0.2); color: #f9a8d4; }
+        .badge.cash { background: rgba(234, 179, 8, 0.2); color: #fde047; }
+
+        .positive { color: #16a34a; }
+        .negative { color: #dc2626; }
+
+        /* Progress bar */
+        .pct-bar { display: flex; align-items: center; gap: 8px; }
+        .pct-bar-bg { flex: 1; height: 6px; background: var(--border-color); border-radius: 3px; overflow: hidden; min-width: 50px; }
+        .pct-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+        .pct-text { font-size: 0.8rem; font-weight: 600; min-width: 36px; text-align: right; }
+
+        .no-data { text-align: center; padding: 30px; color: var(--text-muted); }
+
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-primary); display: flex; align-items: center;
+            justify-content: center; z-index: 300;
+        }
+        .loading-overlay.hidden { display: none; }
+        .loading-text { color: var(--accent); font-size: 1.2rem; }
+
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #16a34a; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 600; opacity: 0; transition: opacity 0.3s; z-index: 200; }
+        .toast.show { opacity: 1; }
+
+        @media (max-width: 768px) {
+            .main-content { padding: 16px; }
+            .summary-row { grid-template-columns: repeat(2, 1fr); }
+            .sort-controls { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀️</button>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-text">Loading job costing...</div>
+    </div>
+
+    <div class="header">
+        <div class="header-left">
+            <a href="index.html" class="btn btn-back">← Home</a>
+            <h1>📊 Job Costing</h1>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="summary-row">
+            <div class="summary-card">
+                <div class="label">Active Jobs</div>
+                <div class="value orange" id="activeCount">0</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">Completed Jobs</div>
+                <div class="value" id="completedCount" style="color:var(--text-primary);">0</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">Avg Margin</div>
+                <div class="value green" id="avgMargin">0%</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">Total Outstanding</div>
+                <div class="value red" id="totalOwed">$0</div>
+            </div>
+        </div>
+
+        <!-- Active Jobs -->
+        <div class="section">
+            <div class="section-header">
+                <h3>Active Jobs <span class="count" id="activeJobCount">0</span></h3>
+                <div class="sort-controls">
+                    <button class="sort-btn active" data-sort="name" data-group="active" onclick="setSort('active','name',this)">Name</button>
+                    <button class="sort-btn" data-sort="profit" data-group="active" onclick="setSort('active','profit',this)">Profit</button>
+                    <button class="sort-btn" data-sort="margin" data-group="active" onclick="setSort('active','margin',this)">Margin</button>
+                    <button class="sort-btn" data-sort="costs" data-group="active" onclick="setSort('active','costs',this)">Costs</button>
+                </div>
+            </div>
+            <div class="jc-scroll">
+                <table class="jc-table">
+                    <thead>
+                        <tr>
+                            <th>Job</th>
+                            <th class="right">Revenue</th>
+                            <th class="right">Labor</th>
+                            <th class="right">Machines</th>
+                            <th class="right">Materials</th>
+                            <th class="right">Total Costs</th>
+                            <th class="right">Profit</th>
+                            <th class="right">Margin</th>
+                            <th>% Complete</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activeBody"></tbody>
+                </table>
+            </div>
+            <div class="no-data" id="activeEmpty" style="display:none;">No active jobs</div>
+        </div>
+
+        <!-- Completed Jobs -->
+        <div class="section">
+            <div class="section-header">
+                <h3>Completed Jobs <span class="count" id="completedJobCount">0</span></h3>
+                <div class="sort-controls">
+                    <button class="sort-btn active" data-sort="name" data-group="completed" onclick="setSort('completed','name',this)">Name</button>
+                    <button class="sort-btn" data-sort="profit" data-group="completed" onclick="setSort('completed','profit',this)">Profit</button>
+                    <button class="sort-btn" data-sort="margin" data-group="completed" onclick="setSort('completed','margin',this)">Margin</button>
+                    <button class="sort-btn" data-sort="costs" data-group="completed" onclick="setSort('completed','costs',this)">Costs</button>
+                </div>
+            </div>
+            <div class="jc-scroll">
+                <table class="jc-table">
+                    <thead>
+                        <tr>
+                            <th>Job</th>
+                            <th class="right">Revenue</th>
+                            <th class="right">Labor</th>
+                            <th class="right">Machines</th>
+                            <th class="right">Materials</th>
+                            <th class="right">Total Costs</th>
+                            <th class="right">Profit</th>
+                            <th class="right">Margin</th>
+                            <th>% Complete</th>
+                        </tr>
+                    </thead>
+                    <tbody id="completedBody"></tbody>
+                </table>
+            </div>
+            <div class="no-data" id="completedEmpty" style="display:none;">No completed jobs</div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Copied!</div>
+
+    <script>
+        const JSONBIN_BIN_ID = '697a7070d0ea881f408e6063';
+        const JSONBIN_API_KEY = '$2a$10$vgUvy.chZeKckQe2eTD36uOX/mfrhx8GKudyoZqZsjWkbtaam8/Nm';
+
+        let allData = {};
+        let machines = [];
+        let activeSort = 'name';
+        let completedSort = 'name';
+        let allFinancials = { active: [], completed: [] };
+
+        const defaultWorkerRates = {
+            'Jordan': 120, 'Kamalei': 100, 'Dave': 114, 'Joe': 114,
+            'Ian': 100, 'Ray': 100, 'Jestin': 63, 'Duke': 58,
+            'Keahi': 52, 'Ruben': 52, 'Beau': 87.5, 'Seth': 40, 'Kawika': 35
+        };
+
+        const defaultMachineRates = {
+            'TL12': 200, '290 Excavator': 290, '290 Skid': 200, '145 Mini Ex': 195,
+            '240 Skid': 180, '197 Skid': 200, 'Masons': 900, 'Pump': 500,
+            '450 Truck': 200, '650 Truck': 900, '750 Truck': 650
+        };
+
+        async function loadAllData() {
+            try {
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+                    headers: { 'X-Access-Key': JSONBIN_API_KEY }
+                });
+                const data = await response.json();
+                allData = data.record || {};
+                if (!allData.jobs) allData.jobs = {};
+                if (!allData.employees) allData.employees = {};
+                buildMachinesList();
+                computeAll();
+                render();
+                document.getElementById('loadingOverlay').classList.add('hidden');
+            } catch (e) {
+                console.error('Load error:', e);
+                document.getElementById('loadingOverlay').classList.add('hidden');
+            }
+        }
+
+        function buildMachinesList() {
+            machines = [];
+            if (allData.machines) {
+                machines = Object.values(allData.machines)
+                    .filter(m => m.status === 'active')
+                    .sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999));
+            }
+        }
+
+        function getWorkerRate(workerName, job) {
+            if (job && job.workerRates && job.workerRates[workerName] !== undefined) {
+                return job.workerRates[workerName];
+            }
+            if (allData.employees) {
+                const emp = Object.values(allData.employees).find(e => e.name === workerName);
+                if (emp) return emp.rate || 0;
+            }
+            return defaultWorkerRates[workerName] || 0;
+        }
+
+        function getMachineRate(machineName, job) {
+            if (job && job.machineRates && job.machineRates[machineName] !== undefined) {
+                return job.machineRates[machineName];
+            }
+            const m = machines.find(e => (e.payrollName || e.name) === machineName);
+            if (m) return m.rate || 0;
+            return defaultMachineRates[machineName] || 0;
+        }
+
+        function fmtMoney(n) {
+            return '$' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+
+        // ============================================
+        // COMPUTE JOB FINANCIALS
+        // ============================================
+        function getJobFinancials(job) {
+            const payrollName = job.payrollName || job.name;
+            const payrollKey = payrollName.replace(/[^a-zA-Z]/g, '');
+            const eqPrefix = payrollKey + '_eq_';
+            const isCash = job.isCash || false;
+
+            let payrollLabor = 0;
+            let payrollMachines = 0;
+
+            Object.keys(allData).forEach(key => {
+                if (!key.match(/^\d{4}-\d{2}-\d{2}$/) || key === 'jobs') return;
+                const weekData = allData[key];
+                Object.values(weekData).forEach(dayData => {
+                    if (typeof dayData !== 'object') return;
+                    Object.entries(dayData).forEach(([inputId, hours]) => {
+                        if (inputId.startsWith(payrollKey + '_') && !inputId.includes('_eq_')) {
+                            const workerName = inputId.split('_').pop();
+                            payrollLabor += hours * getWorkerRate(workerName, job);
+                        }
+                        if (inputId.startsWith(eqPrefix)) {
+                            const machineKey = inputId.split('_eq_')[1];
+                            const machine = machines.find(m => (m.payrollName || m.name).replace(/[^a-zA-Z0-9]/g, '') === machineKey);
+                            const machineName = machine ? (machine.payrollName || machine.name) : machineKey;
+                            payrollMachines += hours * getMachineRate(machineName, job);
+                        }
+                    });
+                });
+            });
+
+            const additionalLabor = (job.additionalLabor || []).reduce((s, i) => s + (i.amount || 0), 0);
+            let additionalMachines = 0;
+            if (job.equipment) {
+                Object.entries(job.equipment).forEach(([machineName, hours]) => {
+                    additionalMachines += (hours || 0) * getMachineRate(machineName, job);
+                });
+            }
+            const materialsTotal = (job.materials || []).reduce((s, i) => s + (i.amount || 0), 0);
+
+            const totalLabor = payrollLabor + additionalLabor;
+            const totalMachines = payrollMachines + additionalMachines;
+            const directCosts = totalLabor + totalMachines + materialsTotal;
+
+            const overhead = directCosts * ((job.overheadPercent || 18) / 100);
+            const afterOverhead = directCosts + overhead;
+            const profitMarkup = isCash ? 0 : afterOverhead * ((job.profitPercent || 10) / 100);
+            const afterProfit = afterOverhead + profitMarkup;
+            const geTax = isCash ? 0 : afterProfit * ((job.geTaxPercent || 4.712) / 100);
+            const jobTotal = isCash ? afterOverhead : afterProfit + geTax;
+
+            const totalDraws = (job.draws || []).reduce((s, d) => s + (d.amount || 0), 0);
+
+            // Revenue: for contract jobs use contract amount, for hourly use jobTotal (billed amount)
+            let revenue;
+            if (job.jobType === 'contract' && job.contractAmount > 0) {
+                revenue = job.contractAmount;
+            } else {
+                revenue = jobTotal;
+            }
+
+            const grossProfit = revenue - directCosts;
+            const grossMargin = revenue > 0 ? (grossProfit / revenue) * 100 : 0;
+
+            // % Complete
+            let pctComplete = 0;
+            if (job.status === 'completed') {
+                pctComplete = 100;
+            } else if (job.jobType === 'contract' && job.contractAmount > 0) {
+                pctComplete = Math.min((directCosts / job.contractAmount) * 100, 100);
+            } else if (directCosts > 0) {
+                // Hourly: can't really determine, use draws collected / jobTotal as proxy
+                pctComplete = jobTotal > 0 ? Math.min((totalDraws / jobTotal) * 100, 100) : 0;
+            }
+
+            return {
+                id: job.id,
+                name: job.name,
+                status: job.status,
+                jobType: job.jobType || 'hourly',
+                isCash: isCash,
+                contractAmount: job.contractAmount || 0,
+                revenue,
+                totalLabor,
+                totalMachines,
+                materialsTotal,
+                directCosts,
+                grossProfit,
+                grossMargin,
+                pctComplete,
+                jobTotal,
+                totalDraws,
+                outstanding: Math.max(0, jobTotal - totalDraws)
+            };
+        }
+
+        function computeAll() {
+            const jobs = Object.values(allData.jobs || {});
+            const active = [];
+            const completed = [];
+
+            jobs.forEach(job => {
+                if (job.status === 'bidding' || job.status === 'on-hold') return;
+
+                const f = getJobFinancials(job);
+
+                // Cash jobs default to active unless completed
+                if (job.status === 'completed' && !(job.isCash && job.status !== 'completed')) {
+                    completed.push(f);
+                } else {
+                    active.push(f);
+                }
+            });
+
+            allFinancials = { active, completed };
+        }
+
+        // ============================================
+        // RENDER
+        // ============================================
+        function render() {
+            const { active, completed } = allFinancials;
+
+            // Summary
+            document.getElementById('activeCount').textContent = active.length;
+            document.getElementById('completedCount').textContent = completed.length;
+
+            const all = [...active, ...completed];
+            const totalRev = all.reduce((s, f) => s + f.revenue, 0);
+            const totalCosts = all.reduce((s, f) => s + f.directCosts, 0);
+            const avgMarginVal = totalRev > 0 ? (((totalRev - totalCosts) / totalRev) * 100).toFixed(1) : 0;
+            document.getElementById('avgMargin').textContent = avgMarginVal + '%';
+
+            const totalOwed = all.reduce((s, f) => s + f.outstanding, 0);
+            document.getElementById('totalOwed').textContent = fmtMoney(totalOwed);
+
+            // Sort and render tables
+            renderTable('active', sortJobs(active, activeSort), 'activeBody', 'activeEmpty', 'activeJobCount');
+            renderTable('completed', sortJobs(completed, completedSort), 'completedBody', 'completedEmpty', 'completedJobCount');
+        }
+
+        function sortJobs(jobs, sortKey) {
+            const sorted = [...jobs];
+            switch (sortKey) {
+                case 'name': sorted.sort((a, b) => a.name.localeCompare(b.name)); break;
+                case 'profit': sorted.sort((a, b) => b.grossProfit - a.grossProfit); break;
+                case 'margin': sorted.sort((a, b) => b.grossMargin - a.grossMargin); break;
+                case 'costs': sorted.sort((a, b) => b.directCosts - a.directCosts); break;
+            }
+            return sorted;
+        }
+
+        function renderTable(group, jobs, bodyId, emptyId, countId) {
+            const body = document.getElementById(bodyId);
+            const empty = document.getElementById(emptyId);
+            document.getElementById(countId).textContent = jobs.length;
+
+            if (jobs.length === 0) {
+                body.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+            empty.style.display = 'none';
+
+            body.innerHTML = jobs.map(f => {
+                const marginColor = f.grossMargin >= 15 ? '#16a34a' : f.grossMargin >= 0 ? '#eab308' : '#dc2626';
+                const pctColor = f.pctComplete >= 80 ? '#16a34a' : f.pctComplete >= 40 ? '#eab308' : 'var(--accent)';
+                const profitColor = f.grossProfit >= 0 ? '#16a34a' : '#dc2626';
+
+                let badges = `<span class="badge ${f.jobType}">${f.jobType.toUpperCase()}</span>`;
+                if (f.isCash) badges += '<span class="badge cash">CASH</span>';
+
+                return `
+                    <tr onclick="window.location.href='job.html?id=${f.id}'">
+                        <td class="job-name-cell">${f.name}${badges}</td>
+                        <td class="right">${fmtMoney(f.revenue)}</td>
+                        <td class="right">${fmtMoney(f.totalLabor)}</td>
+                        <td class="right">${fmtMoney(f.totalMachines)}</td>
+                        <td class="right">${fmtMoney(f.materialsTotal)}</td>
+                        <td class="right">${fmtMoney(f.directCosts)}</td>
+                        <td class="right" style="color:${profitColor}; font-weight:700;">${fmtMoney(f.grossProfit)}</td>
+                        <td class="right" style="color:${marginColor}; font-weight:700;">${f.grossMargin.toFixed(1)}%</td>
+                        <td>
+                            <div class="pct-bar">
+                                <div class="pct-bar-bg">
+                                    <div class="pct-bar-fill" style="width:${f.pctComplete.toFixed(0)}%; background:${pctColor};"></div>
+                                </div>
+                                <span class="pct-text" style="color:${pctColor};">${f.pctComplete.toFixed(0)}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function setSort(group, sortKey, btn) {
+            // Update active button
+            document.querySelectorAll(`.sort-btn[data-group="${group}"]`).forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            if (group === 'active') activeSort = sortKey;
+            else completedSort = sortKey;
+
+            render();
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        loadAllData();
+    </script>
+
+    <script>
+    (function(){
+        function initTheme(){
+            const s=localStorage.getItem('spencers-theme');
+            if(s)document.documentElement.setAttribute('data-theme',s);
+            updateIcon();
+        }
+        window.toggleTheme=function(){
+            const c=document.documentElement.getAttribute('data-theme');
+            const n=c==='light'?'dark':'light';
+            document.documentElement.setAttribute('data-theme',n);
+            localStorage.setItem('spencers-theme',n);
+            updateIcon();
+        };
+        function updateIcon(){
+            const b=document.getElementById('themeToggle');
+            if(b){
+                const t=document.documentElement.getAttribute('data-theme');
+                b.textContent=t==='light'?'🌙':'☀️';
+            }
+        }
+        initTheme();
+    })();
+    </script>
+</body>
+</html>
