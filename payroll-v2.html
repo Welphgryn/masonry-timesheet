@@ -7,7 +7,1877 @@
     <style>
         :root {
             --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spencer's Masonry - Payroll</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a1a;
             --bg-secondary: #2d2d2d;
+            --bg-tertiary: #353535;
+            --bg-input: #1a1a1a;
+            --border-color: #3d3d3d;
+            --border-hover: #525252;
+            --text-primary: #ffffff;
+            --text-secondary: #999999;
+            --text-muted: #666666;
+            --accent: #f97316;
+            --accent-hover: #ea580c;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --card-shadow: rgba(0,0,0,0.3);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #fafafa;
+            --bg-input: #ffffff;
+            --border-color: #e0e0e0;
+            --border-hover: #d0d0d0;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --card-shadow: rgba(0,0,0,0.1);
+        }
+
+        .theme-toggle { position: fixed; bottom: 20px; right: 20px; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; z-index: 100; transition: all 0.2s; box-shadow: 0 2px 10px var(--card-shadow); }
+        .theme-toggle:hover { border-color: var(--accent); transform: scale(1.1); }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .header {
+            background: #f97316;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h1 {
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-back {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        .btn-back:hover { background: rgba(255,255,255,0.3); }
+
+        .btn-primary { background: #f97316; color: white; }
+        .btn-primary:hover { background: #ea580c; }
+
+        .btn-secondary { background: var(--border-color); color: var(--text-primary); }
+        .btn-secondary:hover { background: #525252; }
+
+        .btn-success { background: #16a34a; color: white; }
+        .btn-success:hover { background: #15803d; }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--bg-secondary);
+            padding: 0 24px;
+            gap: 4px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab {
+            padding: 14px 24px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab:hover { color: var(--text-primary); }
+        .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .main-content {
+            padding: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .week-selector {
+            background: var(--bg-secondary);
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .week-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .week-nav button {
+            background: var(--border-color);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .week-nav button:hover { background: #f97316; }
+
+        .week-display { text-align: center; }
+        .week-display .period { font-size: 1.1rem; font-weight: 600; color: var(--accent); }
+        .week-display .dates { font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px; }
+
+        .save-status { font-size: 0.85rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+        .save-status.saving { color: var(--accent); }
+        .save-status.saved { color: #16a34a; }
+
+        .day-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .day-tab {
+            padding: 10px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .day-tab:hover { border-color: var(--accent); color: var(--text-primary); }
+        .day-tab.active { background: #f97316; border-color: var(--accent); color: white; }
+        .day-tab .day-name { font-weight: 600; }
+        .day-tab .day-date { font-size: 0.75rem; opacity: 0.8; }
+
+        .summary-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: var(--bg-secondary);
+            padding: 14px 18px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .summary-card .label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 4px; }
+        .summary-card .value { font-size: 1.3rem; font-weight: 700; }
+        .summary-card .value.orange { color: var(--accent); }
+        .summary-card .value.green { color: #16a34a; }
+        .summary-card .value.yellow { color: #eab308; }
+
+        /* Employee Weekly Summary Section */
+        .employee-summary-section {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .employee-summary-header {
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            background: var(--bg-tertiary);
+            user-select: none;
+        }
+
+        .employee-summary-header:hover { background: #3d3d3d; }
+
+        .employee-summary-header h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .employee-summary-header .toggle-icon { transition: transform 0.2s; }
+        .employee-summary-header.collapsed .toggle-icon { transform: rotate(-90deg); }
+
+        .employee-summary-content { padding: 16px 20px; display: block; }
+        .employee-summary-content.hidden { display: none; }
+
+        .employee-summary-actions { display: flex; gap: 8px; margin-bottom: 12px; }
+
+        .employee-summary-list {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            color: var(--text-primary);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .employee-summary-list .summary-title { color: var(--accent); font-weight: bold; margin-bottom: 8px; display: block; }
+        .employee-summary-list .employee-line { display: flex; justify-content: space-between; padding: 2px 0; }
+        .employee-summary-list .employee-line:hover { background: var(--bg-secondary); }
+        .employee-summary-list .employee-name { color: var(--text-primary); }
+        .employee-summary-list .employee-hours { color: var(--accent); font-weight: 600; }
+        .employee-summary-list .total-line { border-top: 1px solid var(--border-color); margin-top: 8px; padding-top: 8px; font-weight: bold; }
+
+        /* ============================================ */
+        /* TIMESHEET TABLE - Sticky Headers for Mobile  */
+        /* ============================================ */
+        .timesheet-container {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .timesheet-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: var(--bg-tertiary);
+        }
+
+        .timesheet-header h2 { font-size: 1rem; font-weight: 600; color: var(--accent); }
+
+        .legend { display: flex; gap: 16px; font-size: 0.8rem; color: var(--text-secondary); }
+        .legend span { display: flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .legend-dot.direct { background: #16a34a; }
+        .legend-dot.indirect { background: #eab308; }
+
+        /* The scroll wrapper — this is the key to frozen headers */
+        .timesheet-scroll {
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            max-height: 70vh;
+        }
+
+        /* Use a real HTML table for proper sticky behavior */
+        .ts-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: max-content;
+            min-width: 100%;
+        }
+
+        .ts-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: var(--bg-tertiary);
+            padding: 10px 6px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border-bottom: 2px solid var(--accent);
+            white-space: nowrap;
+        }
+
+        /* The job-site column header — sticky both top AND left */
+        .ts-table thead th.job-col {
+            position: sticky;
+            left: 0;
+            z-index: 20; /* Above other sticky headers */
+            text-align: left;
+            padding-left: 10px;
+            min-width: 140px;
+            background: var(--bg-tertiary);
+        }
+
+        .ts-table thead th .rate {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            display: block;
+            margin-top: 2px;
+        }
+        .ts-table thead th .rate.hidden { display: none; }
+
+        /* All job-name cells — sticky left */
+        .ts-table tbody td.job-cell {
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            background: var(--bg-secondary);
+            padding: 4px 6px 4px 10px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            border-bottom: 1px solid var(--border-color);
+            min-width: 140px;
+        }
+
+        .ts-table tbody td.job-cell.indirect { color: #eab308; }
+        .ts-table tbody td.job-cell.direct { color: #16a34a; }
+
+        /* Job cell inner layout: icons + name */
+        .job-cell-inner {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .job-icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 2px;
+            font-size: 0.7rem;
+            opacity: 0.5;
+            transition: opacity 0.15s, transform 0.15s;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .job-icon-btn:hover { opacity: 1; transform: scale(1.2); }
+        .job-icon-btn:active { transform: scale(0.95); }
+        .job-icon-btn.has-note { opacity: 1; }
+
+        .job-name-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Data cells */
+        .ts-table tbody td.data-cell {
+            padding: 4px 3px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .hour-input {
+            width: 100%;
+            max-width: 46px;
+            padding: 8px 2px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .hour-input:focus { outline: none; border-color: var(--accent); background: var(--bg-secondary); }
+        .hour-input::placeholder { color: #525252; }
+
+        /* Totals row */
+        .ts-table tfoot td {
+            background: var(--bg-tertiary);
+            padding: 8px 6px;
+            font-weight: 600;
+            text-align: center;
+            border-top: 2px solid var(--accent);
+        }
+        .ts-table tfoot td.job-cell {
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            text-align: left;
+            padding-left: 10px;
+            background: var(--bg-tertiary);
+        }
+        .total-value { color: var(--accent); }
+
+        /* Hidden row */
+        .ts-table tr.row-hidden {
+            display: none;
+        }
+
+        /* Hover highlight on data rows */
+        .ts-table tbody tr:not(.row-hidden):hover td {
+            background: var(--bg-tertiary);
+        }
+        .ts-table tbody tr:not(.row-hidden):hover td.job-cell {
+            background: var(--bg-tertiary);
+        }
+
+        /* Grid mode toggle (Employees / Equipment) */
+        .grid-mode-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+        }
+
+        .grid-mode-tab {
+            flex: 1;
+            padding: 10px 16px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .grid-mode-tab:hover { color: var(--text-primary); background: var(--bg-tertiary); }
+        .grid-mode-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        /* Hidden jobs bar */
+        .hidden-jobs-bar {
+            display: none;
+            padding: 8px 20px;
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .hidden-jobs-bar.visible { display: flex; }
+
+        .hidden-job-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .hidden-job-chip:hover { border-color: var(--accent); color: var(--accent); }
+
+        .action-bar {
+            padding: 14px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: var(--bg-tertiary);
+        }
+
+        .action-buttons { display: flex; gap: 10px; }
+
+        .history-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .history-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .history-card:hover { border-color: var(--accent); background: var(--bg-tertiary); }
+        .history-card.current { border-color: var(--accent); background: rgba(249, 115, 22, 0.1); }
+
+        .history-info h3 { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+        .history-info p { font-size: 0.85rem; color: var(--text-secondary); }
+
+        .history-stats { text-align: right; }
+        .history-stats .hours { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
+        .history-stats .cost { font-size: 0.85rem; color: var(--text-secondary); }
+
+        .no-history { text-align: center; padding: 40px; color: var(--text-muted); }
+
+        /* Notes modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-tertiary);
+        }
+
+        .modal-header h3 { font-size: 1.1rem; color: var(--accent); }
+        .modal-close { background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; }
+
+        .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+
+        .preview-box {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            color: var(--text-primary);
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            background: var(--bg-tertiary);
+        }
+
+        /* Notes textarea in modal */
+        .note-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 0.9rem;
+            resize: vertical;
+            line-height: 1.5;
+        }
+        .note-textarea:focus { outline: none; border-color: var(--accent); }
+        .note-textarea::placeholder { color: var(--text-muted); }
+
+        .note-job-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        .note-job-label strong { color: var(--accent); }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #16a34a;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 200;
+        }
+        .toast.show { opacity: 1; }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+        }
+        .loading-overlay.hidden { display: none; }
+        .loading-text { color: var(--accent); font-size: 1.2rem; }
+
+        .no-data-message { text-align: center; padding: 40px; color: var(--text-muted); }
+        .no-data-message h3 { color: var(--text-secondary); margin-bottom: 10px; }
+        .no-data-message a { color: var(--accent); text-decoration: none; }
+        .no-data-message a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            .header { padding: 12px 16px; }
+            .main-content { padding: 16px; }
+            .summary-bar { grid-template-columns: repeat(2, 1fr); }
+            .week-selector { flex-direction: column; text-align: center; }
+            /* On mobile, make scroll area taller */
+            .timesheet-scroll { max-height: 60vh; }
+            .ts-table thead th { font-size: 0.7rem; padding: 8px 4px; }
+            .ts-table thead th.job-col { min-width: 110px; }
+            .ts-table tbody td.job-cell { min-width: 110px; font-size: 0.78rem; }
+            .hour-input { max-width: 40px; padding: 6px 1px; font-size: 0.85rem; }
+            .job-icon-btn { font-size: 0.65rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-text">Loading...</div>
+    </div>
+
+    <header class="header">
+        <div class="header-left">
+            <a href="index.html" class="btn btn-back">← Menu</a>
+            <h1>Payroll</h1>
+            <button class="btn btn-secondary" id="toggleRatesBtn" onclick="toggleRates()" style="padding: 6px 12px; font-size: 0.8rem;">Hide Rates</button>
+        </div>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀️</button>
+        <div class="save-status" id="saveStatus">
+            <span>●</span> All changes saved
+        </div>
+    </header>
+
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('timesheet')">Timesheet</button>
+        <button class="tab" onclick="switchTab('history')">History</button>
+    </div>
+
+    <div class="main-content">
+        <div class="tab-content active" id="timesheetTab">
+            <div class="week-selector">
+                <div class="week-nav">
+                    <button onclick="prevWeek()">←</button>
+                    <div class="week-display">
+                        <div class="period" id="weekPeriod">Week of Jan 24 - Jan 30</div>
+                        <div class="dates" id="weekYear">2026</div>
+                    </div>
+                    <button onclick="nextWeek()">→</button>
+                </div>
+            </div>
+
+            <div class="day-tabs" id="dayTabs"></div>
+
+            <div class="summary-bar">
+                <div class="summary-card">
+                    <div class="label">Day Hours</div>
+                    <div class="value orange" id="dayHours">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Direct Labor</div>
+                    <div class="value green" id="directLabor">$0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Indirect Labor</div>
+                    <div class="value yellow" id="indirectLabor">$0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Week Total</div>
+                    <div class="value" id="weekTotal">$0</div>
+                </div>
+            </div>
+
+            <!-- Employee Weekly Hours Summary -->
+            <div class="employee-summary-section">
+                <div class="employee-summary-header" onclick="toggleEmployeeSummary()">
+                    <h3><span class="toggle-icon">▼</span> Employee Weekly Hours</h3>
+                    <span style="color: var(--text-secondary); font-size: 0.8rem;" id="summaryTotalHours">0 total hrs</span>
+                </div>
+                <div class="employee-summary-content" id="employeeSummaryContent">
+                    <div class="employee-summary-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="copyEmployeeSummary(event)">📋 Copy</button>
+                        <button class="btn btn-secondary btn-sm" onclick="downloadEmployeeSummary(event)">⬇️ Download</button>
+                    </div>
+                    <div class="employee-summary-list" id="employeeSummaryList"></div>
+                </div>
+            </div>
+
+            <div class="timesheet-container">
+                <div class="timesheet-header">
+                    <h2 id="selectedDayDisplay">Friday, January 24, 2026</h2>
+                    <div class="legend">
+                        <span><div class="legend-dot indirect"></div> Indirect</span>
+                        <span><div class="legend-dot direct"></div> Direct</span>
+                    </div>
+                </div>
+                <div class="grid-mode-tabs">
+                    <button class="grid-mode-tab active" id="modeEmployees" onclick="switchGridMode('employees')">👷 Employees</button>
+                    <button class="grid-mode-tab" id="modeEquipment" onclick="switchGridMode('machines')">🚜 Machines</button>
+                </div>
+                <div class="timesheet-scroll" id="timesheetScroll">
+                    <table class="ts-table" id="timesheetGrid">
+                        <thead id="tsHead"></thead>
+                        <tbody id="tsBody"></tbody>
+                        <tfoot id="tsFoot"></tfoot>
+                    </table>
+                </div>
+                <!-- Bar showing hidden jobs as chips to re-show them -->
+                <div class="hidden-jobs-bar" id="hiddenJobsBar">
+                    <span>Hidden:</span>
+                    <div id="hiddenJobsChips"></div>
+                </div>
+                <div class="action-bar">
+                    <span style="color: var(--text-secondary); font-size: 0.85rem;">Tab to move • Auto-saves</span>
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary" onclick="clearDay()">Clear Day</button>
+                        <button class="btn btn-primary" onclick="generateReport()">📋 Copy Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="historyTab">
+            <h2 style="margin-bottom: 20px; color: var(--accent);">Payroll History</h2>
+            <div class="history-list" id="historyList"></div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Weekly Payroll Report</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="preview-box" id="previewBox"></div>
+            </div>
+            <div class="modal-footer" id="modalFooter">
+                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                <button class="btn btn-success" onclick="copyReport()">📋 Copy</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Copied!</div>
+
+    <script>
+        // Config
+        const JSONBIN_BIN_ID = '697a7070d0ea881f408e6063';
+        const JSONBIN_API_KEY = '$2a$10$vgUvy.chZeKckQe2eTD36uOX/mfrhx8GKudyoZqZsjWkbtaam8/Nm';
+
+        let workers = [];
+        const permanentJobSites = [
+            { name: 'Baseyard', type: 'indirect', id: null },
+            { name: 'Office', type: 'indirect', id: null }
+        ];
+
+        let jobSites = [];
+        let allData = {};
+        let currentWeekStart = null;
+        let selectedDayIndex = 0;
+        let saveTimeout = null;
+        let showRates = true;
+        let employeeSummaryCollapsed = false;
+        let hiddenJobs = new Set(); // Track hidden job rows (by jobKey) — persisted to JSONbin
+        let gridMode = 'employees'; // 'employees' or 'machines'
+
+        // Machines list — populated dynamically from allData.machines
+        let machinesList = [];
+
+        // Seed machines — used if allData.machines doesn't exist yet
+        const seedMachines = {
+            'tl12': { id: 'tl12', name: 'TL12', payrollName: 'TL12', rate: 200, status: 'active', sortOrder: 1 },
+            '290-excavator': { id: '290-excavator', name: '290 Excavator', payrollName: '290 Excavator', rate: 290, status: 'active', sortOrder: 2 },
+            '290-skid': { id: '290-skid', name: '290 Skid', payrollName: '290 Skid', rate: 200, status: 'active', sortOrder: 3 },
+            '145-mini-ex': { id: '145-mini-ex', name: '145 Mini Ex', payrollName: '145 Mini Ex', rate: 195, status: 'active', sortOrder: 4 },
+            '240-skid': { id: '240-skid', name: '240 Skid', payrollName: '240 Skid', rate: 180, status: 'active', sortOrder: 5 },
+            '197-skid': { id: '197-skid', name: '197 Skid', payrollName: '197 Skid', rate: 200, status: 'active', sortOrder: 6 },
+            'masons': { id: 'masons', name: 'Masons', payrollName: 'Masons', rate: 900, status: 'active', sortOrder: 7 },
+            'pump': { id: 'pump', name: 'Pump', payrollName: 'Pump', rate: 500, status: 'active', sortOrder: 8 },
+            '450-truck': { id: '450-truck', name: '450 Truck', payrollName: '450 Truck', rate: 200, status: 'active', sortOrder: 9 },
+            '650-truck': { id: '650-truck', name: '650 Truck', payrollName: '650 Truck', rate: 900, status: 'active', sortOrder: 10 },
+            '750-truck': { id: '750-truck', name: '750 Truck', payrollName: '750 Truck', rate: 650, status: 'active', sortOrder: 11 }
+        };
+
+        // Seed data
+        const seedEmployees = {
+            'jordan': { id: 'jordan', name: 'Jordan', rate: 120, status: 'active', sortOrder: 1, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'kamalei': { id: 'kamalei', name: 'Kamalei', rate: 100, status: 'active', sortOrder: 2, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'dave': { id: 'dave', name: 'Dave', rate: 114, status: 'active', sortOrder: 3, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'joe': { id: 'joe', name: 'Joe', rate: 114, status: 'active', sortOrder: 4, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'ian': { id: 'ian', name: 'Ian', rate: 100, status: 'active', sortOrder: 5, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'ray': { id: 'ray', name: 'Ray', rate: 100, status: 'active', sortOrder: 6, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'jestin': { id: 'jestin', name: 'Jestin', rate: 63, status: 'active', sortOrder: 7, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'duke': { id: 'duke', name: 'Duke', rate: 58, status: 'active', sortOrder: 8, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'keahi': { id: 'keahi', name: 'Keahi', rate: 52, status: 'active', sortOrder: 9, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'ruben': { id: 'ruben', name: 'Ruben', rate: 52, status: 'active', sortOrder: 10, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'beau': { id: 'beau', name: 'Beau', rate: 87.5, status: 'active', sortOrder: 11, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'seth': { id: 'seth', name: 'Seth', rate: 40, status: 'active', sortOrder: 12, created: new Date().toISOString(), modified: new Date().toISOString() },
+            'kawika': { id: 'kawika', name: 'Kawika', rate: 35, status: 'active', sortOrder: 13, created: new Date().toISOString(), modified: new Date().toISOString() }
+        };
+
+        const seedJobs = {
+            'asphalt-plant': { id: 'asphalt-plant', name: 'Asphalt Plant', payrollName: 'Asphalt Plant', status: 'active', jobType: 'hourly', created: new Date().toISOString(), modified: new Date().toISOString() },
+            'airport-job': { id: 'airport-job', name: 'Airport Job', payrollName: 'Airport Job', status: 'active', jobType: 'hourly', created: new Date().toISOString(), modified: new Date().toISOString() },
+            'jays-driveway': { id: 'jays-driveway', name: 'Jays Driveway', payrollName: 'Jays Driveway', status: 'active', jobType: 'hourly', created: new Date().toISOString(), modified: new Date().toISOString() },
+            'schow': { id: 'schow', name: 'Schow', payrollName: 'Schow', status: 'active', jobType: 'hourly', created: new Date().toISOString(), modified: new Date().toISOString() },
+            'braun': { id: 'braun', name: 'Braun', payrollName: 'Braun', status: 'active', jobType: 'hourly', created: new Date().toISOString(), modified: new Date().toISOString() },
+            'punua': { id: 'punua', name: 'Punua', payrollName: 'Punua', status: 'active', jobType: 'hourly', created: new Date().toISOString(), modified: new Date().toISOString() },
+            'mcphearson': { id: 'mcphearson', name: 'McPhearson', payrollName: 'McPhearson', status: 'active', jobType: 'hourly', created: new Date().toISOString(), modified: new Date().toISOString() },
+            'dillon': { id: 'dillon', name: 'Dillon', payrollName: 'Dillon', status: 'active', jobType: 'hourly', created: new Date().toISOString(), modified: new Date().toISOString() },
+            'erickson': { id: 'erickson', name: 'Erickson', payrollName: 'Erickson', status: 'active', jobType: 'hourly', created: new Date().toISOString(), modified: new Date().toISOString() }
+        };
+
+        async function checkAndSeedData() {
+            let needsSave = false;
+            if (!allData.employees || Object.keys(allData.employees).length === 0) {
+                allData.employees = seedEmployees;
+                needsSave = true;
+            }
+            if (!allData.jobs || Object.keys(allData.jobs).length === 0 ||
+                (Object.keys(allData.jobs).length === 1 && allData.jobs['test2'])) {
+                allData.jobs = seedJobs;
+                needsSave = true;
+            }
+            if (!allData.machines || Object.keys(allData.machines).length === 0) {
+                allData.machines = seedMachines;
+                needsSave = true;
+            }
+            if (needsSave) await saveAllData();
+        }
+
+        function buildMachinesList() {
+            machinesList = [];
+            if (allData.machines) {
+                const activeMachines = Object.values(allData.machines)
+                    .filter(m => m.status === 'active')
+                    .sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999));
+                activeMachines.forEach(m => {
+                    machinesList.push({ name: m.payrollName || m.name, rate: m.rate, id: m.id });
+                });
+            }
+        }
+
+        function toggleRates() {
+            showRates = !showRates;
+            document.querySelectorAll('.ts-table .rate').forEach(el => {
+                el.classList.toggle('hidden', !showRates);
+            });
+            document.getElementById('toggleRatesBtn').textContent = showRates ? 'Hide Rates' : 'Show Rates';
+        }
+
+        function toggleEmployeeSummary() {
+            employeeSummaryCollapsed = !employeeSummaryCollapsed;
+            const header = document.querySelector('.employee-summary-header');
+            const content = document.getElementById('employeeSummaryContent');
+            if (employeeSummaryCollapsed) {
+                header.classList.add('collapsed');
+                content.classList.add('hidden');
+            } else {
+                header.classList.remove('collapsed');
+                content.classList.remove('hidden');
+            }
+        }
+
+        function getWorkerRate(workerName, jobName) {
+            if (allData.jobs) {
+                const job = Object.values(allData.jobs).find(j =>
+                    j.payrollName === jobName || j.name === jobName
+                );
+                if (job && job.workerRates && job.workerRates[workerName] !== undefined) {
+                    return job.workerRates[workerName];
+                }
+            }
+            if (allData.employees) {
+                const employee = Object.values(allData.employees).find(e => e.name === workerName);
+                if (employee) return employee.rate || 0;
+            }
+            return 0;
+        }
+
+        function buildWorkerList() {
+            workers = [];
+            if (allData.employees) {
+                const activeEmployees = Object.values(allData.employees)
+                    .filter(e => e.status === 'active')
+                    .sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999));
+                activeEmployees.forEach(emp => {
+                    workers.push({ name: emp.name, rate: emp.rate });
+                });
+            }
+        }
+
+        function buildJobSites() {
+            jobSites = [...permanentJobSites];
+            if (allData.jobs) {
+                // Collect all jobKeys that have payroll hours in any week
+                const jobKeysWithHours = new Set();
+                Object.keys(allData).forEach(weekKey => {
+                    if (!weekKey.match(/^\d{4}-\d{2}-\d{2}$/)) return;
+                    const weekData = allData[weekKey];
+                    if (typeof weekData !== 'object') return;
+                    Object.values(weekData).forEach(dayData => {
+                        if (typeof dayData !== 'object') return;
+                        Object.keys(dayData).forEach(inputId => {
+                            // Extract the job key portion (everything before the last _workerName or _eq_machineName)
+                            if (inputId.includes('_eq_')) {
+                                const jobKey = inputId.split('_eq_')[0];
+                                jobKeysWithHours.add(jobKey);
+                            } else {
+                                const parts = inputId.split('_');
+                                if (parts.length >= 2) {
+                                    const jobKey = parts.slice(0, -1).join('_');
+                                    jobKeysWithHours.add(jobKey);
+                                }
+                            }
+                        });
+                    });
+                });
+
+                Object.values(allData.jobs).forEach(job => {
+                    const payrollName = job.payrollName || job.name;
+                    const jobKey = payrollName.replace(/[^a-zA-Z]/g, '');
+                    if (job.status === 'active' || jobKeysWithHours.has(jobKey)) {
+                        jobSites.push({
+                            name: payrollName,
+                            type: 'direct',
+                            id: job.id
+                        });
+                    }
+                });
+            }
+        }
+
+        // ============================================
+        // NOTES SYSTEM — per job, per day
+        // ============================================
+        function getNotesKey(jobKey) {
+            const days = getWeekDays(currentWeekStart);
+            const day = days[selectedDayIndex];
+            return `note_${day.key}_${jobKey}`;
+        }
+
+        function getWeekNotesKey() {
+            return `notes_${getWeekKey(currentWeekStart)}`;
+        }
+
+        function getJobNotes(jobKey) {
+            const weekKey = getWeekKey(currentWeekStart);
+            const days = getWeekDays(currentWeekStart);
+            const day = days[selectedDayIndex];
+            if (allData._notes && allData._notes[weekKey] && allData._notes[weekKey][day.key]) {
+                return allData._notes[weekKey][day.key][jobKey] || '';
+            }
+            return '';
+        }
+
+        function openNoteModal(jobKey, jobName, jobType) {
+            const days = getWeekDays(currentWeekStart);
+            const day = days[selectedDayIndex];
+            const note = getJobNotes(jobKey);
+
+            document.getElementById('modalTitle').textContent = 'Job Notes';
+            document.getElementById('modalBody').innerHTML = `
+                <div class="note-job-label">
+                    <strong>${jobName}</strong> — ${formatDate(day.date, 'long')}
+                </div>
+                <textarea class="note-textarea" id="noteInput" placeholder="Add notes for this job on this day...">${note}</textarea>
+            `;
+            document.getElementById('modalFooter').innerHTML = `
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-success" onclick="saveNote('${jobKey}')">💾 Save</button>
+            `;
+            document.getElementById('modalOverlay').classList.add('show');
+            // Focus the textarea
+            setTimeout(() => document.getElementById('noteInput').focus(), 100);
+        }
+
+        async function saveNote(jobKey) {
+            const weekKey = getWeekKey(currentWeekStart);
+            const days = getWeekDays(currentWeekStart);
+            const day = days[selectedDayIndex];
+            const note = document.getElementById('noteInput').value.trim();
+
+            if (!allData._notes) allData._notes = {};
+            if (!allData._notes[weekKey]) allData._notes[weekKey] = {};
+            if (!allData._notes[weekKey][day.key]) allData._notes[weekKey][day.key] = {};
+
+            if (note) {
+                allData._notes[weekKey][day.key][jobKey] = note;
+            } else {
+                delete allData._notes[weekKey][day.key][jobKey];
+            }
+
+            await saveAllData();
+            closeModal();
+            updateNoteIndicators();
+            showToast('Note saved!');
+        }
+
+        function updateNoteIndicators() {
+            const weekKey = getWeekKey(currentWeekStart);
+            const days = getWeekDays(currentWeekStart);
+            const day = days[selectedDayIndex];
+            const dayNotes = (allData._notes && allData._notes[weekKey] && allData._notes[weekKey][day.key]) || {};
+
+            document.querySelectorAll('.note-btn').forEach(btn => {
+                const jobKey = btn.dataset.jobkey;
+                if (dayNotes[jobKey]) {
+                    btn.classList.add('has-note');
+                    btn.textContent = '📝';
+                    btn.title = 'Has note — click to edit';
+                } else {
+                    btn.classList.remove('has-note');
+                    btn.textContent = '📝';
+                    btn.title = 'Add note';
+                }
+            });
+        }
+
+        // ============================================
+        // HIDE JOBS SYSTEM
+        // ============================================
+        function toggleJobVisibility(jobKey, jobName) {
+            const row = document.getElementById(`row_${jobKey}`);
+            if (!row) return;
+
+            if (hiddenJobs.has(jobKey)) {
+                // Always allow unhiding
+                hiddenJobs.delete(jobKey);
+                row.classList.remove('row-hidden');
+            } else {
+                // Check if any hours exist for this job on the selected day
+                const days = getWeekDays(currentWeekStart);
+                const day = days[selectedDayIndex];
+                const weekKey = getWeekKey(currentWeekStart);
+                const dayData = (allData[weekKey] && allData[weekKey][day.key]) || {};
+                let hasHours = false;
+                Object.entries(dayData).forEach(([inputId, hours]) => {
+                    if (hours > 0) {
+                        // Check if this entry belongs to this job
+                        if (inputId.includes('_eq_')) {
+                            if (inputId.split('_eq_')[0] === jobKey) hasHours = true;
+                        } else {
+                            const parts = inputId.split('_');
+                            const entryJobKey = parts.slice(0, -1).join('_');
+                            if (entryJobKey === jobKey) hasHours = true;
+                        }
+                    }
+                });
+                if (hasHours) {
+                    showToast('Cannot hide — this job has hours logged today');
+                    return;
+                }
+                hiddenJobs.add(jobKey);
+                row.classList.add('row-hidden');
+            }
+            updateHideIcons();
+            updateHiddenJobsBar();
+            persistHiddenJobs();
+        }
+
+        function showJob(jobKey) {
+            hiddenJobs.delete(jobKey);
+            const row = document.getElementById(`row_${jobKey}`);
+            if (row) row.classList.remove('row-hidden');
+            updateHideIcons();
+            updateHiddenJobsBar();
+            persistHiddenJobs();
+        }
+
+        function persistHiddenJobs() {
+            allData._hiddenJobs = Array.from(hiddenJobs);
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => saveAllData(), 500);
+        }
+
+        function restoreHiddenJobs() {
+            if (allData._hiddenJobs && Array.isArray(allData._hiddenJobs)) {
+                hiddenJobs = new Set(allData._hiddenJobs);
+                hiddenJobs.forEach(jobKey => {
+                    const row = document.getElementById(`row_${jobKey}`);
+                    if (row) row.classList.add('row-hidden');
+                });
+                updateHideIcons();
+                updateHiddenJobsBar();
+            }
+        }
+
+        function updateHideIcons() {
+            document.querySelectorAll('.hide-btn').forEach(btn => {
+                const jobKey = btn.dataset.jobkey;
+                if (hiddenJobs.has(jobKey)) {
+                    btn.textContent = '👁️‍🗨️';
+                    btn.title = 'Show this job';
+                } else {
+                    btn.textContent = '👁️';
+                    btn.title = 'Hide this job';
+                }
+            });
+        }
+
+        function updateHiddenJobsBar() {
+            const bar = document.getElementById('hiddenJobsBar');
+            const chips = document.getElementById('hiddenJobsChips');
+
+            if (hiddenJobs.size === 0) {
+                bar.classList.remove('visible');
+                return;
+            }
+
+            bar.classList.add('visible');
+            let html = '';
+            hiddenJobs.forEach(jobKey => {
+                const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKey);
+                const name = job ? job.name : jobKey;
+                html += `<span class="hidden-job-chip" onclick="showJob('${jobKey}')">${name} ✕</span>`;
+            });
+            chips.innerHTML = html;
+        }
+
+        // ============================================
+        // GRID MODE SWITCHING
+        // ============================================
+        function switchGridMode(mode) {
+            gridMode = mode;
+            document.getElementById('modeEmployees').classList.toggle('active', mode === 'employees');
+            document.getElementById('modeEquipment').classList.toggle('active', mode === 'machines');
+            buildGrid();
+            restoreHiddenJobs();
+            loadDayData();
+        }
+
+        // ============================================
+        // BUILD THE TABLE (with sticky headers)
+        // ============================================
+        function buildGrid() {
+            const thead = document.getElementById('tsHead');
+            const tbody = document.getElementById('tsBody');
+            const tfoot = document.getElementById('tsFoot');
+
+            // Determine columns based on mode
+            const columns = gridMode === 'machines'
+                ? machinesList.map(eq => ({ name: eq.name, rate: eq.rate }))
+                : workers;
+
+            // HEADER ROW
+            let headHtml = '<tr><th class="job-col">Job Site</th>';
+            columns.forEach(col => {
+                headHtml += `<th>${col.name}<span class="rate ${showRates ? '' : 'hidden'}">$${col.rate}/hr</span></th>`;
+            });
+            headHtml += '</tr>';
+            thead.innerHTML = headHtml;
+
+            // DATA ROWS
+            let bodyHtml = '';
+            jobSites.forEach(job => {
+                const jobKey = job.name.replace(/[^a-zA-Z]/g, '');
+                const isHidden = hiddenJobs.has(jobKey);
+
+                bodyHtml += `<tr id="row_${jobKey}" class="${isHidden ? 'row-hidden' : ''}">`;
+                bodyHtml += `<td class="job-cell ${job.type}">`;
+                bodyHtml += `<div class="job-cell-inner">`;
+                // Note icon
+                bodyHtml += `<button class="job-icon-btn note-btn" data-jobkey="${jobKey}" data-jobname="${job.name}" data-jobtype="${job.type}" onclick="openNoteModal('${jobKey}','${job.name.replace(/'/g, "\\'")}','${job.type}')" title="Add note">📝</button>`;
+                // Hide icon
+                bodyHtml += `<button class="job-icon-btn hide-btn" data-jobkey="${jobKey}" onclick="toggleJobVisibility('${jobKey}','${job.name.replace(/'/g, "\\'")}')" title="Hide this job">👁️</button>`;
+                // Job name
+                if (job.id) {
+                    bodyHtml += `<span class="job-name-text"><a href="job.html?id=${job.id}" class="job-link ${job.type}" style="color:inherit;">${job.name}</a></span>`;
+                } else {
+                    bodyHtml += `<span class="job-name-text">${job.name}</span>`;
+                }
+                bodyHtml += `</div></td>`;
+
+                columns.forEach(col => {
+                    // Equipment inputs get an "eq_" prefix to avoid collisions
+                    const inputId = gridMode === 'machines'
+                        ? `${jobKey}_eq_${col.name.replace(/[^a-zA-Z0-9]/g, '')}`
+                        : `${jobKey}_${col.name}`;
+                    const rate = gridMode === 'machines' ? col.rate : getWorkerRate(col.name, job.name);
+                    bodyHtml += `<td class="data-cell"><input type="number" class="hour-input" id="${inputId}" data-col="${col.name}" data-job="${job.name}" data-type="${job.type}" data-rate="${rate}" data-mode="${gridMode}" placeholder="-" min="0" max="24" step="0.5" oninput="onInput()"></td>`;
+                });
+                bodyHtml += '</tr>';
+            });
+            tbody.innerHTML = bodyHtml;
+
+            // TOTALS ROW
+            let footHtml = '<tr><td class="job-cell" style="font-weight:700;">TOTALS</td>';
+            columns.forEach(col => {
+                const totalId = gridMode === 'machines'
+                    ? `total_eq_${col.name.replace(/[^a-zA-Z0-9]/g, '')}`
+                    : `total_${col.name}`;
+                footHtml += `<td style="text-align:center;"><span class="total-value" id="${totalId}">0</span></td>`;
+            });
+            footHtml += '</tr>';
+            tfoot.innerHTML = footHtml;
+        }
+
+        // ============================================
+        // Employee summary
+        // ============================================
+        function updateEmployeeSummary() {
+            const weekKey = getWeekKey(currentWeekStart);
+            const weekData = allData[weekKey] || {};
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+
+            const employeeHours = {};
+            workers.forEach(w => { employeeHours[w.name] = 0; });
+
+            Object.values(weekData).forEach(dayData => {
+                if (typeof dayData === 'object') {
+                    Object.entries(dayData).forEach(([inputId, hours]) => {
+                        const parts = inputId.split('_');
+                        const workerName = parts[parts.length - 1];
+                        if (employeeHours.hasOwnProperty(workerName)) {
+                            employeeHours[workerName] += hours;
+                        }
+                    });
+                }
+            });
+
+            let totalHours = 0;
+            Object.values(employeeHours).forEach(h => totalHours += h);
+            document.getElementById('summaryTotalHours').textContent = `${totalHours} total hrs`;
+
+            const container = document.getElementById('employeeSummaryList');
+            let html = `<span class="summary-title">Week of ${formatDate(currentWeekStart)} - ${formatDate(weekEnd)}, ${currentWeekStart.getFullYear()}</span>`;
+            let hasAnyHours = false;
+            workers.forEach(w => {
+                const hours = employeeHours[w.name];
+                if (hours > 0) {
+                    hasAnyHours = true;
+                    html += `<div class="employee-line"><span class="employee-name">${w.name}:</span><span class="employee-hours">${hours} hrs</span></div>`;
+                }
+            });
+
+            if (!hasAnyHours) {
+                html += `<div style="color: var(--text-muted); font-style: italic;">No hours logged this week</div>`;
+            } else {
+                html += `<div class="employee-line total-line"><span class="employee-name">TOTAL:</span><span class="employee-hours">${totalHours} hrs</span></div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function getEmployeeSummaryText() {
+            const weekKey = getWeekKey(currentWeekStart);
+            const weekData = allData[weekKey] || {};
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+
+            const employeeHours = {};
+            workers.forEach(w => { employeeHours[w.name] = 0; });
+
+            Object.values(weekData).forEach(dayData => {
+                if (typeof dayData === 'object') {
+                    Object.entries(dayData).forEach(([inputId, hours]) => {
+                        const parts = inputId.split('_');
+                        const workerName = parts[parts.length - 1];
+                        if (employeeHours.hasOwnProperty(workerName)) {
+                            employeeHours[workerName] += hours;
+                        }
+                    });
+                }
+            });
+
+            let totalHours = 0;
+            let text = `Week of ${formatDate(currentWeekStart)} - ${formatDate(weekEnd)}, ${currentWeekStart.getFullYear()}\n\n`;
+            workers.forEach(w => {
+                const hours = employeeHours[w.name];
+                if (hours > 0) { text += `${w.name}: ${hours} hrs\n`; totalHours += hours; }
+            });
+            if (totalHours > 0) text += `\nTOTAL: ${totalHours} hrs`;
+            return text;
+        }
+
+        function copyEmployeeSummary(event) {
+            event.stopPropagation();
+            navigator.clipboard.writeText(getEmployeeSummaryText()).then(() => showToast('Copied to clipboard!'));
+        }
+
+        function downloadEmployeeSummary(event) {
+            event.stopPropagation();
+            const text = getEmployeeSummaryText();
+            const weekKey = getWeekKey(currentWeekStart);
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `payroll-hours-${weekKey}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('Downloaded!');
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        loadAllData().then(async () => {
+            await checkAndSeedData();
+            buildWorkerList();
+            buildJobSites();
+            buildMachinesList();
+
+            if (workers.length === 0) {
+                document.getElementById('tsBody').innerHTML = `
+                    <tr><td colspan="20" class="no-data-message">
+                        <h3>No Active Employees</h3>
+                        <p>Add employees in the <a href="employees.html">Employees</a> page to start tracking payroll.</p>
+                    </td></tr>`;
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                return;
+            }
+
+            const today = new Date();
+            currentWeekStart = getWeekStart(today);
+            const days = getWeekDays(currentWeekStart);
+            const todayKey = today.toISOString().split('T')[0];
+            selectedDayIndex = days.findIndex(d => d.key === todayKey);
+            if (selectedDayIndex === -1) selectedDayIndex = 0;
+
+            buildGrid();
+            restoreHiddenJobs();
+            updateWeekDisplay();
+            buildDayTabs();
+            loadDayData();
+            calculateWeekTotal();
+            updateEmployeeSummary();
+            updateNoteIndicators();
+
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        });
+
+        // ============================================
+        // STORAGE
+        // ============================================
+        async function loadAllData() {
+            updateSaveStatus('loading');
+            try {
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+                    headers: { 'X-Access-Key': JSONBIN_API_KEY }
+                });
+                const data = await response.json();
+                allData = data.record || {};
+                if (!allData.jobs) allData.jobs = {};
+                if (!allData.employees) allData.employees = {};
+                updateSaveStatus('saved');
+            } catch (e) {
+                console.log('Error loading:', e);
+                allData = { jobs: {}, employees: {} };
+                updateSaveStatus('saved');
+            }
+        }
+
+        async function saveAllData() {
+            updateSaveStatus('saving');
+            try {
+                await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-Access-Key': JSONBIN_API_KEY },
+                    body: JSON.stringify(allData)
+                });
+                updateSaveStatus('saved');
+            } catch (e) {
+                console.error('Save failed:', e);
+                updateSaveStatus('error');
+            }
+        }
+
+        function updateSaveStatus(status) {
+            const el = document.getElementById('saveStatus');
+            if (status === 'loading') { el.className = 'save-status saving'; el.innerHTML = '<span>●</span> Loading...'; }
+            else if (status === 'saving') { el.className = 'save-status saving'; el.innerHTML = '<span>●</span> Saving...'; }
+            else if (status === 'saved') { el.className = 'save-status saved'; el.innerHTML = '<span>●</span> All changes saved'; }
+            else { el.className = 'save-status'; el.innerHTML = '<span>●</span> Save failed'; }
+        }
+
+        // ============================================
+        // DATE UTILS
+        // ============================================
+        function getWeekStart(date) {
+            const d = new Date(date);
+            d.setHours(0, 0, 0, 0);
+            const day = d.getDay();
+            const diff = (day >= 5) ? (day - 5) : (day + 2);
+            d.setDate(d.getDate() - diff);
+            return d;
+        }
+
+        function getWeekDays(weekStart) {
+            const days = [];
+            const dayNames = ['Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu'];
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(weekStart);
+                d.setDate(d.getDate() + i);
+                days.push({ date: d, name: dayNames[i], key: d.toISOString().split('T')[0] });
+            }
+            return days;
+        }
+
+        function getWeekKey(weekStart) { return weekStart.toISOString().split('T')[0]; }
+
+        function formatDate(date, format = 'short') {
+            const options = format === 'long'
+                ? { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+                : { month: 'short', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        // ============================================
+        // WEEK NAV
+        // ============================================
+        function updateWeekDisplay() {
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            document.getElementById('weekPeriod').textContent = `${formatDate(currentWeekStart)} - ${formatDate(weekEnd)}`;
+            document.getElementById('weekYear').textContent = currentWeekStart.getFullYear();
+        }
+
+        function prevWeek() {
+            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            selectedDayIndex = 0;
+            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal(); updateEmployeeSummary(); updateNoteIndicators();
+        }
+
+        function nextWeek() {
+            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            selectedDayIndex = 0;
+            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal(); updateEmployeeSummary(); updateNoteIndicators();
+        }
+
+        // ============================================
+        // DAY TABS
+        // ============================================
+        function buildDayTabs() {
+            const container = document.getElementById('dayTabs');
+            const days = getWeekDays(currentWeekStart);
+            container.innerHTML = days.map((day, i) => `
+                <button class="day-tab ${i === selectedDayIndex ? 'active' : ''}" onclick="selectDay(${i})">
+                    <div class="day-name">${day.name}</div>
+                    <div class="day-date">${day.date.getDate()}</div>
+                </button>
+            `).join('');
+        }
+
+        function selectDay(index) {
+            selectedDayIndex = index;
+            document.querySelectorAll('.day-tab').forEach((tab, i) => tab.classList.toggle('active', i === index));
+            loadDayData();
+            updateNoteIndicators();
+        }
+
+        // ============================================
+        // DATA
+        // ============================================
+        function loadDayData() {
+            const days = getWeekDays(currentWeekStart);
+            const day = days[selectedDayIndex];
+            const weekKey = getWeekKey(currentWeekStart);
+
+            document.getElementById('selectedDayDisplay').textContent = formatDate(day.date, 'long');
+            document.querySelectorAll('.hour-input').forEach(input => input.value = '');
+
+            const dayData = allData[weekKey]?.[day.key] || {};
+            Object.entries(dayData).forEach(([key, hours]) => {
+                const input = document.getElementById(key);
+                if (input && hours) input.value = hours;
+            });
+
+            calculateTotals();
+            updateNoteIndicators();
+        }
+
+        function onInput() {
+            calculateTotals();
+            calculateWeekTotal();
+            updateEmployeeSummary();
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveDay, 500);
+        }
+
+        async function saveDay() {
+            const days = getWeekDays(currentWeekStart);
+            const day = days[selectedDayIndex];
+            const weekKey = getWeekKey(currentWeekStart);
+
+            if (!allData[weekKey]) allData[weekKey] = {};
+
+            // Start from existing day data so we don't overwrite the other mode's entries
+            const existingDayData = allData[weekKey][day.key] || {};
+            const dayData = {};
+
+            // Keep entries from the OTHER mode
+            Object.entries(existingDayData).forEach(([key, hours]) => {
+                const isEquipEntry = key.includes('_eq_');
+                if (gridMode === 'employees' && isEquipEntry) {
+                    dayData[key] = hours; // preserve equipment data while in employee mode
+                } else if (gridMode === 'machines' && !isEquipEntry) {
+                    dayData[key] = hours; // preserve employee data while in equipment mode
+                }
+            });
+
+            // Add current mode's data from DOM
+            document.querySelectorAll('.hour-input').forEach(input => {
+                const hours = parseFloat(input.value) || 0;
+                if (hours > 0) dayData[input.id] = hours;
+            });
+
+            allData[weekKey][day.key] = dayData;
+            await saveAllData();
+        }
+
+        function calculateTotals() {
+            let totalHours = 0, directCost = 0, indirectCost = 0;
+
+            const columns = gridMode === 'machines'
+                ? machinesList.map(eq => ({ name: eq.name, rate: eq.rate, idKey: `eq_${eq.name.replace(/[^a-zA-Z0-9]/g, '')}` }))
+                : workers.map(w => ({ name: w.name, rate: w.rate, idKey: w.name }));
+
+            columns.forEach(col => {
+                let colTotal = 0;
+                document.querySelectorAll(`input[data-col="${col.name}"]`).forEach(input => {
+                    const hours = parseFloat(input.value) || 0;
+                    colTotal += hours;
+                    const rate = parseFloat(input.dataset.rate) || 0;
+                    if (input.dataset.type === 'direct') directCost += hours * rate;
+                    else indirectCost += hours * rate;
+                });
+
+                const totalId = gridMode === 'machines'
+                    ? `total_eq_${col.name.replace(/[^a-zA-Z0-9]/g, '')}`
+                    : `total_${col.name}`;
+                const totalEl = document.getElementById(totalId);
+                if (totalEl) totalEl.textContent = colTotal || '0';
+                totalHours += colTotal;
+            });
+
+            document.getElementById('dayHours').textContent = totalHours;
+            document.getElementById('directLabor').textContent = '$' + directCost.toLocaleString();
+            document.getElementById('indirectLabor').textContent = '$' + indirectCost.toLocaleString();
+        }
+
+        function calculateWeekTotal() {
+            const weekKey = getWeekKey(currentWeekStart);
+            const weekData = allData[weekKey] || {};
+            let weekTotal = 0;
+            Object.values(weekData).forEach(dayData => {
+                if (typeof dayData === 'object') {
+                    Object.entries(dayData).forEach(([inputId, hours]) => {
+                        // Check if this is an equipment entry
+                        if (inputId.includes('_eq_')) {
+                            // Equipment — find rate from machinesList
+                            const eqKey = inputId.split('_eq_')[1];
+                            const eq = machinesList.find(e => e.name.replace(/[^a-zA-Z0-9]/g, '') === eqKey);
+                            weekTotal += hours * (eq ? eq.rate : 0);
+                        } else {
+                            // Employee
+                            const parts = inputId.split('_');
+                            const workerName = parts[parts.length - 1];
+                            const jobKey = parts.slice(0, -1).join('_');
+                            const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKey);
+                            const jobName = job ? job.name : jobKey;
+                            const rate = getWorkerRate(workerName, jobName);
+                            weekTotal += hours * rate;
+                        }
+                    });
+                }
+            });
+            document.getElementById('weekTotal').textContent = '$' + weekTotal.toLocaleString();
+        }
+
+        function clearDay() {
+            document.querySelectorAll('.hour-input').forEach(input => input.value = '');
+            calculateTotals();
+            saveDay();
+            calculateWeekTotal();
+            updateEmployeeSummary();
+        }
+
+        // ============================================
+        // TABS
+        // ============================================
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            if (tab === 'timesheet') {
+                document.querySelector('.tab:nth-child(1)').classList.add('active');
+                document.getElementById('timesheetTab').classList.add('active');
+            } else {
+                document.querySelector('.tab:nth-child(2)').classList.add('active');
+                document.getElementById('historyTab').classList.add('active');
+                renderHistory();
+            }
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('historyList');
+            const weeks = Object.keys(allData).filter(k => k !== 'bids' && k !== 'jobs' && k !== 'employees' && k !== 'machines' && k !== '_notes' && k !== '_hiddenJobs' && k.match(/^\d{4}-\d{2}-\d{2}$/)).sort().reverse();
+            if (weeks.length === 0) {
+                container.innerHTML = '<div class="no-history">No payroll history yet.</div>';
+                return;
+            }
+            const currentWeekKey = getWeekKey(currentWeekStart);
+            container.innerHTML = weeks.map(weekKey => {
+                const weekStart = new Date(weekKey + 'T00:00:00');
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekEnd.getDate() + 6);
+                let totalHours = 0, totalCost = 0;
+                const weekData = allData[weekKey] || {};
+                Object.values(weekData).forEach(dayData => {
+                    if (typeof dayData === 'object') {
+                        Object.entries(dayData).forEach(([inputId, hours]) => {
+                            totalHours += hours;
+                            if (inputId.includes('_eq_')) {
+                                const eqKey = inputId.split('_eq_')[1];
+                                const eq = machinesList.find(e => e.name.replace(/[^a-zA-Z0-9]/g, '') === eqKey);
+                                totalCost += hours * (eq ? eq.rate : 0);
+                            } else {
+                                const parts = inputId.split('_');
+                                const workerName = parts[parts.length - 1];
+                                const jobKey = parts.slice(0, -1).join('_');
+                                const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKey);
+                                const jobName = job ? job.name : jobKey;
+                                const rate = getWorkerRate(workerName, jobName);
+                                totalCost += hours * rate;
+                            }
+                        });
+                    }
+                });
+                return `
+                    <div class="history-card ${weekKey === currentWeekKey ? 'current' : ''}" onclick="goToWeek('${weekKey}')">
+                        <div class="history-info">
+                            <h3>${formatDate(weekStart)} - ${formatDate(weekEnd)}, ${weekStart.getFullYear()}</h3>
+                            <p>${weekKey === currentWeekKey ? '← Current Week' : 'Click to view'}</p>
+                        </div>
+                        <div class="history-stats">
+                            <div class="hours">${totalHours} hrs</div>
+                            <div class="cost">$${totalCost.toLocaleString()}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function goToWeek(weekKey) {
+            currentWeekStart = new Date(weekKey + 'T00:00:00');
+            selectedDayIndex = 0;
+            switchTab('timesheet');
+            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal(); updateEmployeeSummary(); updateNoteIndicators();
+        }
+
+        // ============================================
+        // REPORT
+        // ============================================
+        function generateReport() {
+            const weekKey = getWeekKey(currentWeekStart);
+            const weekData = allData[weekKey] || {};
+            const days = getWeekDays(currentWeekStart);
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+
+            let report = `SPENCER'S MASONRY\nWEEKLY PAYROLL REPORT\n${'═'.repeat(45)}\n`;
+            report += `Week: ${formatDate(currentWeekStart)} - ${formatDate(weekEnd)}, ${currentWeekStart.getFullYear()}\n\n`;
+
+            let weekTotalHours = 0, weekDirectCost = 0, weekIndirectCost = 0;
+            let weekEquipHours = 0, weekEquipCost = 0;
+
+            days.forEach(day => {
+                const dayData = weekData[day.key] || {};
+                if (Object.keys(dayData).length === 0) return;
+
+                const dayNotes = (allData._notes && allData._notes[weekKey] && allData._notes[weekKey][day.key]) || {};
+
+                // Separate employee entries from equipment entries
+                const byJob = {};
+                const byJobEquip = {};
+
+                Object.entries(dayData).forEach(([inputId, hours]) => {
+                    if (inputId.includes('_eq_')) {
+                        // Equipment entry
+                        const parts = inputId.split('_eq_');
+                        const jobKeyRaw = parts[0];
+                        const eqKey = parts[1];
+                        const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKeyRaw);
+                        const actualJobName = job ? job.name : jobKeyRaw;
+                        const eq = machinesList.find(e => e.name.replace(/[^a-zA-Z0-9]/g, '') === eqKey);
+                        const eqName = eq ? eq.name : eqKey;
+                        if (!byJobEquip[actualJobName]) byJobEquip[actualJobName] = [];
+                        byJobEquip[actualJobName].push({ equipment: eqName, hours, rate: eq ? eq.rate : 0 });
+                    } else {
+                        // Employee entry
+                        const parts = inputId.split('_');
+                        const workerName = parts[parts.length - 1];
+                        const jobName = parts.slice(0, -1).join('_');
+                        const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobName);
+                        const actualJobName = job ? job.name : jobName;
+                        if (!byJob[actualJobName]) byJob[actualJobName] = [];
+                        byJob[actualJobName].push({ worker: workerName, hours });
+                    }
+                });
+
+                const hasLabor = Object.keys(byJob).length > 0;
+                const hasEquip = Object.keys(byJobEquip).length > 0;
+                if (!hasLabor && !hasEquip) return;
+
+                report += `${formatDate(day.date, 'long')}\n${'-'.repeat(35)}\n`;
+
+                // Labor entries
+                Object.entries(byJob).forEach(([jobName, entries]) => {
+                    const job = jobSites.find(j => j.name === jobName);
+                    const jobKey = jobName.replace(/[^a-zA-Z]/g, '');
+                    report += `  ${jobName}${job?.type === 'indirect' ? ' (Indirect)' : ''}\n`;
+                    entries.forEach(e => {
+                        report += `    ${e.worker}: ${e.hours} hrs\n`;
+                        weekTotalHours += e.hours;
+                        const rate = getWorkerRate(e.worker, jobName);
+                        if (job?.type === 'indirect') weekIndirectCost += e.hours * rate;
+                        else weekDirectCost += e.hours * rate;
+                    });
+                    if (dayNotes[jobKey]) {
+                        report += `    📝 Note: ${dayNotes[jobKey]}\n`;
+                    }
+                });
+
+                // Equipment entries
+                if (hasEquip) {
+                    Object.entries(byJobEquip).forEach(([jobName, entries]) => {
+                        const job = jobSites.find(j => j.name === jobName);
+                        report += `  ${jobName} — Equipment\n`;
+                        entries.forEach(e => {
+                            const cost = e.hours * e.rate;
+                            report += `    🚜 ${e.equipment}: ${e.hours} hrs ($${e.rate}/hr = $${cost.toLocaleString()})\n`;
+                            weekEquipHours += e.hours;
+                            weekEquipCost += cost;
+                        });
+                    });
+                }
+
+                report += '\n';
+            });
+
+            report += `${'═'.repeat(45)}\nWEEKLY SUMMARY\n`;
+            report += `  Labor Hours: ${weekTotalHours}\n`;
+            report += `  Direct Labor: $${weekDirectCost.toLocaleString()}\n`;
+            report += `  Indirect Labor: $${weekIndirectCost.toLocaleString()}\n`;
+            report += `  Total Labor Cost: $${(weekDirectCost + weekIndirectCost).toLocaleString()}\n`;
+            if (weekEquipHours > 0) {
+                report += `  Equipment Hours: ${weekEquipHours}\n`;
+                report += `  Equipment Cost: $${weekEquipCost.toLocaleString()}\n`;
+            }
+            report += `  GRAND TOTAL: $${(weekDirectCost + weekIndirectCost + weekEquipCost).toLocaleString()}\n`;
+            report += `${'═'.repeat(45)}`;
+
+            // Reset modal to report mode
+            document.getElementById('modalTitle').textContent = 'Weekly Payroll Report';
+            document.getElementById('modalBody').innerHTML = `<div class="preview-box" id="previewBox"></div>`;
+            document.getElementById('previewBox').textContent = report;
+            document.getElementById('modalFooter').innerHTML = `
+                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                <button class="btn btn-success" onclick="copyReport()">📋 Copy</button>
+            `;
+            document.getElementById('modalOverlay').classList.add('show');
+        }
+
+        // ============================================
+        // MODAL / TOAST
+        // ============================================
+        function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+        function copyReport() {
+            const previewBox = document.getElementById('previewBox');
+            if (previewBox) {
+                navigator.clipboard.writeText(previewBox.textContent).then(() => {
+                    showToast('Copied to clipboard!');
+                    closeModal();
+                });
+            }
+        }
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+        document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+    </script>
+
+    <script>
+    (function(){
+        function initTheme(){
+            const s=localStorage.getItem('spencers-theme');
+            if(s)document.documentElement.setAttribute('data-theme',s);
+            updateIcon();
+        }
+        window.toggleTheme=function(){
+            const c=document.documentElement.getAttribute('data-theme');
+            const n=c==='light'?'dark':'light';
+            document.documentElement.setAttribute('data-theme',n);
+            localStorage.setItem('spencers-theme',n);
+            updateIcon();
+        };
+        function updateIcon(){
+            const b=document.getElementById('themeToggle');
+            if(b){
+                const t=document.documentElement.getAttribute('data-theme');
+                b.textContent=t==='light'?'🌙':'☀️';
+            }
+        }
+        initTheme();
+    })();
+    </script>
+</body>
+</html>
+
             --bg-tertiary: #353535;
             --bg-input: #1a1a1a;
             --border-color: #3d3d3d;
