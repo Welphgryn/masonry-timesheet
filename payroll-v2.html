@@ -275,6 +275,87 @@
         .employee-summary-list .employee-hours { color: var(--accent); font-weight: 600; }
         .employee-summary-list .total-line { border-top: 1px solid var(--border-color); margin-top: 8px; padding-top: 8px; font-weight: bold; }
 
+        /* Weekly summary tabs (Employees / Machines) */
+        .weekly-summary-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+        }
+        .weekly-summary-tab {
+            flex: 1;
+            padding: 9px 16px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.15s;
+        }
+        .weekly-summary-tab:hover { color: var(--text-primary); background: var(--bg-tertiary); }
+        .weekly-summary-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        /* Machine summary lines with job detail */
+        .employee-summary-list .job-detail { color: var(--text-muted); font-size: 0.8rem; margin-left: 4px; }
+
+        /* Monthly summary section */
+        .monthly-summary-section {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .monthly-summary-header {
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            background: var(--bg-tertiary);
+            user-select: none;
+        }
+        .monthly-summary-header:hover { background: #3d3d3d; }
+        .monthly-summary-header h3 {
+            font-size: 0.95rem; font-weight: 600; color: var(--accent);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .monthly-summary-header .toggle-icon { transition: transform 0.2s; }
+        .monthly-summary-header.collapsed .toggle-icon { transform: rotate(-90deg); }
+        .monthly-summary-content { padding: 16px 20px; display: block; }
+        .monthly-summary-content.hidden { display: none; }
+
+        .monthly-nav {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+        }
+        .monthly-nav button {
+            background: var(--border-color); border: none; color: white;
+            width: 30px; height: 30px; border-radius: 6px; cursor: pointer;
+            font-size: 1rem;
+        }
+        .monthly-nav button:hover { background: var(--accent); }
+        .monthly-nav .month-label { font-size: 0.95rem; font-weight: 600; color: var(--accent); }
+
+        .monthly-summary-actions { display: flex; gap: 8px; margin-bottom: 12px; }
+
+        .monthly-summary-list {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            color: var(--text-primary);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .monthly-summary-list .job-block { margin-bottom: 12px; }
+        .monthly-summary-list .job-block-name { color: var(--accent); font-weight: bold; }
+        .monthly-summary-list .job-block-line { padding-left: 12px; }
+        .monthly-summary-list .job-block-subtotal { padding-left: 12px; color: var(--text-secondary); font-style: italic; }
+
         /* ============================================ */
         /* TIMESHEET TABLE - Sticky Headers for Mobile  */
         /* ============================================ */
@@ -725,18 +806,45 @@
                 </div>
             </div>
 
-            <!-- Employee Weekly Hours Summary -->
+            <!-- Weekly Hours Summary -->
             <div class="employee-summary-section">
                 <div class="employee-summary-header" onclick="toggleEmployeeSummary()">
-                    <h3><span class="toggle-icon">▼</span> Employee Weekly Hours</h3>
+                    <h3><span class="toggle-icon">▼</span> Weekly Hours</h3>
                     <span style="color: var(--text-secondary); font-size: 0.8rem;" id="summaryTotalHours">0 total hrs</span>
                 </div>
                 <div class="employee-summary-content" id="employeeSummaryContent">
-                    <div class="employee-summary-actions">
-                        <button class="btn btn-secondary btn-sm" onclick="copyEmployeeSummary(event)">📋 Copy</button>
-                        <button class="btn btn-secondary btn-sm" onclick="downloadEmployeeSummary(event)">⬇️ Download</button>
+                    <div class="weekly-summary-tabs">
+                        <button class="weekly-summary-tab active" id="weeklySummTabEmp" onclick="switchWeeklySummaryTab('employees')">👷 Employees</button>
+                        <button class="weekly-summary-tab" id="weeklySummTabMach" onclick="switchWeeklySummaryTab('machines')">🚜 Machines</button>
                     </div>
-                    <div class="employee-summary-list" id="employeeSummaryList"></div>
+                    <div style="padding-top: 12px;">
+                        <div class="employee-summary-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="copyWeeklySummary(event)">📋 Copy</button>
+                            <button class="btn btn-secondary btn-sm" onclick="downloadWeeklySummary(event)">⬇️ Download</button>
+                        </div>
+                        <div class="employee-summary-list" id="employeeSummaryList"></div>
+                        <div class="employee-summary-list" id="machineSummaryList" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Summary -->
+            <div class="monthly-summary-section">
+                <div class="monthly-summary-header collapsed" id="monthlyHeader" onclick="toggleMonthlySummary()">
+                    <h3><span class="toggle-icon">▼</span> Monthly Summary</h3>
+                    <span style="color: var(--text-secondary); font-size: 0.8rem;" id="monthlyTotalLabel"></span>
+                </div>
+                <div class="monthly-summary-content hidden" id="monthlySummaryContent">
+                    <div class="monthly-nav">
+                        <button onclick="prevMonth()">←</button>
+                        <span class="month-label" id="monthLabel">April 2026</span>
+                        <button onclick="nextMonth()">→</button>
+                    </div>
+                    <div class="monthly-summary-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="copyMonthlySummary(event)">📋 Copy</button>
+                        <button class="btn btn-secondary btn-sm" onclick="downloadMonthlySummary(event)">⬇️ Download</button>
+                    </div>
+                    <div class="monthly-summary-list" id="monthlySummaryList"></div>
                 </div>
             </div>
 
@@ -1253,50 +1361,133 @@
         }
 
         // ============================================
-        // Employee summary
+        // Weekly Summary (Employees + Machines tabs)
         // ============================================
+        let weeklySummaryTab = 'employees'; // 'employees' or 'machines'
+        let monthlySummaryCollapsed = true;
+        let currentMonth = null; // will be set from currentWeekStart
+
+        function switchWeeklySummaryTab(tab) {
+            weeklySummaryTab = tab;
+            document.getElementById('weeklySummTabEmp').classList.toggle('active', tab === 'employees');
+            document.getElementById('weeklySummTabMach').classList.toggle('active', tab === 'machines');
+            document.getElementById('employeeSummaryList').style.display = tab === 'employees' ? '' : 'none';
+            document.getElementById('machineSummaryList').style.display = tab === 'machines' ? '' : 'none';
+            updateWeeklySummaryTotals();
+        }
+
+        function updateWeeklySummaryTotals() {
+            const weekKey = getWeekKey(currentWeekStart);
+            const weekData = allData[weekKey] || {};
+            let empTotal = 0, machTotal = 0;
+
+            Object.values(weekData).forEach(dayData => {
+                if (!dayData || typeof dayData !== 'object') return;
+                Object.entries(dayData).forEach(([inputId, hours]) => {
+                    if (inputId.includes('_eq_')) machTotal += hours;
+                    else empTotal += hours;
+                });
+            });
+
+            const label = weeklySummaryTab === 'employees'
+                ? `${empTotal} labor hrs`
+                : `${machTotal} machine hrs`;
+            document.getElementById('summaryTotalHours').textContent = label;
+        }
+
         function updateEmployeeSummary() {
             const weekKey = getWeekKey(currentWeekStart);
             const weekData = allData[weekKey] || {};
             const weekEnd = new Date(currentWeekStart);
             weekEnd.setDate(weekEnd.getDate() + 6);
 
+            // --- Employee tab ---
             const employeeHours = {};
             workers.forEach(w => { employeeHours[w.name] = 0; });
 
             Object.values(weekData).forEach(dayData => {
-                if (typeof dayData === 'object') {
-                    Object.entries(dayData).forEach(([inputId, hours]) => {
-                        const parts = inputId.split('_');
-                        const workerName = parts[parts.length - 1];
-                        if (employeeHours.hasOwnProperty(workerName)) {
-                            employeeHours[workerName] += hours;
-                        }
-                    });
-                }
+                if (!dayData || typeof dayData !== 'object') return;
+                Object.entries(dayData).forEach(([inputId, hours]) => {
+                    if (inputId.includes('_eq_')) return;
+                    const parts = inputId.split('_');
+                    const workerName = parts[parts.length - 1];
+                    if (employeeHours.hasOwnProperty(workerName)) {
+                        employeeHours[workerName] += hours;
+                    }
+                });
             });
 
-            let totalHours = 0;
-            Object.values(employeeHours).forEach(h => totalHours += h);
-            document.getElementById('summaryTotalHours').textContent = `${totalHours} total hrs`;
+            let totalEmpHours = 0;
+            Object.values(employeeHours).forEach(h => totalEmpHours += h);
 
-            const container = document.getElementById('employeeSummaryList');
-            let html = `<span class="summary-title">Week of ${formatDate(currentWeekStart)} - ${formatDate(weekEnd)}, ${currentWeekStart.getFullYear()}</span>`;
-            let hasAnyHours = false;
+            const empContainer = document.getElementById('employeeSummaryList');
+            let empHtml = `<span class="summary-title">Week of ${formatDate(currentWeekStart)} - ${formatDate(weekEnd)}, ${currentWeekStart.getFullYear()}</span>`;
+            let hasAnyEmp = false;
             workers.forEach(w => {
                 const hours = employeeHours[w.name];
                 if (hours > 0) {
-                    hasAnyHours = true;
-                    html += `<div class="employee-line"><span class="employee-name">${w.name}:</span><span class="employee-hours">${hours} hrs</span></div>`;
+                    hasAnyEmp = true;
+                    empHtml += `<div class="employee-line"><span class="employee-name">${w.name}:</span><span class="employee-hours">${hours} hrs</span></div>`;
                 }
             });
-
-            if (!hasAnyHours) {
-                html += `<div style="color: var(--text-muted); font-style: italic;">No hours logged this week</div>`;
+            if (!hasAnyEmp) {
+                empHtml += `<div style="color: var(--text-muted); font-style: italic;">No hours logged this week</div>`;
             } else {
-                html += `<div class="employee-line total-line"><span class="employee-name">TOTAL:</span><span class="employee-hours">${totalHours} hrs</span></div>`;
+                empHtml += `<div class="employee-line total-line"><span class="employee-name">TOTAL:</span><span class="employee-hours">${totalEmpHours} hrs</span></div>`;
             }
-            container.innerHTML = html;
+            empContainer.innerHTML = empHtml;
+
+            // --- Machine tab ---
+            // machineHours[machineName] = { total, jobs: { jobName: hours } }
+            const machineHours = {};
+
+            Object.values(weekData).forEach(dayData => {
+                if (!dayData || typeof dayData !== 'object') return;
+                Object.entries(dayData).forEach(([inputId, hours]) => {
+                    if (!inputId.includes('_eq_')) return;
+                    const parts = inputId.split('_eq_');
+                    const jobKeyRaw = parts[0];
+                    const eqKey = parts[1];
+                    const eq = machinesList.find(e => e.name.replace(/[^a-zA-Z0-9]/g, '') === eqKey);
+                    const eqName = eq ? eq.name : eqKey;
+                    const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKeyRaw);
+                    const jobName = job ? job.name : jobKeyRaw;
+
+                    if (!machineHours[eqName]) machineHours[eqName] = { total: 0, jobs: {} };
+                    machineHours[eqName].total += hours;
+                    machineHours[eqName].jobs[jobName] = (machineHours[eqName].jobs[jobName] || 0) + hours;
+                });
+            });
+
+            const machContainer = document.getElementById('machineSummaryList');
+            let machHtml = `<span class="summary-title">Week of ${formatDate(currentWeekStart)} - ${formatDate(weekEnd)}, ${currentWeekStart.getFullYear()}</span>`;
+            let totalMachHours = 0;
+            const machineNames = Object.keys(machineHours).sort();
+
+            if (machineNames.length === 0) {
+                machHtml += `<div style="color: var(--text-muted); font-style: italic;">No machine hours logged this week</div>`;
+            } else {
+                machineNames.forEach(name => {
+                    const mh = machineHours[name];
+                    totalMachHours += mh.total;
+                    const jobParts = Object.entries(mh.jobs).map(([j, h]) => `${j} ${h}`).join(', ');
+                    machHtml += `<div class="employee-line"><span class="employee-name">${name}:</span><span class="employee-hours">${mh.total} hrs</span></div>`;
+                    machHtml += `<div style="padding-left: 8px; color: var(--text-muted); font-size: 0.8rem; margin-top: -2px; margin-bottom: 4px;">${jobParts}</div>`;
+                });
+                machHtml += `<div class="employee-line total-line"><span class="employee-name">TOTAL:</span><span class="employee-hours">${totalMachHours} hrs</span></div>`;
+            }
+            machContainer.innerHTML = machHtml;
+
+            updateWeeklySummaryTotals();
+
+            // Update monthly too
+            updateCurrentMonth();
+            updateMonthlySummary();
+        }
+
+        function getWeeklySummaryText() {
+            if (weeklySummaryTab === 'employees') return getEmployeeSummaryText();
+            return getMachineSummaryText();
         }
 
         function getEmployeeSummaryText() {
@@ -1309,19 +1500,19 @@
             workers.forEach(w => { employeeHours[w.name] = 0; });
 
             Object.values(weekData).forEach(dayData => {
-                if (typeof dayData === 'object') {
-                    Object.entries(dayData).forEach(([inputId, hours]) => {
-                        const parts = inputId.split('_');
-                        const workerName = parts[parts.length - 1];
-                        if (employeeHours.hasOwnProperty(workerName)) {
-                            employeeHours[workerName] += hours;
-                        }
-                    });
-                }
+                if (!dayData || typeof dayData !== 'object') return;
+                Object.entries(dayData).forEach(([inputId, hours]) => {
+                    if (inputId.includes('_eq_')) return;
+                    const parts = inputId.split('_');
+                    const workerName = parts[parts.length - 1];
+                    if (employeeHours.hasOwnProperty(workerName)) {
+                        employeeHours[workerName] += hours;
+                    }
+                });
             });
 
             let totalHours = 0;
-            let text = `Week of ${formatDate(currentWeekStart)} - ${formatDate(weekEnd)}, ${currentWeekStart.getFullYear()}\n\n`;
+            let text = `EMPLOYEE HOURS\nWeek of ${formatDate(currentWeekStart)} - ${formatDate(weekEnd)}, ${currentWeekStart.getFullYear()}\n\n`;
             workers.forEach(w => {
                 const hours = employeeHours[w.name];
                 if (hours > 0) { text += `${w.name}: ${hours} hrs\n`; totalHours += hours; }
@@ -1330,20 +1521,280 @@
             return text;
         }
 
-        function copyEmployeeSummary(event) {
-            event.stopPropagation();
-            navigator.clipboard.writeText(getEmployeeSummaryText()).then(() => showToast('Copied to clipboard!'));
+        function getMachineSummaryText() {
+            const weekKey = getWeekKey(currentWeekStart);
+            const weekData = allData[weekKey] || {};
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+
+            const machineHours = {};
+            Object.values(weekData).forEach(dayData => {
+                if (!dayData || typeof dayData !== 'object') return;
+                Object.entries(dayData).forEach(([inputId, hours]) => {
+                    if (!inputId.includes('_eq_')) return;
+                    const parts = inputId.split('_eq_');
+                    const jobKeyRaw = parts[0];
+                    const eqKey = parts[1];
+                    const eq = machinesList.find(e => e.name.replace(/[^a-zA-Z0-9]/g, '') === eqKey);
+                    const eqName = eq ? eq.name : eqKey;
+                    const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKeyRaw);
+                    const jobName = job ? job.name : jobKeyRaw;
+
+                    if (!machineHours[eqName]) machineHours[eqName] = { total: 0, jobs: {} };
+                    machineHours[eqName].total += hours;
+                    machineHours[eqName].jobs[jobName] = (machineHours[eqName].jobs[jobName] || 0) + hours;
+                });
+            });
+
+            let totalHours = 0;
+            let text = `MACHINE HOURS\nWeek of ${formatDate(currentWeekStart)} - ${formatDate(weekEnd)}, ${currentWeekStart.getFullYear()}\n\n`;
+            Object.keys(machineHours).sort().forEach(name => {
+                const mh = machineHours[name];
+                totalHours += mh.total;
+                const jobParts = Object.entries(mh.jobs).map(([j, h]) => `${j} ${h}`).join(', ');
+                text += `${name}: ${mh.total} hrs (${jobParts})\n`;
+            });
+            if (totalHours > 0) text += `\nTOTAL: ${totalHours} hrs`;
+            else text += `No machine hours logged this week`;
+            return text;
         }
 
-        function downloadEmployeeSummary(event) {
+        function copyWeeklySummary(event) {
             event.stopPropagation();
-            const text = getEmployeeSummaryText();
+            navigator.clipboard.writeText(getWeeklySummaryText()).then(() => showToast('Copied to clipboard!'));
+        }
+
+        function downloadWeeklySummary(event) {
+            event.stopPropagation();
+            const text = getWeeklySummaryText();
             const weekKey = getWeekKey(currentWeekStart);
+            const suffix = weeklySummaryTab === 'employees' ? 'employee-hours' : 'machine-hours';
             const blob = new Blob([text], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `payroll-hours-${weekKey}.txt`;
+            a.download = `${suffix}-${weekKey}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('Downloaded!');
+        }
+
+        // Keep old function names working for copy report etc.
+        function copyEmployeeSummary(event) { copyWeeklySummary(event); }
+        function downloadEmployeeSummary(event) { downloadWeeklySummary(event); }
+
+        // ============================================
+        // Monthly Summary
+        // ============================================
+        function updateCurrentMonth() {
+            if (!currentMonth || !currentWeekStart) {
+                const d = currentWeekStart || new Date();
+                currentMonth = new Date(d.getFullYear(), d.getMonth(), 1);
+            } else {
+                // Auto-track: set month to match whichever week is selected
+                const midWeek = new Date(currentWeekStart);
+                midWeek.setDate(midWeek.getDate() + 3); // use mid-week to determine month
+                currentMonth = new Date(midWeek.getFullYear(), midWeek.getMonth(), 1);
+            }
+        }
+
+        function toggleMonthlySummary() {
+            monthlySummaryCollapsed = !monthlySummaryCollapsed;
+            const header = document.getElementById('monthlyHeader');
+            const content = document.getElementById('monthlySummaryContent');
+            if (monthlySummaryCollapsed) {
+                header.classList.add('collapsed');
+                content.classList.add('hidden');
+            } else {
+                header.classList.remove('collapsed');
+                content.classList.remove('hidden');
+            }
+        }
+
+        function prevMonth() {
+            currentMonth.setMonth(currentMonth.getMonth() - 1);
+            updateMonthlySummary();
+        }
+
+        function nextMonth() {
+            currentMonth.setMonth(currentMonth.getMonth() + 1);
+            updateMonthlySummary();
+        }
+
+        function updateMonthlySummary() {
+            if (!currentMonth) return;
+
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth();
+            const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            document.getElementById('monthLabel').textContent = monthName;
+
+            // Determine which days fall in this month
+            // Scan all week keys, then check each day
+            const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`; // e.g. "2026-04"
+
+            // jobData[jobName] = { labor: { workerName: hours }, machines: { machineName: hours } }
+            const jobData = {};
+
+            Object.keys(allData).forEach(weekKey => {
+                if (!weekKey.match(/^\d{4}-\d{2}-\d{2}$/)) return;
+                const weekData = allData[weekKey];
+                if (!weekData || typeof weekData !== 'object') return;
+
+                Object.entries(weekData).forEach(([dayKey, dayData]) => {
+                    if (!dayKey.startsWith(monthStr)) return; // only days in this month
+                    if (!dayData || typeof dayData !== 'object') return;
+
+                    Object.entries(dayData).forEach(([inputId, hours]) => {
+                        if (hours <= 0) return;
+
+                        if (inputId.includes('_eq_')) {
+                            const parts = inputId.split('_eq_');
+                            const jobKeyRaw = parts[0];
+                            const eqKey = parts[1];
+                            const eq = machinesList.find(e => e.name.replace(/[^a-zA-Z0-9]/g, '') === eqKey);
+                            const eqName = eq ? eq.name : eqKey;
+                            const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKeyRaw);
+                            const jobName = job ? job.name : jobKeyRaw;
+
+                            if (!jobData[jobName]) jobData[jobName] = { labor: {}, machines: {} };
+                            jobData[jobName].machines[eqName] = (jobData[jobName].machines[eqName] || 0) + hours;
+                        } else {
+                            const parts = inputId.split('_');
+                            const workerName = parts[parts.length - 1];
+                            const jobKeyRaw = parts.slice(0, -1).join('_');
+                            const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKeyRaw);
+                            const jobName = job ? job.name : jobKeyRaw;
+
+                            if (!jobData[jobName]) jobData[jobName] = { labor: {}, machines: {} };
+                            jobData[jobName].labor[workerName] = (jobData[jobName].labor[workerName] || 0) + hours;
+                        }
+                    });
+                });
+            });
+
+            const container = document.getElementById('monthlySummaryList');
+            const jobNames = Object.keys(jobData).sort();
+
+            let grandLaborHrs = 0, grandMachineHrs = 0;
+
+            if (jobNames.length === 0) {
+                container.innerHTML = `<div style="color: var(--text-muted); font-style: italic;">No hours logged in ${monthName}</div>`;
+                document.getElementById('monthlyTotalLabel').textContent = '';
+                return;
+            }
+
+            let html = '';
+            jobNames.forEach(jobName => {
+                const jd = jobData[jobName];
+                const laborEntries = Object.entries(jd.labor).sort((a, b) => b[1] - a[1]);
+                const machineEntries = Object.entries(jd.machines).sort((a, b) => b[1] - a[1]);
+                const jobLaborHrs = laborEntries.reduce((s, e) => s + e[1], 0);
+                const jobMachineHrs = machineEntries.reduce((s, e) => s + e[1], 0);
+                grandLaborHrs += jobLaborHrs;
+                grandMachineHrs += jobMachineHrs;
+
+                html += `<div class="job-block">`;
+                html += `<div class="job-block-name">${jobName}</div>`;
+
+                if (laborEntries.length > 0) {
+                    const laborStr = laborEntries.map(([w, h]) => `${w} ${h}`).join(', ');
+                    html += `<div class="job-block-line">Labor: ${laborStr}</div>`;
+                }
+                if (machineEntries.length > 0) {
+                    const machStr = machineEntries.map(([m, h]) => `${m} ${h}`).join(', ');
+                    html += `<div class="job-block-line">Machines: ${machStr}</div>`;
+                }
+                html += `<div class="job-block-subtotal">${jobLaborHrs} labor hrs | ${jobMachineHrs} machine hrs</div>`;
+                html += `</div>`;
+            });
+
+            html += `<div class="employee-line total-line"><span class="employee-name">MONTH TOTAL:</span><span class="employee-hours">${grandLaborHrs} labor | ${grandMachineHrs} machine hrs</span></div>`;
+
+            container.innerHTML = html;
+            document.getElementById('monthlyTotalLabel').textContent = `${grandLaborHrs} labor | ${grandMachineHrs} machine hrs`;
+        }
+
+        function getMonthlySummaryText() {
+            if (!currentMonth) return '';
+            const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            const monthStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}`;
+
+            const jobData = {};
+            Object.keys(allData).forEach(weekKey => {
+                if (!weekKey.match(/^\d{4}-\d{2}-\d{2}$/)) return;
+                const weekData = allData[weekKey];
+                if (!weekData || typeof weekData !== 'object') return;
+                Object.entries(weekData).forEach(([dayKey, dayData]) => {
+                    if (!dayKey.startsWith(monthStr)) return;
+                    if (!dayData || typeof dayData !== 'object') return;
+                    Object.entries(dayData).forEach(([inputId, hours]) => {
+                        if (hours <= 0) return;
+                        if (inputId.includes('_eq_')) {
+                            const parts = inputId.split('_eq_');
+                            const jobKeyRaw = parts[0];
+                            const eqKey = parts[1];
+                            const eq = machinesList.find(e => e.name.replace(/[^a-zA-Z0-9]/g, '') === eqKey);
+                            const eqName = eq ? eq.name : eqKey;
+                            const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKeyRaw);
+                            const jobName = job ? job.name : jobKeyRaw;
+                            if (!jobData[jobName]) jobData[jobName] = { labor: {}, machines: {} };
+                            jobData[jobName].machines[eqName] = (jobData[jobName].machines[eqName] || 0) + hours;
+                        } else {
+                            const parts = inputId.split('_');
+                            const workerName = parts[parts.length - 1];
+                            const jobKeyRaw = parts.slice(0, -1).join('_');
+                            const job = jobSites.find(j => j.name.replace(/[^a-zA-Z]/g, '') === jobKeyRaw);
+                            const jobName = job ? job.name : jobKeyRaw;
+                            if (!jobData[jobName]) jobData[jobName] = { labor: {}, machines: {} };
+                            jobData[jobName].labor[workerName] = (jobData[jobName].labor[workerName] || 0) + hours;
+                        }
+                    });
+                });
+            });
+
+            let text = `MONTHLY SUMMARY\n${monthName}\n${'═'.repeat(40)}\n\n`;
+            let grandLabor = 0, grandMachine = 0;
+
+            Object.keys(jobData).sort().forEach(jobName => {
+                const jd = jobData[jobName];
+                const laborEntries = Object.entries(jd.labor).sort((a, b) => b[1] - a[1]);
+                const machineEntries = Object.entries(jd.machines).sort((a, b) => b[1] - a[1]);
+                const jobLabor = laborEntries.reduce((s, e) => s + e[1], 0);
+                const jobMachine = machineEntries.reduce((s, e) => s + e[1], 0);
+                grandLabor += jobLabor;
+                grandMachine += jobMachine;
+
+                text += `${jobName}\n`;
+                if (laborEntries.length > 0) {
+                    text += `  Labor: ${laborEntries.map(([w, h]) => `${w} ${h} hrs`).join(', ')}\n`;
+                }
+                if (machineEntries.length > 0) {
+                    text += `  Machines: ${machineEntries.map(([m, h]) => `${m} ${h} hrs`).join(', ')}\n`;
+                }
+                text += `  Total: ${jobLabor} labor hrs | ${jobMachine} machine hrs\n\n`;
+            });
+
+            text += `${'═'.repeat(40)}\nMONTH TOTAL: ${grandLabor} labor hrs | ${grandMachine} machine hrs\n`;
+            return text;
+        }
+
+        function copyMonthlySummary(event) {
+            event.stopPropagation();
+            navigator.clipboard.writeText(getMonthlySummaryText()).then(() => showToast('Copied to clipboard!'));
+        }
+
+        function downloadMonthlySummary(event) {
+            event.stopPropagation();
+            const text = getMonthlySummaryText();
+            const monthStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}`;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `monthly-summary-${monthStr}.txt`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
