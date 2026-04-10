@@ -847,12 +847,17 @@
 
         function calculateEquipmentTotal(job) {
             let total = 0;
+            const isDebugJob = (job.name === 'Farm lab gravel');
 
             // 1. Payroll machine hours from timesheet
             const payrollName = job.payrollName || job.name;
             if (payrollName) {
                 const payrollKey = payrollName.replace(/[^a-zA-Z]/g, '');
                 const eqPrefix = payrollKey + '_eq_';
+
+                if (isDebugJob) console.log('=== DEBUG Farm lab gravel machines ===');
+                if (isDebugJob) console.log('payrollKey:', payrollKey, 'eqPrefix:', eqPrefix);
+                if (isDebugJob) console.log('job.machineRates:', JSON.stringify(job.machineRates));
 
                 Object.keys(allData).forEach(key => {
                     if (!key.match(/^\d{4}-\d{2}-\d{2}$/) || key === 'jobs') return;
@@ -865,26 +870,37 @@
                                 const machineKey = inputId.split('_eq_')[1];
                                 // Reverse-lookup machine name from key
                                 let machineName = machineKey;
+                                let foundMachine = null;
                                 if (allData.machines) {
                                     const m = Object.values(allData.machines).find(e =>
                                         (e.payrollName || e.name).replace(/[^a-zA-Z0-9]/g, '') === machineKey
                                     );
-                                    if (m) machineName = m.payrollName || m.name;
+                                    if (m) {
+                                        machineName = m.payrollName || m.name;
+                                        foundMachine = m;
+                                    }
                                 }
-                                total += hours * getMachineRate(machineName, job);
+                                const rate = getMachineRate(machineName, job);
+                                if (isDebugJob) console.log(`  inputId=${inputId} hours=${hours} machineKey=${machineKey} machineName=${machineName} foundInMachines=${!!foundMachine} rate=${rate} cost=${hours*rate}`);
+                                total += hours * rate;
                             }
                         });
                     });
                 });
+
+                if (isDebugJob) console.log('Payroll machines subtotal:', total);
             }
 
             // 2. Additional machines (manual entries on job page)
             if (job.equipment) {
                 Object.entries(job.equipment).forEach(([machineName, hours]) => {
-                    total += (hours || 0) * getMachineRate(machineName, job);
+                    const rate = getMachineRate(machineName, job);
+                    if (isDebugJob && hours > 0) console.log(`  Additional: ${machineName} hours=${hours} rate=${rate} cost=${hours*rate}`);
+                    total += (hours || 0) * rate;
                 });
             }
 
+            if (isDebugJob) console.log('TOTAL equipment:', total);
             return total;
         }
 
