@@ -792,7 +792,14 @@
             return total;
         }
 
-        // Get worker rate: per-job override > allData.employees > 0
+        // Default worker rates (must match job.html defaults)
+        const defaultWorkerRates = {
+            'Jordan': 120, 'Kamalei': 100, 'Dave': 114, 'Joe': 114,
+            'Ian': 100, 'Ray': 100, 'Jestin': 63, 'Duke': 58,
+            'Keahi': 52, 'Ruben': 52, 'Beau': 87.5, 'Seth': 40, 'Kawika': 35
+        };
+
+        // Get worker rate: per-job override > allData.employees > defaultWorkerRates > 0
         function getWorkerRate(workerName, job) {
             if (job && job.workerRates && job.workerRates[workerName] !== undefined) {
                 return job.workerRates[workerName];
@@ -801,10 +808,17 @@
                 const emp = Object.values(allData.employees).find(e => e.name === workerName);
                 if (emp) return emp.rate || 0;
             }
-            return 0;
+            return defaultWorkerRates[workerName] || 0;
         }
 
-        // Get machine rate: per-job override > allData.machines > 0
+        // Default machine rates (must match job.html defaults)
+        const defaultMachineRates = {
+            'TL12': 200, '290 Excavator': 290, '290 Skid': 200, '145 Mini Ex': 195,
+            '240 Skid': 180, '197 Skid': 200, 'Masons': 900, 'Pump': 500,
+            '450 Truck': 200, '650 Truck': 900, '750 Truck': 650
+        };
+
+        // Get machine rate: per-job override > allData.machines > defaultMachineRates > 0
         function getMachineRate(machineName, job) {
             if (job && job.machineRates && job.machineRates[machineName] !== undefined) {
                 return job.machineRates[machineName];
@@ -813,7 +827,7 @@
                 const m = Object.values(allData.machines).find(e => (e.payrollName || e.name) === machineName);
                 if (m) return m.rate || 0;
             }
-            return 0;
+            return defaultMachineRates[machineName] || 0;
         }
 
         // Calculate total job cost with overhead, profit, tax
