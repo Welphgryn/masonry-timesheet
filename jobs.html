@@ -638,6 +638,11 @@
             }
         }
 
+        // Format money with 2 decimal places
+        function fmtMoney(n) {
+            return '$' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
         // Render jobs
         function renderJobs() {
             const container = document.getElementById('jobsList');
@@ -681,12 +686,12 @@
                 let balanceClass = '';
                 if (job.jobType === 'contract' && job.contractAmount) {
                     const remaining = job.contractAmount - totalDraws;
-                    balanceText = `Balance: $${remaining.toLocaleString()}`;
+                    balanceText = `Balance: ${fmtMoney(remaining)}`;
                     balanceClass = '';
                 } else if (job.jobType === 'hourly' || !job.jobType) {
                     const owed = jobTotal - totalDraws;
                     if (owed > 0) {
-                        balanceText = `Owed: $${owed.toLocaleString()}`;
+                        balanceText = `Owed: ${fmtMoney(owed)}`;
                         balanceClass = 'owed';
                     }
                 }
@@ -703,12 +708,12 @@
                             <div class="job-meta">
                                 <span>${job.squareFootage ? job.squareFootage.toLocaleString() + ' SF' : 'No SF'}</span>
                                 <span>${job.startDate ? formatDate(job.startDate) : 'No start date'}</span>
-                                ${totalDraws > 0 ? `<span>Draws: $${totalDraws.toLocaleString()}</span>` : ''}
+                                ${totalDraws > 0 ? `<span>Draws: ${fmtMoney(totalDraws)}</span>` : ''}
                             </div>
                         </div>
                         <div class="job-stats">
-                            <div class="job-total">${job.jobType === 'contract' && job.contractAmount ? '$' + job.contractAmount.toLocaleString() : '$' + jobTotal.toLocaleString()}</div>
-                            <div class="job-labor">Labor: $${laborTotal.toLocaleString()}</div>
+                            <div class="job-total">${job.jobType === 'contract' && job.contractAmount ? fmtMoney(job.contractAmount) : fmtMoney(jobTotal)}</div>
+                            <div class="job-labor">Labor: ${fmtMoney(laborTotal)}</div>
                             ${balanceText ? `<div class="job-balance ${balanceClass}">${balanceText}</div>` : ''}
                             ${costPerSf ? `<div class="job-sf">$${costPerSf}/SF</div>` : ''}
                         </div>
@@ -741,9 +746,9 @@
             });
 
             document.getElementById('activeCount').textContent = activeJobs.length;
-            document.getElementById('totalLabor').textContent = '$' + totalLabor.toLocaleString();
-            document.getElementById('contractBalance').textContent = '$' + contractBalance.toLocaleString();
-            document.getElementById('hourlyOwed').textContent = '$' + hourlyOwed.toLocaleString();
+            document.getElementById('totalLabor').textContent = fmtMoney(totalLabor);
+            document.getElementById('contractBalance').textContent = fmtMoney(contractBalance);
+            document.getElementById('hourlyOwed').textContent = fmtMoney(hourlyOwed);
         }
 
         // Calculate total draws for a job
