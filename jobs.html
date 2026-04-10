@@ -814,10 +814,14 @@
             '450 Truck': 200, '650 Truck': 900, '750 Truck': 650
         };
 
-        // Get machine rate: per-job override > defaultMachineRates > 0
+        // Get machine rate: per-job override > allData.machines > defaultMachineRates > 0
         function getMachineRate(machineName, job) {
             if (job && job.machineRates && job.machineRates[machineName] !== undefined) {
                 return job.machineRates[machineName];
+            }
+            if (allData.machines) {
+                const m = Object.values(allData.machines).find(e => (e.payrollName || e.name) === machineName);
+                if (m) return m.rate || 0;
             }
             return defaultMachineRates[machineName] || 0;
         }
