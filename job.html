@@ -61,21 +61,10 @@
             gap: 12px;
         }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header h1 { font-size: 1.1rem; color: white; }
 
-        .header h1 {
-            font-size: 1.1rem;
-            color: white;
-        }
-
-        .header-badges {
-            display: flex;
-            gap: 8px;
-        }
+        .header-badges { display: flex; gap: 8px; }
 
         .badge {
             font-size: 0.65rem;
@@ -106,31 +95,17 @@
             gap: 6px;
         }
 
-        .btn-back {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            padding: 8px 16px;
-            font-size: 0.85rem;
-        }
-
+        .btn-back { background: rgba(255,255,255,0.2); color: white; padding: 8px 16px; font-size: 0.85rem; }
         .btn-back:hover { background: rgba(255,255,255,0.3); }
-
         .btn-primary { background: #f97316; color: white; }
         .btn-primary:hover { background: #ea580c; }
-
         .btn-secondary { background: var(--border-color); color: var(--text-primary); }
         .btn-secondary:hover { background: #525252; }
-
         .btn-success { background: #16a34a; color: white; }
         .btn-success:hover { background: #15803d; }
-
         .btn-danger { background: #dc2626; color: white; }
         .btn-danger:hover { background: #b91c1c; }
-
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 0.8rem;
-        }
+        .btn-small { padding: 6px 12px; font-size: 0.8rem; }
 
         .tabs {
             display: flex;
@@ -184,11 +159,7 @@
             gap: 10px;
         }
 
-        .section-header h3 {
-            font-size: 1rem;
-            color: var(--accent);
-        }
-
+        .section-header h3 { font-size: 1rem; color: var(--accent); }
         .section-body { padding: 20px; }
 
         .form-grid {
@@ -227,15 +198,10 @@
         }
 
         .form-group textarea { resize: vertical; min-height: 80px; }
-
         .form-group.full-width { grid-column: 1 / -1; }
 
         /* Draws Section */
-        .draws-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+        .draws-list { display: flex; flex-direction: column; gap: 8px; }
 
         .draw-item {
             display: grid;
@@ -256,10 +222,7 @@
             font-size: 0.85rem;
         }
 
-        .draw-item input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
+        .draw-item input:focus { outline: none; border-color: var(--accent); }
 
         .draw-delete {
             background: none;
@@ -291,31 +254,141 @@
             text-align: center;
         }
 
-        .balance-box.contract {
-            background: rgba(167, 139, 250, 0.1);
-            border: 1px solid #a78bfa;
-        }
-
-        .balance-box.hourly {
-            background: rgba(244, 114, 182, 0.1);
-            border: 1px solid #f472b6;
-        }
-
-        .balance-box .label {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-
-        .balance-box .value {
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-
+        .balance-box.contract { background: rgba(167, 139, 250, 0.1); border: 1px solid #a78bfa; }
+        .balance-box.hourly { background: rgba(244, 114, 182, 0.1); border: 1px solid #f472b6; }
+        .balance-box .label { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px; }
+        .balance-box .value { font-size: 1.8rem; font-weight: 700; }
         .balance-box.contract .value { color: #a78bfa; }
         .balance-box.hourly .value { color: #f472b6; }
 
-        /* Labor Tab */
+        /* Invoices Section */
+        .invoice-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .invoice-summary-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+
+        .invoice-summary-card.highlight {
+            background: rgba(244, 114, 182, 0.08);
+            border-color: #f472b6;
+        }
+
+        .invoice-summary-card .label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .invoice-summary-card .value { font-size: 1.3rem; font-weight: 700; }
+        .invoice-summary-card .value.purple { color: #a78bfa; }
+        .invoice-summary-card .value.yellow { color: #eab308; }
+        .invoice-summary-card .value.pink { color: #f472b6; }
+        .invoice-summary-card .value.green { color: var(--success); }
+        .invoice-summary-card .value.orange { color: var(--accent); }
+
+        .invoice-summary-card .sub {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .invoice-table th {
+            text-align: left;
+            padding: 10px 12px;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .invoice-table th.num { text-align: right; }
+        .invoice-table th.center { text-align: center; }
+
+        .invoice-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        .invoice-table td.num { text-align: right; }
+        .invoice-table td.center { text-align: center; }
+        .invoice-table tr:last-child td { border-bottom: none; }
+
+        .invoice-number {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .invoice-status-pill {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .invoice-status-pill.paid { background: rgba(22, 163, 74, 0.2); color: #16a34a; }
+        .invoice-status-pill.partial { background: rgba(249, 115, 22, 0.2); color: #f97316; }
+        .invoice-status-pill.open { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+
+        .invoice-actions {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-end;
+        }
+
+        .invoice-action-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .invoice-action-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .invoice-action-btn.delete:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .invoice-totals-row td {
+            background: var(--bg-primary);
+            font-weight: 700;
+            border-top: 2px solid var(--accent);
+        }
+
+        .invoice-totals-row td.num.purple { color: #a78bfa; }
+        .invoice-totals-row td.num.green { color: var(--success); }
+        .invoice-totals-row td.num.pink { color: #f472b6; }
+
+        /* Labor Tab (unchanged) */
         .week-block {
             background: var(--bg-primary);
             border-radius: 10px;
@@ -333,15 +406,10 @@
         }
 
         .week-header:hover { background: var(--border-color); }
-
         .week-header .week-title { font-weight: 600; }
         .week-header .week-total { color: var(--accent); font-weight: 600; }
 
-        .week-body {
-            display: none;
-            padding: 12px;
-        }
-
+        .week-body { display: none; padding: 12px; }
         .week-body.show { display: block; }
 
         .labor-grid {
@@ -363,10 +431,7 @@
             font-size: 0.75rem;
         }
 
-        .labor-cell.day-label {
-            text-align: left;
-            padding-left: 10px;
-        }
+        .labor-cell.day-label { text-align: left; padding-left: 10px; }
 
         .labor-cell.total-row {
             background: var(--border-color);
@@ -374,7 +439,6 @@
             color: var(--accent);
         }
 
-        /* Worker Rates Grid */
         .worker-rates-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -390,20 +454,9 @@
             gap: 6px;
         }
 
-        .worker-rate-item .worker-name {
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-
-        .worker-rate-item .rate-input-group {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .worker-rate-item .rate-input-group span {
-            color: var(--text-secondary);
-        }
+        .worker-rate-item .worker-name { font-weight: 500; font-size: 0.9rem; }
+        .worker-rate-item .rate-input-group { display: flex; align-items: center; gap: 4px; }
+        .worker-rate-item .rate-input-group span { color: var(--text-secondary); }
 
         .worker-rate-item input {
             width: 70px;
@@ -416,22 +469,10 @@
             text-align: right;
         }
 
-        .worker-rate-item input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
+        .worker-rate-item input:focus { outline: none; border-color: var(--accent); }
+        .worker-rate-item .default-rate { font-size: 0.75rem; color: var(--text-muted); }
 
-        .worker-rate-item .default-rate {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        /* Line Items (Additional Labor, Materials) */
-        .line-items {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+        .line-items { display: flex; flex-direction: column; gap: 8px; }
 
         .line-item {
             display: grid;
@@ -449,10 +490,7 @@
             font-size: 0.9rem;
         }
 
-        .line-item input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
+        .line-item input:focus { outline: none; border-color: var(--accent); }
 
         .line-item-delete {
             background: none;
@@ -475,11 +513,7 @@
 
         .line-item-total .value { color: var(--accent); }
 
-        /* Equipment Tab */
-        .equipment-grid {
-            display: grid;
-            gap: 10px;
-        }
+        .equipment-grid { display: grid; gap: 10px; }
 
         .equipment-row {
             display: grid;
@@ -499,11 +533,7 @@
         }
 
         .equipment-name { font-weight: 500; }
-
-        .equipment-rate {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-        }
+        .equipment-rate { color: var(--text-secondary); font-size: 0.85rem; }
 
         .equipment-row input {
             padding: 8px 10px;
@@ -515,23 +545,16 @@
             text-align: center;
         }
 
-        .equipment-row input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
+        .equipment-row input:focus { outline: none; border-color: var(--accent); }
         .equipment-total { color: #16a34a; font-weight: 600; }
 
-        /* Summary Tab */
         .summary-section {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
 
-        @media (max-width: 768px) {
-            .summary-section { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 768px) { .summary-section { grid-template-columns: 1fr; } }
 
         .summary-breakdown {
             background: var(--bg-primary);
@@ -547,14 +570,9 @@
         }
 
         .summary-line:last-child { border-bottom: none; }
-
         .summary-line .label { color: var(--text-secondary); }
         .summary-line .value { font-weight: 500; }
-
-        .summary-line.subtotal {
-            font-weight: 600;
-        }
-
+        .summary-line.subtotal { font-weight: 600; }
         .summary-line.subtotal .label { color: var(--text-primary); }
 
         .summary-line.total {
@@ -569,11 +587,7 @@
         .summary-line.total .label { color: var(--accent); }
         .summary-line.total .value { color: var(--accent); }
 
-        .summary-metrics {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
+        .summary-metrics { display: flex; flex-direction: column; gap: 16px; }
 
         .metric-card {
             background: var(--bg-primary);
@@ -588,15 +602,12 @@
             margin-bottom: 6px;
         }
 
-        .metric-card .value {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
+        .metric-card .value { font-size: 1.5rem; font-weight: 700; }
         .metric-card .value.green { color: #16a34a; }
         .metric-card .value.orange { color: var(--accent); }
         .metric-card .value.purple { color: #a78bfa; }
         .metric-card .value.pink { color: #f472b6; }
+        .metric-card .value.yellow { color: #eab308; }
 
         .metric-card input {
             width: 100%;
@@ -619,7 +630,6 @@
             flex-wrap: wrap;
         }
 
-        /* Toast */
         .toast {
             position: fixed;
             bottom: 24px;
@@ -638,7 +648,6 @@
         .toast.error { background: #dc2626; }
         .toast.show { opacity: 1; }
 
-        /* Modal */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -671,15 +680,7 @@
         }
 
         .modal-header h3 { color: var(--accent); }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
+        .modal-close { background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; }
         .modal-body { padding: 20px; }
 
         .modal-footer {
@@ -703,11 +704,17 @@
         .save-status.saving { color: var(--accent); }
         .save-status.saved { color: #16a34a; }
 
-        .loading {
+        .loading { text-align: center; padding: 60px; color: var(--text-secondary); }
+
+        .empty-state {
             text-align: center;
-            padding: 60px;
-            color: var(--text-secondary);
+            padding: 40px 20px;
+            color: var(--text-muted);
         }
+
+        .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.5; }
+        .empty-state h4 { font-size: 1rem; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; }
+        .empty-state p { font-size: 0.85rem; }
 
         @media (max-width: 768px) {
             .header { padding: 12px 16px; }
@@ -718,6 +725,10 @@
             .equipment-row.header { display: none; }
             .line-item { grid-template-columns: 1fr auto; }
             .line-item input:first-child { grid-column: 1 / -1; }
+            .invoice-summary { grid-template-columns: 1fr; }
+            .invoice-table { font-size: 0.8rem; }
+            .invoice-table th, .invoice-table td { padding: 8px; }
+            .hide-mobile { display: none; }
         }
     </style>
 </head>
@@ -744,41 +755,22 @@
         <button class="tab" data-tab="labor">Labor</button>
         <button class="tab" data-tab="machines">Machines</button>
         <button class="tab" data-tab="materials">Materials</button>
+        <button class="tab" data-tab="invoices">Invoices</button>
     </div>
 
     <div class="main-content">
         <!-- Job Info Tab -->
         <div class="tab-content" id="infoTab">
             <div class="section">
-                <div class="section-header">
-                    <h3>Job Details</h3>
-                </div>
+                <div class="section-header"><h3>Job Details</h3></div>
                 <div class="section-body">
                     <div class="form-grid">
-                        <div class="form-group">
-                            <label>Job Name</label>
-                            <input type="text" id="infoName">
-                        </div>
-                        <div class="form-group">
-                            <label>Payroll Name</label>
-                            <input type="text" id="infoPayrollName">
-                        </div>
-                        <div class="form-group">
-                            <label>Client</label>
-                            <input type="text" id="infoClient">
-                        </div>
-                        <div class="form-group">
-                            <label>Address</label>
-                            <input type="text" id="infoAddress">
-                        </div>
-                        <div class="form-group">
-                            <label>Square Footage</label>
-                            <input type="number" id="infoSF">
-                        </div>
-                        <div class="form-group">
-                            <label>Start Date</label>
-                            <input type="date" id="infoStartDate">
-                        </div>
+                        <div class="form-group"><label>Job Name</label><input type="text" id="infoName"></div>
+                        <div class="form-group"><label>Payroll Name</label><input type="text" id="infoPayrollName"></div>
+                        <div class="form-group"><label>Client</label><input type="text" id="infoClient"></div>
+                        <div class="form-group"><label>Address</label><input type="text" id="infoAddress"></div>
+                        <div class="form-group"><label>Square Footage</label><input type="number" id="infoSF"></div>
+                        <div class="form-group"><label>Start Date</label><input type="date" id="infoStartDate"></div>
                         <div class="form-group">
                             <label>Status</label>
                             <select id="infoStatus">
@@ -815,7 +807,7 @@
 
             <div class="section">
                 <div class="section-header">
-                    <h3 id="drawsTitle">Draws</h3>
+                    <h3 id="drawsTitle">Draws / Payments Received</h3>
                     <button class="btn btn-small btn-primary" onclick="addDraw()">+ Add Draw</button>
                 </div>
                 <div class="section-body">
@@ -855,9 +847,7 @@
                     <span style="color: var(--text-secondary); font-size: 0.85rem;">Auto-pulled from timesheet</span>
                 </div>
                 <div class="section-body">
-                    <div id="laborWeeks">
-                        <div class="loading">Loading payroll data...</div>
-                    </div>
+                    <div id="laborWeeks"><div class="loading">Loading payroll data...</div></div>
                     <div class="line-item-total">
                         <span>Total Payroll Labor</span>
                         <span class="value" id="totalPayrollLabor">$0</span>
@@ -903,9 +893,7 @@
                     <span style="color: var(--text-secondary); font-size: 0.85rem;">Auto-pulled from timesheet</span>
                 </div>
                 <div class="section-body">
-                    <div id="machineWeeks">
-                        <div class="loading">Loading machine data...</div>
-                    </div>
+                    <div id="machineWeeks"><div class="loading">Loading machine data...</div></div>
                     <div class="line-item-total">
                         <span>Total Payroll Machines</span>
                         <span class="value" id="totalPayrollMachines">$0</span>
@@ -914,9 +902,7 @@
             </div>
 
             <div class="section">
-                <div class="section-header">
-                    <h3>Additional Machine Hours</h3>
-                </div>
+                <div class="section-header"><h3>Additional Machine Hours</h3></div>
                 <div class="section-body">
                     <div class="equipment-grid" id="equipmentGrid"></div>
                     <div class="line-item-total" style="margin-top: 20px;">
@@ -949,83 +935,90 @@
             </div>
         </div>
 
+        <!-- Invoices Tab -->
+        <div class="tab-content" id="invoicesTab">
+            <div class="invoice-summary">
+                <div class="invoice-summary-card">
+                    <div class="label">Total Invoiced</div>
+                    <div class="value purple" id="invTotalInvoiced">$0</div>
+                    <div class="sub" id="invCountSub">0 invoices sent</div>
+                </div>
+                <div class="invoice-summary-card">
+                    <div class="label">Received</div>
+                    <div class="value yellow" id="invReceived">$0</div>
+                    <div class="sub" id="invDrawsSub">0 draws</div>
+                </div>
+                <div class="invoice-summary-card highlight">
+                    <div class="label">Outstanding</div>
+                    <div class="value pink" id="invOutstanding">$0</div>
+                    <div class="sub" id="invOpenSub">No open invoices</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h3>Invoices Sent</h3>
+                    <button class="btn btn-small btn-primary" onclick="openInvoiceModal()">+ Add Invoice</button>
+                </div>
+                <div class="section-body" id="invoicesBody">
+                    <div class="empty-state">
+                        <div class="icon">📄</div>
+                        <h4>No invoices recorded yet</h4>
+                        <p>Click "+ Add Invoice" to record an invoice you sent from your other platform</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px; margin-top: 20px;">
+                <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
+                    <strong style="color: var(--text-primary);">How this works:</strong>
+                    Invoices recorded here don't send anything — they track what you've already billed through your other platform. 
+                    Payments are still entered under <strong style="color: var(--accent);">Job Info → Draws</strong>. 
+                    The "Paid" column below matches draws to invoices oldest-first (FIFO), so you don't need to manually link them.
+                </div>
+            </div>
+        </div>
+
         <!-- Summary Tab -->
         <div class="tab-content active" id="summaryTab">
             <div class="summary-section">
                 <div class="summary-breakdown">
                     <h3 style="color: var(--accent); margin-bottom: 16px;">Cost Breakdown</h3>
-                    <div class="summary-line">
-                        <span class="label">Payroll Labor</span>
-                        <span class="value" id="sumPayrollLabor">$0</span>
-                    </div>
-                    <div class="summary-line">
-                        <span class="label">Additional Labor</span>
-                        <span class="value" id="sumAdditionalLabor">$0</span>
-                    </div>
-                    <div class="summary-line">
-                        <span class="label">Payroll Machines</span>
-                        <span class="value" id="sumPayrollMachines">$0</span>
-                    </div>
-                    <div class="summary-line">
-                        <span class="label">Additional Machines</span>
-                        <span class="value" id="sumEquipment">$0</span>
-                    </div>
-                    <div class="summary-line">
-                        <span class="label">Materials</span>
-                        <span class="value" id="sumMaterials">$0</span>
-                    </div>
-                    <div class="summary-line subtotal">
-                        <span class="label">Subtotal</span>
-                        <span class="value" id="sumSubtotal1">$0</span>
-                    </div>
-                    <div class="summary-line">
-                        <span class="label">Overhead (<span id="overheadPct">18</span>%)</span>
-                        <span class="value" id="sumOverhead">$0</span>
-                    </div>
-                    <div class="summary-line subtotal">
-                        <span class="label">Subtotal</span>
-                        <span class="value" id="sumSubtotal2">$0</span>
-                    </div>
-                    <div class="summary-line" id="sumProfitRow">
-                        <span class="label">Profit (<span id="profitPct">10</span>%)</span>
-                        <span class="value" id="sumProfit">$0</span>
-                    </div>
-                    <div class="summary-line subtotal" id="sumSubtotal3Row">
-                        <span class="label">Subtotal</span>
-                        <span class="value" id="sumSubtotal3">$0</span>
-                    </div>
-                    <div class="summary-line" id="sumTaxRow">
-                        <span class="label">GE Tax (<span id="taxPct">4.712</span>%)</span>
-                        <span class="value" id="sumTax">$0</span>
-                    </div>
-                    <div class="summary-line total">
-                        <span class="label">TOTAL DUE</span>
-                        <span class="value" id="sumTotal">$0</span>
-                    </div>
+                    <div class="summary-line"><span class="label">Payroll Labor</span><span class="value" id="sumPayrollLabor">$0</span></div>
+                    <div class="summary-line"><span class="label">Additional Labor</span><span class="value" id="sumAdditionalLabor">$0</span></div>
+                    <div class="summary-line"><span class="label">Payroll Machines</span><span class="value" id="sumPayrollMachines">$0</span></div>
+                    <div class="summary-line"><span class="label">Additional Machines</span><span class="value" id="sumEquipment">$0</span></div>
+                    <div class="summary-line"><span class="label">Materials</span><span class="value" id="sumMaterials">$0</span></div>
+                    <div class="summary-line subtotal"><span class="label">Subtotal</span><span class="value" id="sumSubtotal1">$0</span></div>
+                    <div class="summary-line"><span class="label">Overhead (<span id="overheadPct">18</span>%)</span><span class="value" id="sumOverhead">$0</span></div>
+                    <div class="summary-line subtotal"><span class="label">Subtotal</span><span class="value" id="sumSubtotal2">$0</span></div>
+                    <div class="summary-line" id="sumProfitRow"><span class="label">Profit (<span id="profitPct">10</span>%)</span><span class="value" id="sumProfit">$0</span></div>
+                    <div class="summary-line subtotal" id="sumSubtotal3Row"><span class="label">Subtotal</span><span class="value" id="sumSubtotal3">$0</span></div>
+                    <div class="summary-line" id="sumTaxRow"><span class="label">GE Tax (<span id="taxPct">4.712</span>%)</span><span class="value" id="sumTax">$0</span></div>
+                    <div class="summary-line total"><span class="label">TOTAL DUE</span><span class="value" id="sumTotal">$0</span></div>
                 </div>
 
                 <div class="summary-metrics">
-                    <div class="metric-card">
-                        <div class="label">Square Footage</div>
-                        <input type="number" id="sumSF" onchange="calculateSummary()">
-                    </div>
-                    <div class="metric-card">
-                        <div class="label">Cost per SF</div>
-                        <div class="value green" id="sumCostPerSF">$0.00</div>
-                    </div>
+                    <div class="metric-card"><div class="label">Square Footage</div><input type="number" id="sumSF" onchange="calculateSummary()"></div>
+                    <div class="metric-card"><div class="label">Cost per SF</div><div class="value green" id="sumCostPerSF">$0.00</div></div>
                     <div class="metric-card" id="sumBalanceCard">
                         <div class="label" id="sumBalanceLabel">Remaining Balance</div>
                         <div class="value purple" id="sumBalanceValue">$0</div>
                     </div>
                     <div class="metric-card">
-                        <div class="label">Profit Amount</div>
-                        <div class="value orange" id="sumProfitAmount">$0</div>
+                        <div class="label">Outstanding (Invoiced − Received)</div>
+                        <div class="value pink" id="sumOutstanding">$0</div>
                     </div>
+                    <div class="metric-card">
+                        <div class="label">Unbilled (Billable − Invoiced)</div>
+                        <div class="value yellow" id="sumUnbilled">$0</div>
+                    </div>
+                    <div class="metric-card"><div class="label">Profit Amount</div><div class="value orange" id="sumProfitAmount">$0</div></div>
                 </div>
             </div>
 
             <div class="summary-actions">
-                <button class="btn btn-success" onclick="createInvoice()">📄 Create Invoice</button>
+                <button class="btn btn-success" onclick="createInvoice()">📄 Create Invoice PDF</button>
                 <button class="btn btn-primary" onclick="copyReport()">📋 Copy Report</button>
             </div>
         </div>
@@ -1048,14 +1041,45 @@
         </div>
     </div>
 
+    <!-- Add/Edit Invoice Modal -->
+    <div class="modal-overlay" id="invoiceModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="invoiceModalTitle">Add Invoice</h3>
+                <button class="modal-close" onclick="closeInvoiceModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editInvoiceId">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label>Date Sent *</label>
+                    <input type="date" id="invDate">
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label>Invoice Number</label>
+                    <input type="text" id="invNumber" placeholder="e.g., INV-2026-001">
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label>Amount *</label>
+                    <input type="number" id="invAmount" placeholder="0.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="invNotes" placeholder="Optional notes..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeInvoiceModal()">Cancel</button>
+                <button class="btn btn-success" onclick="saveInvoice()">Save Invoice</button>
+            </div>
+        </div>
+    </div>
+
     <div class="toast" id="toast">Saved!</div>
 
     <script>
-        // Config
         const JSONBIN_BIN_ID = '697a7070d0ea881f408e6063';
         const JSONBIN_API_KEY = '$2a$10$vgUvy.chZeKckQe2eTD36uOX/mfrhx8GKudyoZqZsjWkbtaam8/Nm';
 
-        // Workers and rates
         const defaultWorkerRates = {
             'Jordan': 120, 'Kamalei': 100, 'Dave': 114, 'Joe': 114,
             'Ian': 100, 'Ray': 100, 'Jestin': 63, 'Duke': 58,
@@ -1063,16 +1087,12 @@
         };
 
         const workers = [
-            { name: 'Jordan' }, { name: 'Kamalei' },
-            { name: 'Dave' }, { name: 'Joe' },
-            { name: 'Ian' }, { name: 'Ray' },
-            { name: 'Jestin' }, { name: 'Duke' },
-            { name: 'Keahi' }, { name: 'Ruben' },
-            { name: 'Beau' }, { name: 'Seth' },
+            { name: 'Jordan' }, { name: 'Kamalei' }, { name: 'Dave' }, { name: 'Joe' },
+            { name: 'Ian' }, { name: 'Ray' }, { name: 'Jestin' }, { name: 'Duke' },
+            { name: 'Keahi' }, { name: 'Ruben' }, { name: 'Beau' }, { name: 'Seth' },
             { name: 'Kawika' }
         ];
 
-        // Get worker rate for this job (or default)
         function getWorkerRate(workerName) {
             if (currentJob && currentJob.workerRates && currentJob.workerRates[workerName] !== undefined) {
                 return currentJob.workerRates[workerName];
@@ -1080,7 +1100,6 @@
             return defaultWorkerRates[workerName] || 0;
         }
 
-        // Machines — dynamic list from allData.machines
         const defaultMachines = [
             { id: 'tl12', name: 'TL12', rate: 200, status: 'active', sortOrder: 1 },
             { id: '290-excavator', name: '290 Excavator', rate: 290, status: 'active', sortOrder: 2 },
@@ -1095,13 +1114,12 @@
             { id: '750-truck', name: '750 Truck', rate: 650, status: 'active', sortOrder: 11 }
         ];
 
-        let machines = []; // Built from allData.machines
+        let machines = [];
 
         function getMachineRate(machineName) {
             if (currentJob && currentJob.machineRates && currentJob.machineRates[machineName] !== undefined) {
                 return currentJob.machineRates[machineName];
             }
-            // Fall back to default from master list
             const m = machines.find(e => e.name === machineName);
             return m ? m.rate : 0;
         }
@@ -1113,7 +1131,6 @@
                     .filter(e => e.status === 'active')
                     .sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999));
             }
-            // Seed if empty
             if (machines.length === 0) {
                 defaultMachines.forEach(m => {
                     if (!allData.machines) allData.machines = {};
@@ -1130,37 +1147,27 @@
         let jobId = null;
         let saveTimeout = null;
 
-        // Format money with 2 decimal places
         function fmtMoney(n) {
             return '$' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
-        // Get job ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         jobId = urlParams.get('id');
+        if (!jobId) window.location.href = 'jobs.html';
 
-        if (!jobId) {
-            window.location.href = 'jobs.html';
-        }
-
-        // Init
         loadAllData();
 
-        // Tabs
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 tab.classList.add('active');
                 document.getElementById(tab.dataset.tab + 'Tab').classList.add('active');
-                
-                if (tab.dataset.tab === 'summary') {
-                    calculateSummary();
-                }
+                if (tab.dataset.tab === 'summary') calculateSummary();
+                if (tab.dataset.tab === 'invoices') renderInvoices();
             });
         });
 
-        // Storage
         async function loadAllData() {
             try {
                 const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
@@ -1168,16 +1175,13 @@
                 });
                 const data = await response.json();
                 allData = data.record || {};
-                
                 if (!allData.jobs || !allData.jobs[jobId]) {
                     showToast('Job not found', true);
                     setTimeout(() => window.location.href = 'jobs.html', 1500);
                     return;
                 }
-                
                 currentJob = allData.jobs[jobId];
-
-                // Build machines list from allData.machines
+                if (!currentJob.invoices) currentJob.invoices = [];
                 buildMachinesList();
                 renderAll();
             } catch (e) {
@@ -1219,7 +1223,6 @@
             }, 1000);
         }
 
-        // Render all
         function renderAll() {
             buildMachinesList();
             renderHeader();
@@ -1232,19 +1235,18 @@
             renderPayrollMachines();
             renderEquipment();
             renderMaterials();
+            renderInvoices();
             calculateSummary();
         }
 
-        // Worker Rates
+        // Worker Rates (unchanged)
         function renderWorkerRates() {
             const container = document.getElementById('workerRatesGrid');
             if (!currentJob.workerRates) currentJob.workerRates = {};
-            
             container.innerHTML = workers.map(w => {
                 const defaultRate = defaultWorkerRates[w.name] || 0;
                 const customRate = currentJob.workerRates[w.name];
                 const displayRate = customRate !== undefined ? customRate : '';
-                
                 return `
                     <div class="worker-rate-item">
                         <span class="worker-name">${w.name}</span>
@@ -1262,30 +1264,20 @@
 
         function updateWorkerRate(workerName, value) {
             if (!currentJob.workerRates) currentJob.workerRates = {};
-            
-            if (value === '' || value === null) {
-                // Clear custom rate, use default
-                delete currentJob.workerRates[workerName];
-            } else {
-                currentJob.workerRates[workerName] = parseFloat(value) || 0;
-            }
-            
-            // Recalculate labor with new rates
+            if (value === '' || value === null) delete currentJob.workerRates[workerName];
+            else currentJob.workerRates[workerName] = parseFloat(value) || 0;
             renderLabor();
             calculateSummary();
             scheduleAutoSave();
         }
 
-        // Machine Rates (per-job overrides)
         function renderMachineRates() {
             const container = document.getElementById('machineRatesGrid');
             if (!currentJob.machineRates) currentJob.machineRates = {};
-
             container.innerHTML = machines.map(m => {
                 const defaultRate = m.rate || 0;
                 const customRate = currentJob.machineRates[m.name];
                 const displayRate = customRate !== undefined ? customRate : '';
-
                 return `
                     <div class="worker-rate-item">
                         <span class="worker-name">${m.name}</span>
@@ -1303,35 +1295,25 @@
 
         function updateMachineRate(machineName, value) {
             if (!currentJob.machineRates) currentJob.machineRates = {};
-
-            if (value === '' || value === null) {
-                delete currentJob.machineRates[machineName];
-            } else {
-                currentJob.machineRates[machineName] = parseFloat(value) || 0;
-            }
-
+            if (value === '' || value === null) delete currentJob.machineRates[machineName];
+            else currentJob.machineRates[machineName] = parseFloat(value) || 0;
             renderEquipment();
             calculateSummary();
             scheduleAutoSave();
         }
 
-        // Header
         function renderHeader() {
             document.getElementById('jobTitle').textContent = currentJob.name;
-            
             const statusBadge = document.getElementById('statusBadge');
             statusBadge.textContent = formatStatus(currentJob.status);
             statusBadge.className = 'badge ' + currentJob.status;
-            
             const typeBadge = document.getElementById('typeBadge');
             typeBadge.textContent = (currentJob.jobType || 'hourly').toUpperCase();
             typeBadge.className = 'badge ' + (currentJob.jobType || 'hourly');
-            
             const cashBadge = document.getElementById('cashBadge');
             cashBadge.style.display = currentJob.isCash ? 'inline-block' : 'none';
         }
 
-        // Job Info
         function renderJobInfo() {
             document.getElementById('infoName').value = currentJob.name || '';
             document.getElementById('infoPayrollName').value = currentJob.payrollName || '';
@@ -1344,7 +1326,6 @@
             document.getElementById('infoContractAmount').value = currentJob.contractAmount || '';
             document.getElementById('infoCashJob').checked = currentJob.isCash || false;
             document.getElementById('infoNotes').value = currentJob.notes || '';
-            
             toggleContractAmount();
             document.getElementById('infoType').addEventListener('change', toggleContractAmount);
         }
@@ -1366,7 +1347,6 @@
             currentJob.contractAmount = currentJob.jobType === 'contract' ? (parseFloat(document.getElementById('infoContractAmount').value) || 0) : 0;
             currentJob.isCash = document.getElementById('infoCashJob').checked;
             currentJob.notes = document.getElementById('infoNotes').value.trim();
-            
             allData.jobs[jobId] = currentJob;
             currentJob.modified = new Date().toISOString();
             saveAllData().then(success => {
@@ -1382,7 +1362,6 @@
         function renderDraws() {
             const container = document.getElementById('drawsList');
             const draws = currentJob.draws || [];
-            
             if (draws.length === 0) {
                 container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">No draws recorded yet</div>';
             } else {
@@ -1394,7 +1373,6 @@
                     </div>
                 `).join('');
             }
-            
             updateDrawTotals();
         }
 
@@ -1409,23 +1387,23 @@
             if (field === 'amount') value = parseFloat(value) || 0;
             currentJob.draws[index][field] = value;
             updateDrawTotals();
+            renderInvoices(); // FIFO matching changes
             scheduleAutoSave();
         }
 
         function deleteDraw(index) {
             currentJob.draws.splice(index, 1);
             renderDraws();
+            renderInvoices();
             scheduleAutoSave();
         }
 
         function updateDrawTotals() {
             const totalDraws = (currentJob.draws || []).reduce((sum, d) => sum + (d.amount || 0), 0);
             document.getElementById('totalDraws').textContent = fmtMoney(totalDraws);
-            
             const balanceBox = document.getElementById('balanceBox');
             const balanceLabel = document.getElementById('balanceLabel');
             const balanceValue = document.getElementById('balanceValue');
-            
             if (currentJob.jobType === 'contract') {
                 const jobTotal = calculateJobTotal();
                 const base = (currentJob.contractAmount || 0) > 0 ? currentJob.contractAmount : jobTotal;
@@ -1442,27 +1420,208 @@
             }
         }
 
-        // Labor
+        // ========== INVOICES ==========
+
+        // FIFO: draws pay off invoices oldest-first. Returns amount paid per invoice.
+        function calculateInvoicePayments() {
+            const invoices = (currentJob.invoices || []).slice().sort((a, b) => {
+                const da = a.date || '9999-12-31';
+                const db = b.date || '9999-12-31';
+                return da.localeCompare(db);
+            });
+            let drawsRemaining = (currentJob.draws || []).reduce((sum, d) => sum + (d.amount || 0), 0);
+            const paymentsByInvoice = {};
+            invoices.forEach(inv => {
+                const amount = inv.amount || 0;
+                const paid = Math.min(drawsRemaining, amount);
+                paymentsByInvoice[inv.id] = paid;
+                drawsRemaining -= paid;
+            });
+            return { paymentsByInvoice, unappliedDraws: drawsRemaining };
+        }
+
+        function renderInvoices() {
+            const body = document.getElementById('invoicesBody');
+            const invoices = currentJob.invoices || [];
+            const totalInvoiced = invoices.reduce((s, i) => s + (i.amount || 0), 0);
+            const totalDraws = (currentJob.draws || []).reduce((s, d) => s + (d.amount || 0), 0);
+            const outstanding = totalInvoiced - totalDraws;
+
+            const { paymentsByInvoice } = calculateInvoicePayments();
+            const openCount = invoices.filter(inv => (paymentsByInvoice[inv.id] || 0) < (inv.amount || 0) - 0.01).length;
+
+            // Top summary cards
+            document.getElementById('invTotalInvoiced').textContent = fmtMoney(totalInvoiced);
+            document.getElementById('invCountSub').textContent = invoices.length + ' invoice' + (invoices.length === 1 ? '' : 's') + ' sent';
+            document.getElementById('invReceived').textContent = fmtMoney(totalDraws);
+            const drawCount = (currentJob.draws || []).length;
+            document.getElementById('invDrawsSub').textContent = drawCount + ' draw' + (drawCount === 1 ? '' : 's') + ' received';
+            document.getElementById('invOutstanding').textContent = fmtMoney(outstanding);
+            document.getElementById('invOpenSub').textContent = openCount === 0
+                ? (invoices.length === 0 ? 'No invoices yet' : 'All invoices paid')
+                : openCount + ' open invoice' + (openCount === 1 ? '' : 's');
+
+            // Table
+            if (invoices.length === 0) {
+                body.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📄</div>
+                        <h4>No invoices recorded yet</h4>
+                        <p>Click "+ Add Invoice" to record an invoice you sent from your other platform</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const sorted = invoices.slice().sort((a, b) => {
+                const da = a.date || '9999-12-31';
+                const db = b.date || '9999-12-31';
+                return db.localeCompare(da); // newest first for display
+            });
+
+            body.innerHTML = `
+                <div style="overflow-x: auto;">
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>Date Sent</th>
+                            <th>Invoice #</th>
+                            <th class="num">Amount</th>
+                            <th class="num hide-mobile">Paid</th>
+                            <th class="center">Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sorted.map(inv => {
+                            const amount = inv.amount || 0;
+                            const paid = paymentsByInvoice[inv.id] || 0;
+                            const isPaid = paid >= amount - 0.01 && amount > 0;
+                            const isPartial = paid > 0.01 && paid < amount - 0.01;
+                            const status = isPaid ? 'paid' : (isPartial ? 'partial' : 'open');
+                            const statusLabel = isPaid ? 'Paid' : (isPartial ? 'Partial' : 'Open');
+                            return `
+                                <tr>
+                                    <td>${inv.date ? formatDateShort(inv.date) : '—'}</td>
+                                    <td class="invoice-number">${escapeHtml(inv.number || '—')}${inv.notes ? '<div style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal; margin-top: 2px;">' + escapeHtml(inv.notes) + '</div>' : ''}</td>
+                                    <td class="num">${fmtMoney(amount)}</td>
+                                    <td class="num hide-mobile" style="color: ${paid > 0 ? 'var(--success)' : 'var(--text-muted)'};">${fmtMoney(paid)}</td>
+                                    <td class="center"><span class="invoice-status-pill ${status}">${statusLabel}</span></td>
+                                    <td>
+                                        <div class="invoice-actions">
+                                            <button class="invoice-action-btn" onclick="editInvoice('${inv.id}')" title="Edit">✏️</button>
+                                            <button class="invoice-action-btn delete" onclick="deleteInvoice('${inv.id}')" title="Delete">×</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                    <tfoot>
+                        <tr class="invoice-totals-row">
+                            <td colspan="2">Totals</td>
+                            <td class="num purple">${fmtMoney(totalInvoiced)}</td>
+                            <td class="num green hide-mobile">${fmtMoney(totalDraws)}</td>
+                            <td class="center pink" style="font-size: 0.8rem; color: #f472b6; font-weight: 700;">${fmtMoney(outstanding)} open</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+                </div>
+            `;
+        }
+
+        function openInvoiceModal() {
+            document.getElementById('invoiceModalTitle').textContent = 'Add Invoice';
+            document.getElementById('editInvoiceId').value = '';
+            document.getElementById('invDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('invNumber').value = '';
+            document.getElementById('invAmount').value = '';
+            document.getElementById('invNotes').value = '';
+            document.getElementById('invoiceModal').classList.add('show');
+        }
+
+        function editInvoice(invoiceId) {
+            const inv = (currentJob.invoices || []).find(i => i.id === invoiceId);
+            if (!inv) return;
+            document.getElementById('invoiceModalTitle').textContent = 'Edit Invoice';
+            document.getElementById('editInvoiceId').value = invoiceId;
+            document.getElementById('invDate').value = inv.date || '';
+            document.getElementById('invNumber').value = inv.number || '';
+            document.getElementById('invAmount').value = inv.amount || '';
+            document.getElementById('invNotes').value = inv.notes || '';
+            document.getElementById('invoiceModal').classList.add('show');
+        }
+
+        function closeInvoiceModal() {
+            document.getElementById('invoiceModal').classList.remove('show');
+        }
+
+        function saveInvoice() {
+            const date = document.getElementById('invDate').value;
+            const number = document.getElementById('invNumber').value.trim();
+            const amount = parseFloat(document.getElementById('invAmount').value) || 0;
+            const notes = document.getElementById('invNotes').value.trim();
+
+            if (!date) { showToast('Date is required', true); return; }
+            if (amount <= 0) { showToast('Amount must be greater than zero', true); return; }
+
+            if (!currentJob.invoices) currentJob.invoices = [];
+
+            const editId = document.getElementById('editInvoiceId').value;
+            if (editId) {
+                const inv = currentJob.invoices.find(i => i.id === editId);
+                if (inv) {
+                    inv.date = date;
+                    inv.number = number;
+                    inv.amount = amount;
+                    inv.notes = notes;
+                }
+            } else {
+                currentJob.invoices.push({
+                    id: 'inv' + Date.now(),
+                    date,
+                    number,
+                    amount,
+                    notes,
+                    created: new Date().toISOString()
+                });
+            }
+
+            closeInvoiceModal();
+            renderInvoices();
+            calculateSummary();
+            showToast(editId ? 'Invoice updated!' : 'Invoice added!');
+            scheduleAutoSave();
+        }
+
+        function deleteInvoice(invoiceId) {
+            if (!confirm('Delete this invoice record? This does not affect payments received.')) return;
+            currentJob.invoices = (currentJob.invoices || []).filter(i => i.id !== invoiceId);
+            renderInvoices();
+            calculateSummary();
+            showToast('Invoice deleted');
+            scheduleAutoSave();
+        }
+
+        // ========== LABOR (unchanged) ==========
+
         function renderLabor() {
             const container = document.getElementById('laborWeeks');
             const payrollName = currentJob.payrollName || currentJob.name;
             const payrollKey = payrollName.replace(/[^a-zA-Z]/g, '');
-            
-            // Find all weeks with hours for this job
             const weekKeys = Object.keys(allData).filter(k => k.match(/^\d{4}-\d{2}-\d{2}$/) && k !== 'jobs').sort().reverse();
-            
             let totalPayrollLabor = 0;
             const weeksWithData = [];
-            
+
             weekKeys.forEach(weekKey => {
                 const weekData = allData[weekKey];
                 let weekTotal = 0;
                 const dayData = {};
-                
                 Object.entries(weekData).forEach(([dayKey, day]) => {
                     if (typeof day === 'object') {
                         Object.entries(day).forEach(([inputId, hours]) => {
-                            if (inputId.startsWith(payrollKey + '_')) {
+                            if (inputId.startsWith(payrollKey + '_') && !inputId.includes('_eq_')) {
                                 const workerName = inputId.split('_').pop();
                                 const rate = getWorkerRate(workerName);
                                 const cost = hours * rate;
@@ -1473,13 +1632,12 @@
                         });
                     }
                 });
-                
                 if (weekTotal > 0) {
                     weeksWithData.push({ weekKey, weekTotal, dayData });
                     totalPayrollLabor += weekTotal;
                 }
             });
-            
+
             if (weeksWithData.length === 0) {
                 container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">No payroll hours found for this job</div>';
             } else {
@@ -1487,21 +1645,17 @@
                     const weekStart = new Date(week.weekKey + 'T00:00:00');
                     const weekEnd = new Date(weekStart);
                     weekEnd.setDate(weekEnd.getDate() + 6);
-                    
                     return `
                         <div class="week-block">
                             <div class="week-header" onclick="toggleWeek(${i})">
                                 <span class="week-title">${formatDateShort(weekStart)} - ${formatDateShort(weekEnd)}</span>
                                 <span class="week-total">${fmtMoney(week.weekTotal)}</span>
                             </div>
-                            <div class="week-body" id="weekBody${i}">
-                                ${renderWeekGrid(week.dayData, week.weekKey, payrollKey)}
-                            </div>
+                            <div class="week-body" id="weekBody${i}">${renderWeekGrid(week.dayData, week.weekKey, payrollKey)}</div>
                         </div>
                     `;
                 }).join('');
             }
-            
             document.getElementById('totalPayrollLabor').textContent = fmtMoney(totalPayrollLabor);
             updateLaborTotals();
         }
@@ -1511,16 +1665,10 @@
             const workersInWeek = new Set();
             days.forEach(d => Object.keys(dayData[d]).forEach(w => workersInWeek.add(w)));
             const workerList = Array.from(workersInWeek);
-            
             if (workerList.length === 0) return '<div style="color: var(--text-muted);padding:10px;">No data</div>';
-            
             let html = '<div class="labor-grid" style="grid-template-columns: 80px repeat(' + workerList.length + ', 1fr);">';
-            
-            // Header
             html += '<div class="labor-cell header">Day</div>';
             workerList.forEach(w => html += `<div class="labor-cell header">${w}</div>`);
-            
-            // Days
             days.forEach(dayKey => {
                 const d = new Date(dayKey + 'T00:00:00');
                 html += `<div class="labor-cell day-label">${d.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' })}</div>`;
@@ -1528,22 +1676,17 @@
                     const data = dayData[dayKey][w];
                     html += `<div class="labor-cell">${data ? data.hours : '-'}</div>`;
                 });
-
-                // Check for notes on this day for this job
                 const dayNote = allData._notes && allData._notes[weekKey] && allData._notes[weekKey][dayKey] && allData._notes[weekKey][dayKey][payrollKey];
                 if (dayNote) {
                     html += `<div class="labor-cell day-label" style="grid-column: 1 / -1; color: var(--accent); font-size: 0.75rem; font-style: italic; padding: 4px 10px; background: rgba(249,115,22,0.08); border-left: 3px solid var(--accent);">📝 ${dayNote}</div>`;
                 }
             });
-            
-            // Totals
             html += '<div class="labor-cell total-row">Total</div>';
             workerList.forEach(w => {
                 let total = 0;
                 days.forEach(d => { if (dayData[d][w]) total += dayData[d][w].hours; });
                 html += `<div class="labor-cell total-row">${total}</div>`;
             });
-            
             html += '</div>';
             return html;
         }
@@ -1558,15 +1701,12 @@
             body.classList.toggle('show');
         }
 
-        // Payroll Machines — mirrors renderLabor but for _eq_ entries
         function renderPayrollMachines() {
             const container = document.getElementById('machineWeeks');
             const payrollName = currentJob.payrollName || currentJob.name;
             const payrollKey = payrollName.replace(/[^a-zA-Z]/g, '');
             const eqPrefix = payrollKey + '_eq_';
-
             const weekKeys = Object.keys(allData).filter(k => k.match(/^\d{4}-\d{2}-\d{2}$/) && k !== 'jobs').sort().reverse();
-
             let totalPayrollMachines = 0;
             const weeksWithData = [];
 
@@ -1574,13 +1714,11 @@
                 const weekData = allData[weekKey];
                 let weekTotal = 0;
                 const dayData = {};
-
                 Object.entries(weekData).forEach(([dayKey, day]) => {
                     if (typeof day === 'object') {
                         Object.entries(day).forEach(([inputId, hours]) => {
                             if (inputId.startsWith(eqPrefix)) {
                                 const machineKey = inputId.split('_eq_')[1];
-                                // Find machine name from key
                                 const machine = machines.find(m => (m.payrollName || m.name).replace(/[^a-zA-Z0-9]/g, '') === machineKey);
                                 const machineName = machine ? (machine.payrollName || machine.name) : machineKey;
                                 const rate = machine ? getMachineRate(machineName) : 0;
@@ -1592,7 +1730,6 @@
                         });
                     }
                 });
-
                 if (weekTotal > 0) {
                     weeksWithData.push({ weekKey, weekTotal, dayData });
                     totalPayrollMachines += weekTotal;
@@ -1606,21 +1743,17 @@
                     const weekStart = new Date(week.weekKey + 'T00:00:00');
                     const weekEnd = new Date(weekStart);
                     weekEnd.setDate(weekEnd.getDate() + 6);
-
                     return `
                         <div class="week-block">
                             <div class="week-header" onclick="toggleMachineWeek(${i})">
                                 <span class="week-title">${formatDateShort(weekStart)} - ${formatDateShort(weekEnd)}</span>
                                 <span class="week-total">${fmtMoney(week.weekTotal)}</span>
                             </div>
-                            <div class="week-body" id="machineWeekBody${i}">
-                                ${renderMachineWeekGrid(week.dayData)}
-                            </div>
+                            <div class="week-body" id="machineWeekBody${i}">${renderMachineWeekGrid(week.dayData)}</div>
                         </div>
                     `;
                 }).join('');
             }
-
             document.getElementById('totalPayrollMachines').textContent = fmtMoney(totalPayrollMachines);
             updateMachineTotals();
         }
@@ -1630,16 +1763,10 @@
             const machinesInWeek = new Set();
             days.forEach(d => Object.keys(dayData[d]).forEach(m => machinesInWeek.add(m)));
             const machineList = Array.from(machinesInWeek);
-
             if (machineList.length === 0) return '<div style="color: var(--text-muted);padding:10px;">No data</div>';
-
             let html = '<div class="labor-grid" style="grid-template-columns: 80px repeat(' + machineList.length + ', 1fr);">';
-
-            // Header
             html += '<div class="labor-cell header">Day</div>';
             machineList.forEach(m => html += `<div class="labor-cell header">${m}</div>`);
-
-            // Days
             days.forEach(dayKey => {
                 const d = new Date(dayKey + 'T00:00:00');
                 html += `<div class="labor-cell day-label">${d.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' })}</div>`;
@@ -1648,15 +1775,12 @@
                     html += `<div class="labor-cell">${data ? data.hours : '-'}</div>`;
                 });
             });
-
-            // Totals
             html += '<div class="labor-cell total-row">Total</div>';
             machineList.forEach(m => {
                 let total = 0;
                 days.forEach(d => { if (dayData[d][m]) total += dayData[d][m].hours; });
                 html += `<div class="labor-cell total-row">${total}</div>`;
             });
-
             html += '</div>';
             return html;
         }
@@ -1667,11 +1791,9 @@
             document.getElementById('totalAllMachines').textContent = fmtMoney(payrollMachines + additionalMachines);
         }
 
-        // Additional Labor
         function renderAdditionalLabor() {
             const container = document.getElementById('additionalLaborList');
             const items = currentJob.additionalLabor || [];
-            
             if (items.length === 0) {
                 container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">No additional labor items</div>';
             } else {
@@ -1683,7 +1805,6 @@
                     </div>
                 `).join('');
             }
-            
             updateLaborTotals();
         }
 
@@ -1714,20 +1835,14 @@
             document.getElementById('totalAllLabor').textContent = fmtMoney(payrollLabor + additionalLabor);
         }
 
-        // Machines (Equipment)
         function renderEquipment() {
             const container = document.getElementById('equipmentGrid');
             const jobEquipment = currentJob.equipment || {};
-            
             let html = `
                 <div class="equipment-row header">
-                    <span>Machine</span>
-                    <span>Rate</span>
-                    <span>Hours</span>
-                    <span>Total</span>
+                    <span>Machine</span><span>Rate</span><span>Hours</span><span>Total</span>
                 </div>
             `;
-            
             machines.forEach(m => {
                 const hours = jobEquipment[m.name] || 0;
                 const rate = getMachineRate(m.name);
@@ -1741,7 +1856,6 @@
                     </div>
                 `;
             });
-            
             container.innerHTML = html;
             updateEquipmentTotal();
         }
@@ -1763,11 +1877,9 @@
             document.getElementById('totalEquipment').textContent = fmtMoney(total);
         }
 
-        // Materials
         function renderMaterials() {
             const container = document.getElementById('materialsList');
             const items = currentJob.materials || [];
-            
             if (items.length === 0) {
                 container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">No materials added</div>';
             } else {
@@ -1779,7 +1891,6 @@
                     </div>
                 `).join('');
             }
-            
             updateMaterialsTotal();
         }
 
@@ -1808,16 +1919,13 @@
             document.getElementById('totalMaterials').textContent = fmtMoney(total);
         }
 
-        // Summary
         function calculateSummary() {
             const payrollLabor = calculatePayrollLabor();
             const additionalLabor = (currentJob.additionalLabor || []).reduce((sum, i) => sum + (i.amount || 0), 0);
             const payrollMachines = calculatePayrollMachines();
             const additionalMachines = calculateEquipmentTotal();
             const materialsTotal = (currentJob.materials || []).reduce((sum, i) => sum + (i.amount || 0), 0);
-            
             const isCash = currentJob.isCash || false;
-            
             const subtotal1 = payrollLabor + additionalLabor + payrollMachines + additionalMachines + materialsTotal;
             const overhead = subtotal1 * ((currentJob.overheadPercent || 18) / 100);
             const subtotal2 = subtotal1 + overhead;
@@ -1825,7 +1933,7 @@
             const subtotal3 = subtotal2 + profit;
             const tax = isCash ? 0 : subtotal3 * ((currentJob.geTaxPercent || 4.712) / 100);
             const total = isCash ? subtotal2 : subtotal3 + tax;
-            
+
             document.getElementById('sumPayrollLabor').textContent = fmtMoney(payrollLabor);
             document.getElementById('sumAdditionalLabor').textContent = fmtMoney(additionalLabor);
             document.getElementById('sumPayrollMachines').textContent = fmtMoney(payrollMachines);
@@ -1841,50 +1949,48 @@
             document.getElementById('taxPct').textContent = currentJob.geTaxPercent || 4.712;
             document.getElementById('sumTax').textContent = fmtMoney(tax);
             document.getElementById('sumTotal').textContent = fmtMoney(total);
-            
-            // Hide/show profit and GE tax rows for cash jobs
             document.getElementById('sumProfitRow').style.display = isCash ? 'none' : '';
             document.getElementById('sumSubtotal3Row').style.display = isCash ? 'none' : '';
             document.getElementById('sumTaxRow').style.display = isCash ? 'none' : '';
-            
-            // Metrics
+
             const sf = currentJob.squareFootage || 0;
             document.getElementById('sumSF').value = sf;
             document.getElementById('sumCostPerSF').textContent = sf > 0 ? '$' + (total / sf).toFixed(2) : '$0.00';
             document.getElementById('sumProfitAmount').textContent = fmtMoney(isCash ? overhead : overhead + profit);
-            
-            // Balance
+
             const totalDraws = (currentJob.draws || []).reduce((sum, d) => sum + (d.amount || 0), 0);
-            const balanceCard = document.getElementById('sumBalanceCard');
             const balanceLabel = document.getElementById('sumBalanceLabel');
             const balanceValue = document.getElementById('sumBalanceValue');
-            
+            const billable = currentJob.jobType === 'contract' && (currentJob.contractAmount || 0) > 0 ? currentJob.contractAmount : total;
+
             if (currentJob.jobType === 'contract') {
-                const base = (currentJob.contractAmount || 0) > 0 ? currentJob.contractAmount : total;
-                const balance = base - totalDraws;
-                balanceLabel.textContent = 'Remaining Balance';
+                const balance = billable - totalDraws;
+                balanceLabel.textContent = 'Remaining Balance (Billable − Received)';
                 balanceValue.textContent = fmtMoney(balance);
                 balanceValue.className = 'value purple';
             } else {
                 const owed = total - totalDraws;
-                balanceLabel.textContent = 'Amount Owed';
+                balanceLabel.textContent = 'Amount Owed (Billable − Received)';
                 balanceValue.textContent = fmtMoney(owed);
                 balanceValue.className = 'value pink';
             }
+
+            // Invoice-based metrics
+            const totalInvoiced = (currentJob.invoices || []).reduce((s, i) => s + (i.amount || 0), 0);
+            document.getElementById('sumOutstanding').textContent = fmtMoney(totalInvoiced - totalDraws);
+            document.getElementById('sumUnbilled').textContent = fmtMoney(billable - totalInvoiced);
         }
 
         function calculatePayrollLabor() {
             const payrollName = currentJob.payrollName || currentJob.name;
             const payrollKey = payrollName.replace(/[^a-zA-Z]/g, '');
             let total = 0;
-            
             Object.keys(allData).forEach(key => {
                 if (key.match(/^\d{4}-\d{2}-\d{2}$/) && key !== 'jobs') {
                     const weekData = allData[key];
                     Object.values(weekData).forEach(dayData => {
                         if (typeof dayData === 'object') {
                             Object.entries(dayData).forEach(([inputId, hours]) => {
-                                // Only employee entries — must start with payrollKey_ but NOT contain _eq_
                                 if (inputId.startsWith(payrollKey + '_') && !inputId.includes('_eq_')) {
                                     const workerName = inputId.split('_').pop();
                                     const rate = getWorkerRate(workerName);
@@ -1895,7 +2001,6 @@
                     });
                 }
             });
-            
             return total;
         }
 
@@ -1904,7 +2009,6 @@
             const payrollKey = payrollName.replace(/[^a-zA-Z]/g, '');
             const eqPrefix = payrollKey + '_eq_';
             let total = 0;
-
             Object.keys(allData).forEach(key => {
                 if (key.match(/^\d{4}-\d{2}-\d{2}$/) && key !== 'jobs') {
                     const weekData = allData[key];
@@ -1923,7 +2027,6 @@
                     });
                 }
             });
-
             return total;
         }
 
@@ -1944,32 +2047,27 @@
             const payrollMachines = calculatePayrollMachines();
             const additionalMachines = calculateEquipmentTotal();
             const materialsTotal = (currentJob.materials || []).reduce((sum, i) => sum + (i.amount || 0), 0);
-            
             const subtotal = payrollLabor + additionalLabor + payrollMachines + additionalMachines + materialsTotal;
             const overhead = subtotal * ((currentJob.overheadPercent || 18) / 100);
             const afterOverhead = subtotal + overhead;
-            
             if (isCash) return afterOverhead;
-            
             const profit = afterOverhead * ((currentJob.profitPercent || 10) / 100);
             const afterProfit = afterOverhead + profit;
             const tax = afterProfit * ((currentJob.geTaxPercent || 4.712) / 100);
-            
             return afterProfit + tax;
         }
 
-        // Report
         function copyReport() {
             const sf = currentJob.squareFootage || 0;
             const total = calculateJobTotal();
             const totalDraws = (currentJob.draws || []).reduce((sum, d) => sum + (d.amount || 0), 0);
-            
+            const totalInvoiced = (currentJob.invoices || []).reduce((sum, i) => sum + (i.amount || 0), 0);
+
             let report = `SPENCER'S MASONRY INC.\nJOB BILLING SUMMARY\n${'═'.repeat(45)}\n\n`;
             report += `Job: ${currentJob.name}\n`;
             report += `Client: ${currentJob.client || 'N/A'}\n`;
             report += `Address: ${currentJob.address || 'N/A'}\n`;
             report += `Type: ${(currentJob.jobType || 'hourly').toUpperCase()}${currentJob.isCash ? ' (CASH)' : ''}\n\n`;
-            
             report += `${'─'.repeat(45)}\nCOST BREAKDOWN\n${'─'.repeat(45)}\n`;
             report += `Payroll Labor: ${document.getElementById('sumPayrollLabor').textContent}\n`;
             report += `Additional Labor: ${document.getElementById('sumAdditionalLabor').textContent}\n`;
@@ -1985,90 +2083,63 @@
             report += `\n${'═'.repeat(45)}\n`;
             report += `TOTAL DUE: ${fmtMoney(total)}\n`;
             report += `${'═'.repeat(45)}\n\n`;
-            
             if (sf > 0) report += `Square Footage: ${sf.toLocaleString()} SF\n`;
             if (sf > 0) report += `Cost per SF: ${fmtMoney(total / sf)}\n\n`;
-            
-            if (currentJob.jobType === 'contract') {
-                report += `Contract Amount: ${fmtMoney(currentJob.contractAmount || 0)}\n`;
-            }
-            report += `Total Draws: ${fmtMoney(totalDraws)}\n`;
-            
-            if (currentJob.jobType === 'contract') {
-                const base = (currentJob.contractAmount || 0) > 0 ? currentJob.contractAmount : total;
-                report += `Remaining Balance: ${fmtMoney(base - totalDraws)}\n`;
-            } else {
-                report += `Amount Owed: ${fmtMoney(total - totalDraws)}\n`;
-            }
-            
+            if (currentJob.jobType === 'contract') report += `Contract Amount: ${fmtMoney(currentJob.contractAmount || 0)}\n`;
+            report += `Total Invoiced: ${fmtMoney(totalInvoiced)}\n`;
+            report += `Total Received: ${fmtMoney(totalDraws)}\n`;
+            report += `Outstanding (Invoiced − Received): ${fmtMoney(totalInvoiced - totalDraws)}\n`;
+            const billable = currentJob.jobType === 'contract' && (currentJob.contractAmount || 0) > 0 ? currentJob.contractAmount : total;
+            report += `Unbilled (Billable − Invoiced): ${fmtMoney(billable - totalInvoiced)}\n`;
             navigator.clipboard.writeText(report).then(() => showToast('Report copied!'));
         }
 
-        // Create Invoice PDF
+        // Invoice PDF (unchanged from your version)
         function createInvoice() {
           try {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            
             const pageWidth = doc.internal.pageSize.getWidth();
             const pageHeight = doc.internal.pageSize.getHeight();
             const margin = 20;
             const contentWidth = pageWidth - (margin * 2);
-            
-            // Colors
             const orange = [249, 115, 22];
             const darkGray = [45, 45, 45];
             const lightGray = [150, 150, 150];
             const green = [22, 163, 74];
-            
-            // ==================== PAGE 1: SUMMARY ====================
+
             let y = margin;
-            
-            // Header
             doc.setFillColor(...orange);
             doc.rect(0, 0, pageWidth, 40, 'F');
-            
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(24);
             doc.setFont('helvetica', 'bold');
             doc.text("SPENCER'S MASONRY INC.", margin, 25);
-            
             doc.setFontSize(10);
             doc.setFont('helvetica', 'normal');
             doc.text("Job Invoice", pageWidth - margin - 30, 25);
-            
             y = 55;
-            
-            // Job Info Section
             doc.setTextColor(...darkGray);
             doc.setFontSize(18);
             doc.setFont('helvetica', 'bold');
             doc.text(currentJob.name || 'Untitled Job', margin, y);
             y += 10;
-            
             doc.setFontSize(10);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(...lightGray);
-            
             const jobType = (currentJob.jobType || 'hourly').toUpperCase() + (currentJob.isCash ? ' • CASH' : '');
-            const status = formatStatus(currentJob.status || 'active');
-            doc.text(`${jobType} • ${status}`, margin, y);
+            doc.text(`${jobType} • ${formatStatus(currentJob.status || 'active')}`, margin, y);
             y += 15;
-            
-            // Client & Address Box
             doc.setFillColor(245, 245, 245);
             doc.roundedRect(margin, y, contentWidth, 35, 3, 3, 'F');
-            
             doc.setTextColor(...darkGray);
             doc.setFontSize(9);
             doc.setFont('helvetica', 'bold');
             doc.text('CLIENT', margin + 8, y + 10);
             doc.text('ADDRESS', margin + 8, y + 25);
-            
             doc.setFont('helvetica', 'normal');
             doc.text(currentJob.client || 'N/A', margin + 50, y + 10);
             doc.text(currentJob.address || 'N/A', margin + 50, y + 25);
-            
             if (currentJob.startDate) {
                 doc.setFont('helvetica', 'bold');
                 doc.text('START DATE', contentWidth - 30, y + 10);
@@ -2076,10 +2147,7 @@
                 const startDate = new Date(currentJob.startDate + 'T00:00:00');
                 doc.text(startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), contentWidth - 30, y + 20);
             }
-            
             y += 50;
-            
-            // Cost Breakdown Section
             doc.setFillColor(...orange);
             doc.rect(margin, y, contentWidth, 8, 'F');
             doc.setTextColor(255, 255, 255);
@@ -2087,15 +2155,12 @@
             doc.setFont('helvetica', 'bold');
             doc.text('COST BREAKDOWN', margin + 5, y + 6);
             y += 15;
-            
-            // Calculate all values
             const isCash = currentJob.isCash || false;
             const payrollLabor = calculatePayrollLabor();
             const additionalLabor = (currentJob.additionalLabor || []).reduce((sum, i) => sum + (i.amount || 0), 0);
             const payrollMachinesTotal = calculatePayrollMachines();
             const additionalMachinesTotal = calculateEquipmentTotal();
             const materialsTotal = (currentJob.materials || []).reduce((sum, i) => sum + (i.amount || 0), 0);
-            
             const subtotal1 = payrollLabor + additionalLabor + payrollMachinesTotal + additionalMachinesTotal + materialsTotal;
             const overhead = subtotal1 * ((currentJob.overheadPercent || 18) / 100);
             const subtotal2 = subtotal1 + overhead;
@@ -2103,11 +2168,7 @@
             const subtotal3 = subtotal2 + profit;
             const tax = isCash ? 0 : subtotal3 * ((currentJob.geTaxPercent || 4.712) / 100);
             const total = isCash ? subtotal2 : subtotal3 + tax;
-            
             const totalDraws = (currentJob.draws || []).reduce((sum, d) => sum + (d.amount || 0), 0);
-            const equipmentTotal = additionalMachinesTotal;
-            
-            // Line items
             const lineItems = [
                 { label: 'Payroll Labor', value: payrollLabor },
                 { label: 'Additional Labor', value: additionalLabor },
@@ -2121,9 +2182,8 @@
                 lineItems.push({ label: `Profit (${currentJob.profitPercent || 10}%)`, value: profit });
                 lineItems.push({ label: `GE Tax (${currentJob.geTaxPercent || 4.712}%)`, value: tax });
             }
-            
             doc.setTextColor(...darkGray);
-            lineItems.forEach((item, i) => {
+            lineItems.forEach(item => {
                 if (item.bold) {
                     doc.setFillColor(240, 240, 240);
                     doc.rect(margin, y - 4, contentWidth, 8, 'F');
@@ -2136,10 +2196,7 @@
                 doc.text(fmtMoney(item.value), pageWidth - margin - 5, y, { align: 'right' });
                 y += 8;
             });
-            
             y += 5;
-            
-            // Total Box
             doc.setFillColor(...orange);
             doc.roundedRect(margin, y, contentWidth, 18, 3, 3, 'F');
             doc.setTextColor(255, 255, 255);
@@ -2147,10 +2204,7 @@
             doc.setFont('helvetica', 'bold');
             doc.text('TOTAL DUE', margin + 8, y + 12);
             doc.text(fmtMoney(total), pageWidth - margin - 8, y + 12, { align: 'right' });
-            
             y += 25;
-            
-            // Payments Made row
             doc.setFillColor(245, 245, 245);
             doc.roundedRect(margin, y, contentWidth, 14, 3, 3, 'F');
             doc.setTextColor(...darkGray);
@@ -2160,14 +2214,10 @@
             doc.setTextColor(234, 179, 8);
             doc.setFont('helvetica', 'bold');
             doc.text(fmtMoney(totalDraws), pageWidth - margin - 8, y + 10, { align: 'right' });
-            
             y += 18;
-            
-            // Remaining Balance row - stands out
             const remainingBase = (currentJob.jobType === 'contract' && (currentJob.contractAmount || 0) > 0) ? currentJob.contractAmount : total;
             const remainingBalance = remainingBase - totalDraws;
             const balColor = remainingBalance >= 0 ? [22, 163, 74] : [220, 38, 38];
-            
             doc.setFillColor(...(remainingBalance >= 0 ? [220, 252, 231] : [254, 226, 226]));
             doc.roundedRect(margin, y, contentWidth, 18, 3, 3, 'F');
             doc.setDrawColor(...balColor);
@@ -2178,327 +2228,41 @@
             doc.setFont('helvetica', 'bold');
             doc.text('REMAINING BALANCE', margin + 8, y + 12);
             doc.text(fmtMoney(remainingBalance), pageWidth - margin - 8, y + 12, { align: 'right' });
-            
             y += 25;
-            
-            // Metrics Row (SF, Cost per SF, Contract Amount if applicable)
             const sf = currentJob.squareFootage || 0;
-            const metricsY = y;
-            
             if (sf > 0) {
                 doc.setTextColor(...lightGray);
                 doc.setFontSize(8);
                 doc.setFont('helvetica', 'normal');
-                doc.text('SQUARE FOOTAGE', margin, metricsY);
+                doc.text('SQUARE FOOTAGE', margin, y);
                 doc.setTextColor(...darkGray);
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'bold');
-                doc.text(sf.toLocaleString() + ' SF', margin, metricsY + 8);
-                
+                doc.text(sf.toLocaleString() + ' SF', margin, y + 8);
                 doc.setTextColor(...lightGray);
                 doc.setFontSize(8);
                 doc.setFont('helvetica', 'normal');
-                doc.text('COST PER SF', margin + 60, metricsY);
+                doc.text('COST PER SF', margin + 60, y);
                 doc.setTextColor(...green);
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'bold');
-                doc.text('$' + (total / sf).toFixed(2), margin + 60, metricsY + 8);
+                doc.text('$' + (total / sf).toFixed(2), margin + 60, y + 8);
             }
-            
-            // Contract Amount - only show for non-cash contract jobs
             if (currentJob.jobType === 'contract' && !isCash) {
                 doc.setTextColor(...lightGray);
                 doc.setFontSize(8);
                 doc.setFont('helvetica', 'normal');
-                doc.text('CONTRACT AMOUNT', pageWidth - margin - 60, metricsY);
+                doc.text('CONTRACT AMOUNT', pageWidth - margin - 60, y);
                 doc.setTextColor(167, 139, 250);
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'bold');
-                doc.text(fmtMoney(currentJob.contractAmount || 0), pageWidth - margin - 60, metricsY + 8);
+                doc.text(fmtMoney(currentJob.contractAmount || 0), pageWidth - margin - 60, y + 8);
             }
-            
-            y = metricsY + 20;
-            
-            // Footer on page 1
             doc.setTextColor(...lightGray);
             doc.setFontSize(8);
             doc.setFont('helvetica', 'normal');
             doc.text('Generated on ' + new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }), margin, pageHeight - 15);
             doc.text('Page 1', pageWidth - margin, pageHeight - 15, { align: 'right' });
-            
-            // ==================== PAGE 2: LABOR DETAIL ====================
-            doc.addPage();
-            y = margin;
-            
-            // Header
-            doc.setFillColor(...orange);
-            doc.rect(0, 0, pageWidth, 25, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(14);
-            doc.setFont('helvetica', 'bold');
-            doc.text('LABOR DETAIL - ' + (currentJob.name || 'Job'), margin, 17);
-            
-            y = 40;
-            
-            // Get labor data by week (same logic as renderLabor)
-            const payrollName = currentJob.payrollName || currentJob.name;
-            const payrollKey = payrollName.replace(/[^a-zA-Z]/g, '');
-            const weekKeys = Object.keys(allData).filter(k => k.match(/^\d{4}-\d{2}-\d{2}$/) && k !== 'jobs').sort().reverse();
-            
-            const laborByEmployee = {};
-            let totalLaborHours = 0;
-            let totalLaborCost = 0;
-            
-            weekKeys.forEach(weekKey => {
-                const weekData = allData[weekKey];
-                Object.entries(weekData).forEach(([dayKey, day]) => {
-                    if (typeof day === 'object') {
-                        Object.entries(day).forEach(([inputId, hours]) => {
-                            if (inputId.startsWith(payrollKey + '_')) {
-                                const workerName = inputId.split('_').pop();
-                                const rate = getWorkerRate(workerName);
-                                const cost = hours * rate;
-                                
-                                if (!laborByEmployee[workerName]) {
-                                    laborByEmployee[workerName] = { hours: 0, cost: 0, rate: rate };
-                                }
-                                laborByEmployee[workerName].hours += hours;
-                                laborByEmployee[workerName].cost += cost;
-                                totalLaborHours += hours;
-                                totalLaborCost += cost;
-                            }
-                        });
-                    }
-                });
-            });
-            
-            // Employee Hours Table
-            doc.setTextColor(...darkGray);
-            doc.setFontSize(12);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Payroll Labor by Employee', margin, y);
-            y += 10;
-            
-            // Table Header
-            doc.setFillColor(...orange);
-            doc.rect(margin, y, contentWidth, 8, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(9);
-            doc.setFont('helvetica', 'bold');
-            doc.text('EMPLOYEE', margin + 5, y + 6);
-            doc.text('HOURS', margin + 80, y + 6);
-            doc.text('RATE', margin + 110, y + 6);
-            doc.text('TOTAL', pageWidth - margin - 5, y + 6, { align: 'right' });
-            y += 12;
-            
-            // Employee rows
-            const employees = Object.entries(laborByEmployee).sort((a, b) => b[1].cost - a[1].cost);
-            
-            if (employees.length === 0) {
-                doc.setTextColor(...lightGray);
-                doc.setFontSize(10);
-                doc.setFont('helvetica', 'italic');
-                doc.text('No payroll hours recorded for this job', margin + 5, y + 5);
-                y += 15;
-            } else {
-                employees.forEach(([name, data], i) => {
-                    if (i % 2 === 0) {
-                        doc.setFillColor(250, 250, 250);
-                        doc.rect(margin, y - 4, contentWidth, 8, 'F');
-                    }
-                    
-                    doc.setTextColor(...darkGray);
-                    doc.setFontSize(9);
-                    doc.setFont('helvetica', 'normal');
-                    doc.text(name, margin + 5, y);
-                    doc.text(data.hours.toFixed(1), margin + 80, y);
-                    doc.text('$' + data.rate.toFixed(2), margin + 110, y);
-                    doc.setFont('helvetica', 'bold');
-                    doc.text(fmtMoney(data.cost), pageWidth - margin - 5, y, { align: 'right' });
-                    y += 8;
-                    
-                    // Check for page break
-                    if (y > pageHeight - 50) {
-                        doc.addPage();
-                        y = 30;
-                    }
-                });
-                
-                // Payroll Total
-                y += 2;
-                doc.setFillColor(240, 240, 240);
-                doc.rect(margin, y - 4, contentWidth, 10, 'F');
-                doc.setTextColor(...darkGray);
-                doc.setFontSize(10);
-                doc.setFont('helvetica', 'bold');
-                doc.text('PAYROLL TOTAL', margin + 5, y + 2);
-                doc.text(totalLaborHours.toFixed(1) + ' hrs', margin + 80, y + 2);
-                doc.setTextColor(...orange);
-                doc.text(fmtMoney(totalLaborCost), pageWidth - margin - 5, y + 2, { align: 'right' });
-                y += 20;
-            }
-            
-            // Additional Labor Section
-            const additionalLaborItems = currentJob.additionalLabor || [];
-            if (additionalLaborItems.length > 0) {
-                if (y > pageHeight - 60) {
-                    doc.addPage();
-                    y = 30;
-                }
-                
-                doc.setTextColor(...darkGray);
-                doc.setFontSize(12);
-                doc.setFont('helvetica', 'bold');
-                doc.text('Additional Labor', margin, y);
-                y += 10;
-                
-                additionalLaborItems.forEach((item, i) => {
-                    if (y > pageHeight - 30) {
-                        doc.addPage();
-                        y = 30;
-                    }
-                    if (i % 2 === 0) {
-                        doc.setFillColor(250, 250, 250);
-                        doc.rect(margin, y - 4, contentWidth, 8, 'F');
-                    }
-                    doc.setTextColor(...darkGray);
-                    doc.setFontSize(9);
-                    doc.setFont('helvetica', 'normal');
-                    doc.text(item.desc || 'Item ' + (i + 1), margin + 5, y);
-                    doc.setFont('helvetica', 'bold');
-                    doc.text(fmtMoney(item.amount || 0), pageWidth - margin - 5, y, { align: 'right' });
-                    y += 8;
-                });
-                
-                if (y > pageHeight - 30) {
-                    doc.addPage();
-                    y = 30;
-                }
-                y += 2;
-                doc.setFillColor(240, 240, 240);
-                doc.rect(margin, y - 4, contentWidth, 10, 'F');
-                doc.setTextColor(...darkGray);
-                doc.setFontSize(10);
-                doc.setFont('helvetica', 'bold');
-                doc.text('ADDITIONAL LABOR TOTAL', margin + 5, y + 2);
-                doc.setTextColor(...orange);
-                doc.text(fmtMoney(additionalLabor), pageWidth - margin - 5, y + 2, { align: 'right' });
-                y += 20;
-            }
-            
-            // Equipment Section
-            if (equipmentTotal > 0) {
-                if (y > pageHeight - 60) {
-                    doc.addPage();
-                    y = 30;
-                }
-                
-                doc.setTextColor(...darkGray);
-                doc.setFontSize(12);
-                doc.setFont('helvetica', 'bold');
-                doc.text('Machines', margin, y);
-                y += 10;
-                
-                let machineRowIdx = 0;
-                machines.forEach((m) => {
-                    const hours = (currentJob.equipment || {})[m.name] || 0;
-                    if (hours > 0) {
-                        if (y > pageHeight - 30) {
-                            doc.addPage();
-                            y = 30;
-                        }
-                        const rate = getMachineRate(m.name);
-                        if (machineRowIdx % 2 === 0) {
-                            doc.setFillColor(250, 250, 250);
-                            doc.rect(margin, y - 4, contentWidth, 8, 'F');
-                        }
-                        doc.setTextColor(...darkGray);
-                        doc.setFontSize(9);
-                        doc.setFont('helvetica', 'normal');
-                        doc.text(m.name, margin + 5, y);
-                        doc.text(hours + ' hrs @ $' + rate + '/hr', margin + 80, y);
-                        doc.setFont('helvetica', 'bold');
-                        doc.text(fmtMoney(hours * rate), pageWidth - margin - 5, y, { align: 'right' });
-                        y += 8;
-                        machineRowIdx++;
-                    }
-                });
-                
-                if (y > pageHeight - 30) {
-                    doc.addPage();
-                    y = 30;
-                }
-                y += 2;
-                doc.setFillColor(240, 240, 240);
-                doc.rect(margin, y - 4, contentWidth, 10, 'F');
-                doc.setTextColor(...darkGray);
-                doc.setFontSize(10);
-                doc.setFont('helvetica', 'bold');
-                doc.text('MACHINES TOTAL', margin + 5, y + 2);
-                doc.setTextColor(...orange);
-                doc.text(fmtMoney(equipmentTotal), pageWidth - margin - 5, y + 2, { align: 'right' });
-                y += 20;
-            }
-            
-            // Materials Section
-            const materialItems = currentJob.materials || [];
-            if (materialItems.length > 0) {
-                if (y > pageHeight - 60) {
-                    doc.addPage();
-                    y = 30;
-                }
-                
-                doc.setTextColor(...darkGray);
-                doc.setFontSize(12);
-                doc.setFont('helvetica', 'bold');
-                doc.text('Materials', margin, y);
-                y += 10;
-                
-                materialItems.forEach((item, i) => {
-                    if (y > pageHeight - 30) {
-                        doc.addPage();
-                        y = 30;
-                    }
-                    if (i % 2 === 0) {
-                        doc.setFillColor(250, 250, 250);
-                        doc.rect(margin, y - 4, contentWidth, 8, 'F');
-                    }
-                    doc.setTextColor(...darkGray);
-                    doc.setFontSize(9);
-                    doc.setFont('helvetica', 'normal');
-                    doc.text(item.desc || 'Item ' + (i + 1), margin + 5, y);
-                    doc.setFont('helvetica', 'bold');
-                    doc.text(fmtMoney(item.amount || 0), pageWidth - margin - 5, y, { align: 'right' });
-                    y += 8;
-                });
-                
-                if (y > pageHeight - 30) {
-                    doc.addPage();
-                    y = 30;
-                }
-                y += 2;
-                doc.setFillColor(240, 240, 240);
-                doc.rect(margin, y - 4, contentWidth, 10, 'F');
-                doc.setTextColor(...darkGray);
-                doc.setFontSize(10);
-                doc.setFont('helvetica', 'bold');
-                doc.text('MATERIALS TOTAL', margin + 5, y + 2);
-                doc.setTextColor(...orange);
-                doc.text(fmtMoney(materialsTotal), pageWidth - margin - 5, y + 2, { align: 'right' });
-            }
-            
-            // Footer on last page
-            const pageCount = doc.internal.getNumberOfPages();
-            for (let i = 2; i <= pageCount; i++) {
-                doc.setPage(i);
-                doc.setTextColor(...lightGray);
-                doc.setFontSize(8);
-                doc.setFont('helvetica', 'normal');
-                doc.text("Spencer's Masonry Inc.", margin, pageHeight - 15);
-                doc.text('Page ' + i + ' of ' + pageCount, pageWidth - margin, pageHeight - 15, { align: 'right' });
-            }
-            
-            // Save
             const fileName = (currentJob.name || 'job').replace(/[^a-zA-Z0-9]/g, '_') + '_invoice.pdf';
             doc.save(fileName);
             showToast('Invoice created!');
@@ -2508,14 +2272,8 @@
           }
         }
 
-        // Delete
-        function confirmDelete() {
-            document.getElementById('deleteModal').classList.add('show');
-        }
-
-        function closeDeleteModal() {
-            document.getElementById('deleteModal').classList.remove('show');
-        }
+        function confirmDelete() { document.getElementById('deleteModal').classList.add('show'); }
+        function closeDeleteModal() { document.getElementById('deleteModal').classList.remove('show'); }
 
         async function deleteJob() {
             delete allData.jobs[jobId];
@@ -2528,13 +2286,20 @@
             }
         }
 
-        // Helpers
         function formatStatus(status) {
             return status.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
         }
 
         function formatDateShort(date) {
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            if (typeof date === 'string') date = new Date(date + 'T00:00:00');
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+        }
+
+        function escapeHtml(str) {
+            if (str == null) return '';
+            return String(str)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
 
         function showToast(msg, isError = false) {
@@ -2545,9 +2310,11 @@
             setTimeout(() => toast.classList.remove('show'), 2000);
         }
 
-        // Modal close on overlay
         document.getElementById('deleteModal').addEventListener('click', function(e) {
             if (e.target === this) closeDeleteModal();
+        });
+        document.getElementById('invoiceModal').addEventListener('click', function(e) {
+            if (e.target === this) closeInvoiceModal();
         });
     </script>
 
