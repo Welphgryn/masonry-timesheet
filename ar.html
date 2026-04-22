@@ -82,10 +82,8 @@
             padding: 8px 16px; font-size: 0.85rem;
         }
         .btn-back:hover { background: rgba(255,255,255,0.3); }
-
         .btn-primary { background: #f97316; color: white; }
         .btn-primary:hover { background: #ea580c; }
-
         .btn-secondary { background: var(--border-color); color: var(--text-primary); }
         .btn-secondary:hover { background: #525252; }
 
@@ -106,7 +104,6 @@
 
         .page-header h2 { font-size: 1.3rem; color: var(--accent); }
 
-        /* Summary Cards */
         .summary-bar {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -134,6 +131,7 @@
         .summary-card .value.red { color: var(--danger); }
         .summary-card .value.yellow { color: var(--warning); }
         .summary-card .value.purple { color: #a78bfa; }
+        .summary-card .value.pink { color: #f472b6; }
 
         .summary-card .sub {
             font-size: 0.75rem;
@@ -141,7 +139,6 @@
             margin-top: 2px;
         }
 
-        /* Aging Buckets Bar */
         .aging-bar {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -165,16 +162,8 @@
             margin-bottom: 4px;
         }
 
-        .aging-bucket .value {
-            font-size: 1.15rem;
-            font-weight: 700;
-        }
-
-        .aging-bucket .count {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
+        .aging-bucket .value { font-size: 1.15rem; font-weight: 700; }
+        .aging-bucket .count { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
 
         .aging-bucket.current { border-top: 3px solid var(--success); }
         .aging-bucket.warn31 { border-top: 3px solid var(--warning); }
@@ -186,7 +175,6 @@
         .aging-bucket.warn61 .value { color: #f97316; }
         .aging-bucket.overdue .value { color: var(--danger); }
 
-        /* Controls Row */
         .controls-row {
             display: flex;
             gap: 12px;
@@ -229,10 +217,7 @@
             cursor: pointer;
         }
 
-        .filter-select:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
+        .filter-select:focus { outline: none; border-color: var(--accent); }
 
         .search-input {
             flex: 1;
@@ -245,12 +230,8 @@
             font-size: 0.85rem;
         }
 
-        .search-input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
+        .search-input:focus { outline: none; border-color: var(--accent); }
 
-        /* AR Table */
         .ar-table-wrap {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
@@ -264,9 +245,7 @@
             font-size: 0.9rem;
         }
 
-        .ar-table thead {
-            background: var(--bg-tertiary);
-        }
+        .ar-table thead { background: var(--bg-tertiary); }
 
         .ar-table th {
             padding: 12px 14px;
@@ -283,12 +262,7 @@
         }
 
         .ar-table th:hover { color: var(--accent); }
-        .ar-table th .sort-arrow {
-            display: inline-block;
-            margin-left: 4px;
-            opacity: 0.5;
-            font-size: 0.7rem;
-        }
+        .ar-table th .sort-arrow { display: inline-block; margin-left: 4px; opacity: 0.5; font-size: 0.7rem; }
         .ar-table th.sorted .sort-arrow { opacity: 1; color: var(--accent); }
 
         .ar-table th.num, .ar-table td.num { text-align: right; }
@@ -302,21 +276,12 @@
 
         .ar-table tbody tr:hover { background: var(--bg-tertiary); }
         .ar-table tbody tr:last-child { border-bottom: none; }
-
         .ar-table td { padding: 12px 14px; vertical-align: middle; }
 
-        .job-name-cell {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
+        .job-name-cell { font-weight: 600; color: var(--text-primary); }
         .client-cell { color: var(--text-secondary); }
 
-        .balance-cell {
-            font-weight: 700;
-            color: var(--accent);
-        }
-
+        .balance-cell { font-weight: 700; color: var(--accent); }
         .balance-cell.zero { color: var(--text-muted); }
         .balance-cell.negative { color: var(--success); }
 
@@ -335,6 +300,7 @@
         .bucket-pill.warn31 { background: rgba(234, 179, 8, 0.2); color: #eab308; }
         .bucket-pill.warn61 { background: rgba(249, 115, 22, 0.2); color: #f97316; }
         .bucket-pill.overdue { background: rgba(220, 38, 38, 0.25); color: #ef4444; }
+        .bucket-pill.uninvoiced { background: rgba(244, 114, 182, 0.2); color: #f472b6; }
 
         .status-pill {
             display: inline-block;
@@ -365,10 +331,7 @@
         .type-pill.contract { background: rgba(167, 139, 250, 0.2); color: #a78bfa; }
         .type-pill.hourly { background: rgba(244, 114, 182, 0.2); color: #f472b6; }
 
-        .days-cell {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-        }
+        .days-cell { color: var(--text-secondary); font-size: 0.85rem; }
 
         .empty-state {
             text-align: center;
@@ -380,13 +343,8 @@
         .empty-state h3 { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 8px; }
         .empty-state p { font-size: 0.9rem; }
 
-        .loading {
-            text-align: center;
-            padding: 60px;
-            color: var(--text-secondary);
-        }
+        .loading { text-align: center; padding: 60px; color: var(--text-secondary); }
 
-        /* Totals row */
         .ar-table tfoot {
             background: var(--bg-tertiary);
             font-weight: 700;
@@ -400,7 +358,6 @@
 
         .ar-table tfoot td.num { color: var(--accent); }
 
-        /* Toast */
         .toast {
             position: fixed;
             bottom: 24px;
@@ -445,9 +402,9 @@
 
         <div class="summary-bar">
             <div class="summary-card">
-                <div class="label">Total Outstanding</div>
+                <div class="label">Outstanding (Invoiced − Received)</div>
                 <div class="value orange" id="totalOutstanding">$0</div>
-                <div class="sub" id="totalJobsSub">0 jobs</div>
+                <div class="sub" id="totalJobsSub">0 invoiced jobs</div>
             </div>
             <div class="summary-card">
                 <div class="label">Current (0-30)</div>
@@ -460,14 +417,14 @@
                 <div class="sub" id="pastDuePct">0% of AR</div>
             </div>
             <div class="summary-card">
+                <div class="label">Uninvoiced Work</div>
+                <div class="value pink" id="uninvoicedTotal">$0</div>
+                <div class="sub" id="uninvoicedSub">0 jobs to bill</div>
+            </div>
+            <div class="summary-card">
                 <div class="label">Oldest Open</div>
                 <div class="value yellow" id="oldestDays">—</div>
                 <div class="sub" id="oldestJob">No open balances</div>
-            </div>
-            <div class="summary-card">
-                <div class="label">Total Billed</div>
-                <div class="value purple" id="totalBilled">$0</div>
-                <div class="sub" id="totalCollected">Received: $0</div>
             </div>
         </div>
 
@@ -500,10 +457,12 @@
                 <button data-view="client" onclick="setView('client')">By Client</button>
             </div>
             <select class="filter-select" id="statusFilter" onchange="render()">
-                <option value="open">Open balances only</option>
-                <option value="all">All jobs with balance</option>
-                <option value="active">Active only</option>
+                <option value="open">Open + Uninvoiced</option>
+                <option value="openOnly">Open invoices only</option>
+                <option value="uninvoicedOnly">Uninvoiced only</option>
+                <option value="active">Active jobs only</option>
                 <option value="completed">Completed only</option>
+                <option value="all">All jobs</option>
             </select>
             <select class="filter-select" id="bucketFilter" onchange="render()">
                 <option value="all">All buckets</option>
@@ -511,6 +470,7 @@
                 <option value="warn31">31-60 days</option>
                 <option value="warn61">61-90 days</option>
                 <option value="overdue">90+ days</option>
+                <option value="uninvoiced">Uninvoiced</option>
             </select>
             <input type="text" class="search-input" id="searchInput" placeholder="Search job or client..." oninput="render()">
         </div>
@@ -520,14 +480,13 @@
         </div>
     </div>
 
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀️</button>
     <div class="toast" id="toast">Saved!</div>
 
     <script>
-        // Config — same bin as jobs.html / job.html
         const JSONBIN_BIN_ID = '697a7070d0ea881f408e6063';
         const JSONBIN_API_KEY = '$2a$10$vgUvy.chZeKckQe2eTD36uOX/mfrhx8GKudyoZqZsjWkbtaam8/Nm';
 
-        // Default rates — mirror job.html / jobs.html
         const defaultWorkerRates = {
             'Jordan': 120, 'Kamalei': 100, 'Dave': 114, 'Joe': 114,
             'Ian': 100, 'Ray': 100, 'Jestin': 63, 'Duke': 58,
@@ -541,11 +500,10 @@
         };
 
         let allData = {};
-        let currentView = 'job'; // 'job' or 'client'
+        let currentView = 'job';
         let sortKey = 'daysOpen';
         let sortDir = 'desc';
 
-        // ---------- init ----------
         loadAllData();
 
         async function loadAllData() {
@@ -564,15 +522,8 @@
             }
         }
 
-        // ---------- formatting ----------
         function fmtMoney(n) {
             return '$' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
-        function fmtMoneyShort(n) {
-            const num = Number(n);
-            if (Math.abs(num) >= 1000) return '$' + (num / 1000).toFixed(1) + 'k';
-            return fmtMoney(num);
         }
 
         function daysBetween(dateStr) {
@@ -592,14 +543,19 @@
         }
 
         function bucketLabel(bucket) {
-            return { current: '0-30', warn31: '31-60', warn61: '61-90', overdue: '90+' }[bucket];
+            return {
+                current: '0-30',
+                warn31: '31-60',
+                warn61: '61-90',
+                overdue: '90+',
+                uninvoiced: 'Uninvoiced'
+            }[bucket];
         }
 
         function formatStatus(status) {
             return (status || 'active').split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
         }
 
-        // ---------- rate lookups (mirror jobs.html) ----------
         function getWorkerRate(workerName, job) {
             if (job && job.workerRates && job.workerRates[workerName] !== undefined) {
                 return job.workerRates[workerName];
@@ -618,13 +574,11 @@
             return defaultMachineRates[machineName] || 0;
         }
 
-        // ---------- cost calculations (mirror jobs.html exactly) ----------
         function calculateJobLabor(job) {
             const payrollName = job.payrollName || job.name;
             if (!payrollName) return 0;
             const payrollKey = payrollName.replace(/[^a-zA-Z]/g, '');
             let total = 0;
-
             Object.keys(allData).forEach(key => {
                 if (key.match(/^\d{4}-\d{2}-\d{2}$/) && key !== 'jobs') {
                     const weekData = allData[key];
@@ -641,11 +595,9 @@
                     });
                 }
             });
-
             if (job.additionalLabor) {
                 job.additionalLabor.forEach(item => total += item.amount || 0);
             }
-
             return total;
         }
 
@@ -655,7 +607,6 @@
             if (payrollName) {
                 const payrollKey = payrollName.replace(/[^a-zA-Z]/g, '');
                 const eqPrefix = payrollKey + '_eq_';
-
                 Object.keys(allData).forEach(key => {
                     if (!key.match(/^\d{4}-\d{2}-\d{2}$/) || key === 'jobs') return;
                     const weekData = allData[key];
@@ -679,14 +630,12 @@
                     });
                 });
             }
-
             if (job.equipment) {
                 Object.entries(job.equipment).forEach(([machineName, hours]) => {
                     const rate = getMachineRate(machineName, job);
                     total += (hours || 0) * rate;
                 });
             }
-
             return total;
         }
 
@@ -694,17 +643,13 @@
             const isCash = job.isCash || false;
             const materialsTotal = (job.materials || []).reduce((sum, m) => sum + (m.amount || 0), 0);
             const equipmentTotal = calculateEquipmentTotal(job);
-
             const subtotal = laborTotal + materialsTotal + equipmentTotal;
             const overhead = subtotal * ((job.overheadPercent || 18) / 100);
             const afterOverhead = subtotal + overhead;
-
             if (isCash) return afterOverhead;
-
             const profit = afterOverhead * ((job.profitPercent || 10) / 100);
             const afterProfit = afterOverhead + profit;
             const geTax = afterProfit * ((job.geTaxPercent || 4.712) / 100);
-
             return afterProfit + geTax;
         }
 
@@ -713,13 +658,35 @@
             return job.draws.reduce((sum, draw) => sum + (draw.amount || 0), 0);
         }
 
-        // ---------- AR row building ----------
+        function calculateTotalInvoiced(job) {
+            if (!job.invoices || !Array.isArray(job.invoices)) return 0;
+            return job.invoices.reduce((sum, inv) => sum + (inv.amount || 0), 0);
+        }
+
+        // FIFO: returns date of oldest invoice not fully paid (or null if all paid)
+        function oldestUnpaidInvoiceDate(job) {
+            const invoices = (job.invoices || []).slice().sort((a, b) => {
+                const da = a.date || '9999-12-31';
+                const db = b.date || '9999-12-31';
+                return da.localeCompare(db);
+            });
+            let drawsRemaining = calculateTotalDraws(job);
+            for (const inv of invoices) {
+                const amount = inv.amount || 0;
+                const paid = Math.min(drawsRemaining, amount);
+                drawsRemaining -= paid;
+                if (paid < amount - 0.01) {
+                    return inv.date;
+                }
+            }
+            return null;
+        }
+
         function buildARRows() {
             const jobs = Object.values(allData.jobs || {});
             const rows = [];
 
             jobs.forEach(job => {
-                // Skip bidding jobs — they're not billable yet
                 if (job.status === 'bidding') return;
 
                 const laborTotal = calculateJobLabor(job);
@@ -728,10 +695,30 @@
                     ? job.contractAmount
                     : computedTotal;
                 const received = calculateTotalDraws(job);
-                const balance = billable - received;
+                const invoiced = calculateTotalInvoiced(job);
+                const outstanding = invoiced - received;
+                const unbilled = billable - invoiced;
+                const invoiceCount = (job.invoices || []).length;
 
-                const days = daysBetween(job.startDate);
-                const bucket = bucketFor(days);
+                // Aging logic:
+                // - Uninvoiced: no invoices AND billable work exists → aged from start date
+                // - Open: outstanding invoices → aged from oldest unpaid invoice date
+                // - Paid/no-activity: aged from start date (mostly for display; usually filtered out)
+                let bucket, daysOpen, agingBasisDate;
+                if (invoiceCount === 0 && billable > 0.01) {
+                    bucket = 'uninvoiced';
+                    daysOpen = daysBetween(job.startDate);
+                    agingBasisDate = job.startDate;
+                } else if (outstanding > 0.01) {
+                    const oldestDate = oldestUnpaidInvoiceDate(job);
+                    daysOpen = daysBetween(oldestDate || job.startDate);
+                    bucket = bucketFor(daysOpen);
+                    agingBasisDate = oldestDate || job.startDate;
+                } else {
+                    daysOpen = daysBetween(job.startDate);
+                    bucket = bucketFor(daysOpen);
+                    agingBasisDate = job.startDate;
+                }
 
                 rows.push({
                     id: job.id,
@@ -742,10 +729,14 @@
                     jobType: job.jobType || 'hourly',
                     isCash: job.isCash || false,
                     billable,
+                    invoiced,
                     received,
-                    balance,
+                    outstanding,
+                    unbilled,
+                    invoiceCount,
                     startDate: job.startDate,
-                    daysOpen: days,
+                    agingBasisDate,
+                    daysOpen,
                     bucket
                 });
             });
@@ -753,7 +744,6 @@
             return rows;
         }
 
-        // ---------- rendering ----------
         function setView(view) {
             currentView = view;
             document.querySelectorAll('.view-toggle button').forEach(b => {
@@ -765,21 +755,26 @@
         function render() {
             const allRows = buildARRows();
 
-            // Compute summary from all open balances (ignores filters so top-bar is stable)
-            const openRows = allRows.filter(r => r.balance > 0.01);
-            renderSummary(openRows);
-            renderAgingBuckets(openRows);
+            const activeRows = allRows.filter(r => r.outstanding > 0.01 || r.bucket === 'uninvoiced');
+            renderSummary(activeRows);
+            renderAgingBuckets(activeRows);
 
-            // Apply filters
             let filtered = allRows;
             const statusFilter = document.getElementById('statusFilter').value;
             const bucketFilter = document.getElementById('bucketFilter').value;
             const search = document.getElementById('searchInput').value.trim().toLowerCase();
 
-            if (statusFilter === 'open') filtered = filtered.filter(r => r.balance > 0.01);
-            else if (statusFilter === 'active') filtered = filtered.filter(r => r.status === 'active' && r.balance > 0.01);
-            else if (statusFilter === 'completed') filtered = filtered.filter(r => r.status === 'completed' && r.balance > 0.01);
-            else if (statusFilter === 'all') filtered = filtered.filter(r => Math.abs(r.balance) > 0.01);
+            if (statusFilter === 'open') {
+                filtered = filtered.filter(r => r.outstanding > 0.01 || r.bucket === 'uninvoiced');
+            } else if (statusFilter === 'openOnly') {
+                filtered = filtered.filter(r => r.outstanding > 0.01);
+            } else if (statusFilter === 'uninvoicedOnly') {
+                filtered = filtered.filter(r => r.bucket === 'uninvoiced');
+            } else if (statusFilter === 'active') {
+                filtered = filtered.filter(r => r.status === 'active' && (r.outstanding > 0.01 || r.bucket === 'uninvoiced'));
+            } else if (statusFilter === 'completed') {
+                filtered = filtered.filter(r => r.status === 'completed' && (r.outstanding > 0.01 || r.bucket === 'uninvoiced'));
+            }
 
             if (bucketFilter !== 'all') filtered = filtered.filter(r => r.bucket === bucketFilter);
 
@@ -797,22 +792,27 @@
             }
         }
 
-        function renderSummary(openRows) {
-            const total = openRows.reduce((s, r) => s + r.balance, 0);
-            const current = openRows.filter(r => r.bucket === 'current').reduce((s, r) => s + r.balance, 0);
-            const pastDue = total - current;
+        function renderSummary(activeRows) {
+            const openRows = activeRows.filter(r => r.outstanding > 0.01);
+            const uninvoicedRows = activeRows.filter(r => r.bucket === 'uninvoiced');
 
-            const totalBilled = openRows.reduce((s, r) => s + r.billable, 0);
-            const totalReceived = openRows.reduce((s, r) => s + r.received, 0);
+            const totalOutstanding = openRows.reduce((s, r) => s + r.outstanding, 0);
+            const current = openRows.filter(r => r.bucket === 'current').reduce((s, r) => s + r.outstanding, 0);
+            const pastDue = totalOutstanding - current;
 
-            document.getElementById('totalOutstanding').textContent = fmtMoney(total);
-            document.getElementById('totalJobsSub').textContent = openRows.length + ' job' + (openRows.length === 1 ? '' : 's');
+            const uninvoicedTotal = uninvoicedRows.reduce((s, r) => s + r.billable, 0);
+
+            document.getElementById('totalOutstanding').textContent = fmtMoney(totalOutstanding);
+            document.getElementById('totalJobsSub').textContent = openRows.length + ' invoiced job' + (openRows.length === 1 ? '' : 's');
 
             document.getElementById('currentTotal').textContent = fmtMoney(current);
-            document.getElementById('currentPct').textContent = total > 0 ? Math.round(current / total * 100) + '% of AR' : '—';
+            document.getElementById('currentPct').textContent = totalOutstanding > 0 ? Math.round(current / totalOutstanding * 100) + '% of AR' : '—';
 
             document.getElementById('pastDueTotal').textContent = fmtMoney(pastDue);
-            document.getElementById('pastDuePct').textContent = total > 0 ? Math.round(pastDue / total * 100) + '% of AR' : '—';
+            document.getElementById('pastDuePct').textContent = totalOutstanding > 0 ? Math.round(pastDue / totalOutstanding * 100) + '% of AR' : '—';
+
+            document.getElementById('uninvoicedTotal').textContent = fmtMoney(uninvoicedTotal);
+            document.getElementById('uninvoicedSub').textContent = uninvoicedRows.length + ' job' + (uninvoicedRows.length === 1 ? '' : 's') + ' to bill';
 
             const oldest = openRows.slice().sort((a, b) => (b.daysOpen || 0) - (a.daysOpen || 0))[0];
             if (oldest && oldest.daysOpen !== null) {
@@ -822,16 +822,21 @@
                 document.getElementById('oldestDays').textContent = '—';
                 document.getElementById('oldestJob').textContent = 'No open balances';
             }
-
-            document.getElementById('totalBilled').textContent = fmtMoney(totalBilled);
-            document.getElementById('totalCollected').textContent = 'Received: ' + fmtMoney(totalReceived);
         }
 
-        function renderAgingBuckets(openRows) {
-            const buckets = { current: { total: 0, count: 0 }, warn31: { total: 0, count: 0 }, warn61: { total: 0, count: 0 }, overdue: { total: 0, count: 0 } };
+        function renderAgingBuckets(activeRows) {
+            const openRows = activeRows.filter(r => r.outstanding > 0.01);
+            const buckets = {
+                current: { total: 0, count: 0 },
+                warn31: { total: 0, count: 0 },
+                warn61: { total: 0, count: 0 },
+                overdue: { total: 0, count: 0 }
+            };
             openRows.forEach(r => {
-                buckets[r.bucket].total += r.balance;
-                buckets[r.bucket].count++;
+                if (buckets[r.bucket]) {
+                    buckets[r.bucket].total += r.outstanding;
+                    buckets[r.bucket].count++;
+                }
             });
 
             const map = { current: '0', warn31: '31', warn61: '61', overdue: '90' };
@@ -870,16 +875,16 @@
 
         function renderJobView(rows) {
             const wrap = document.getElementById('tableWrap');
-
             if (rows.length === 0) {
                 wrap.innerHTML = '<div class="empty-state"><div class="icon">💵</div><h3>No receivables match</h3><p>Try changing the filters above.</p></div>';
                 return;
             }
 
             const sorted = sortRows(rows);
-            const totalBalance = sorted.reduce((s, r) => s + r.balance, 0);
-            const totalBilled = sorted.reduce((s, r) => s + r.billable, 0);
+            const totalOutstanding = sorted.reduce((s, r) => s + r.outstanding, 0);
+            const totalInvoiced = sorted.reduce((s, r) => s + r.invoiced, 0);
             const totalReceived = sorted.reduce((s, r) => s + r.received, 0);
+            const totalUnbilled = sorted.reduce((s, r) => s + r.unbilled, 0);
 
             const mkHead = (key, label, cls) =>
                 `<th class="${cls || ''} ${sortKey === key ? 'sorted' : ''}" onclick="toggleSort('${key}')">${label}${sortArrow(key)}</th>`;
@@ -890,12 +895,12 @@
                         <tr>
                             ${mkHead('name', 'Job')}
                             ${mkHead('client', 'Client')}
-                            ${mkHead('startDate', 'Start', 'hide-mobile')}
                             ${mkHead('daysOpen', 'Days', 'num')}
                             <th class="center">Aging</th>
-                            ${mkHead('billable', 'Billable', 'num hide-mobile')}
+                            ${mkHead('invoiced', 'Invoiced', 'num hide-mobile')}
                             ${mkHead('received', 'Received', 'num hide-mobile')}
-                            ${mkHead('balance', 'Balance', 'num')}
+                            ${mkHead('unbilled', 'Unbilled', 'num hide-mobile')}
+                            ${mkHead('outstanding', 'Outstanding', 'num')}
                         </tr>
                     </thead>
                     <tbody>
@@ -907,21 +912,22 @@
                                     <span class="status-pill ${r.status}">${formatStatus(r.status)}</span>
                                 </td>
                                 <td class="client-cell">${escapeHtml(r.client)}</td>
-                                <td class="hide-mobile">${r.startDate ? formatDateShort(r.startDate) : '—'}</td>
                                 <td class="num days-cell">${r.daysOpen !== null ? r.daysOpen : '—'}</td>
                                 <td class="center"><span class="bucket-pill ${r.bucket}">${bucketLabel(r.bucket)}</span></td>
-                                <td class="num hide-mobile">${fmtMoney(r.billable)}</td>
+                                <td class="num hide-mobile">${fmtMoney(r.invoiced)}</td>
                                 <td class="num hide-mobile">${fmtMoney(r.received)}</td>
-                                <td class="num balance-cell ${r.balance < -0.01 ? 'negative' : r.balance < 0.01 ? 'zero' : ''}">${fmtMoney(r.balance)}</td>
+                                <td class="num hide-mobile" style="color: ${r.unbilled > 0.01 ? '#f472b6' : 'var(--text-muted)'};">${fmtMoney(r.unbilled)}</td>
+                                <td class="num balance-cell ${r.outstanding < -0.01 ? 'negative' : r.outstanding < 0.01 ? 'zero' : ''}">${fmtMoney(r.outstanding)}</td>
                             </tr>
                         `).join('')}
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="5">Totals — ${sorted.length} job${sorted.length === 1 ? '' : 's'}</td>
-                            <td class="num hide-mobile">${fmtMoney(totalBilled)}</td>
+                            <td colspan="4">Totals — ${sorted.length} job${sorted.length === 1 ? '' : 's'}</td>
+                            <td class="num hide-mobile">${fmtMoney(totalInvoiced)}</td>
                             <td class="num hide-mobile">${fmtMoney(totalReceived)}</td>
-                            <td class="num">${fmtMoney(totalBalance)}</td>
+                            <td class="num hide-mobile" style="color: #f472b6;">${fmtMoney(totalUnbilled)}</td>
+                            <td class="num">${fmtMoney(totalOutstanding)}</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -930,13 +936,11 @@
 
         function renderClientView(rows) {
             const wrap = document.getElementById('tableWrap');
-
             if (rows.length === 0) {
                 wrap.innerHTML = '<div class="empty-state"><div class="icon">💵</div><h3>No receivables match</h3><p>Try changing the filters above.</p></div>';
                 return;
             }
 
-            // Group by normalized client name
             const grouped = {};
             rows.forEach(r => {
                 const key = r.clientKey;
@@ -944,27 +948,32 @@
                     grouped[key] = {
                         client: r.client,
                         jobCount: 0,
-                        billable: 0,
+                        invoiced: 0,
                         received: 0,
-                        balance: 0,
+                        outstanding: 0,
+                        unbilled: 0,
                         oldestDays: 0,
-                        bucket: 'current'
+                        bucket: 'current',
+                        hasUninvoiced: false
                     };
                 }
                 grouped[key].jobCount++;
-                grouped[key].billable += r.billable;
+                grouped[key].invoiced += r.invoiced;
                 grouped[key].received += r.received;
-                grouped[key].balance += r.balance;
-                if ((r.daysOpen || 0) > grouped[key].oldestDays) {
+                grouped[key].outstanding += r.outstanding;
+                grouped[key].unbilled += r.unbilled;
+                if (r.bucket === 'uninvoiced') grouped[key].hasUninvoiced = true;
+                if ((r.daysOpen || 0) > grouped[key].oldestDays && r.bucket !== 'uninvoiced') {
                     grouped[key].oldestDays = r.daysOpen || 0;
                     grouped[key].bucket = r.bucket;
                 }
             });
 
-            const clientRows = Object.values(grouped).sort((a, b) => b.balance - a.balance);
-            const totalBalance = clientRows.reduce((s, r) => s + r.balance, 0);
-            const totalBilled = clientRows.reduce((s, r) => s + r.billable, 0);
+            const clientRows = Object.values(grouped).sort((a, b) => b.outstanding - a.outstanding);
+            const totalOutstanding = clientRows.reduce((s, r) => s + r.outstanding, 0);
+            const totalInvoiced = clientRows.reduce((s, r) => s + r.invoiced, 0);
             const totalReceived = clientRows.reduce((s, r) => s + r.received, 0);
+            const totalUnbilled = clientRows.reduce((s, r) => s + r.unbilled, 0);
 
             wrap.innerHTML = `
                 <table class="ar-table">
@@ -974,67 +983,59 @@
                             <th class="num">Jobs</th>
                             <th class="num">Oldest</th>
                             <th class="center">Aging</th>
-                            <th class="num hide-mobile">Billable</th>
+                            <th class="num hide-mobile">Invoiced</th>
                             <th class="num hide-mobile">Received</th>
-                            <th class="num">Balance</th>
+                            <th class="num hide-mobile">Unbilled</th>
+                            <th class="num">Outstanding</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${clientRows.map(r => `
                             <tr>
-                                <td class="job-name-cell">${escapeHtml(r.client)}</td>
+                                <td class="job-name-cell">${escapeHtml(r.client)}${r.hasUninvoiced ? '<span class="type-pill" style="background: rgba(244,114,182,0.2); color: #f472b6;">has uninvoiced</span>' : ''}</td>
                                 <td class="num">${r.jobCount}</td>
-                                <td class="num days-cell">${r.oldestDays} days</td>
+                                <td class="num days-cell">${r.oldestDays > 0 ? r.oldestDays + ' days' : '—'}</td>
                                 <td class="center"><span class="bucket-pill ${r.bucket}">${bucketLabel(r.bucket)}</span></td>
-                                <td class="num hide-mobile">${fmtMoney(r.billable)}</td>
+                                <td class="num hide-mobile">${fmtMoney(r.invoiced)}</td>
                                 <td class="num hide-mobile">${fmtMoney(r.received)}</td>
-                                <td class="num balance-cell ${r.balance < -0.01 ? 'negative' : r.balance < 0.01 ? 'zero' : ''}">${fmtMoney(r.balance)}</td>
+                                <td class="num hide-mobile" style="color: ${r.unbilled > 0.01 ? '#f472b6' : 'var(--text-muted)'};">${fmtMoney(r.unbilled)}</td>
+                                <td class="num balance-cell ${r.outstanding < -0.01 ? 'negative' : r.outstanding < 0.01 ? 'zero' : ''}">${fmtMoney(r.outstanding)}</td>
                             </tr>
                         `).join('')}
                     </tbody>
                     <tfoot>
                         <tr>
                             <td colspan="4">Totals — ${clientRows.length} client${clientRows.length === 1 ? '' : 's'}</td>
-                            <td class="num hide-mobile">${fmtMoney(totalBilled)}</td>
+                            <td class="num hide-mobile">${fmtMoney(totalInvoiced)}</td>
                             <td class="num hide-mobile">${fmtMoney(totalReceived)}</td>
-                            <td class="num">${fmtMoney(totalBalance)}</td>
+                            <td class="num hide-mobile" style="color: #f472b6;">${fmtMoney(totalUnbilled)}</td>
+                            <td class="num">${fmtMoney(totalOutstanding)}</td>
                         </tr>
                     </tfoot>
                 </table>
             `;
         }
 
-        function formatDateShort(dateStr) {
-            const d = new Date(dateStr + 'T00:00:00');
-            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
-        }
-
         function escapeHtml(str) {
             if (str == null) return '';
             return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
 
         function openJob(jobId) {
             window.location.href = `job.html?id=${jobId}`;
         }
 
-        // ---------- CSV export ----------
         function exportCSV() {
-            const rows = buildARRows().filter(r => r.balance > 0.01);
-
+            const rows = buildARRows().filter(r => r.outstanding > 0.01 || r.bucket === 'uninvoiced');
             if (rows.length === 0) {
-                showToast('No open receivables to export', true);
+                showToast('No receivables to export', true);
                 return;
             }
 
-            const headers = ['Job', 'Client', 'Status', 'Type', 'Cash', 'Start Date', 'Days Open', 'Bucket', 'Billable', 'Received', 'Balance'];
+            const headers = ['Job', 'Client', 'Status', 'Type', 'Cash', 'Start Date', 'Invoices', 'Days Open', 'Bucket', 'Billable', 'Invoiced', 'Received', 'Outstanding', 'Unbilled'];
             const csvRows = [headers.join(',')];
-
             rows.sort((a, b) => (b.daysOpen || 0) - (a.daysOpen || 0)).forEach(r => {
                 const row = [
                     csvEscape(r.name),
@@ -1043,11 +1044,14 @@
                     r.jobType,
                     r.isCash ? 'yes' : 'no',
                     r.startDate || '',
+                    r.invoiceCount,
                     r.daysOpen !== null ? r.daysOpen : '',
                     bucketLabel(r.bucket),
                     r.billable.toFixed(2),
+                    r.invoiced.toFixed(2),
                     r.received.toFixed(2),
-                    r.balance.toFixed(2)
+                    r.outstanding.toFixed(2),
+                    r.unbilled.toFixed(2)
                 ];
                 csvRows.push(row.join(','));
             });
@@ -1062,7 +1066,6 @@
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
-
             showToast('CSV downloaded');
         }
 
@@ -1075,7 +1078,6 @@
             return s;
         }
 
-        // ---------- toast ----------
         function showToast(msg, isError = false) {
             const toast = document.getElementById('toast');
             toast.textContent = msg;
@@ -1100,7 +1102,7 @@
             updateIcon();
         };
         function updateIcon(){
-            const b=document.querySelector('.theme-toggle');
+            const b=document.getElementById('themeToggle');
             if(b){
                 const t=document.documentElement.getAttribute('data-theme');
                 b.textContent=t==='light'?'🌙':'☀️';
@@ -1109,6 +1111,5 @@
         initTheme();
     })();
     </script>
-    <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
 </body>
 </html>
