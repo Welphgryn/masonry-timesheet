@@ -2122,10 +2122,7 @@
             let y = 0;
 
             function checkPage(needed) {
-                if (y + needed > footerY - 5) {
-                    doc.addPage();
-                    y = margin;
-                }
+                if (y + needed > footerY - 5) { doc.addPage(); y = margin; }
             }
 
             function sectionHeader(title) {
@@ -2176,9 +2173,106 @@
                 y += 8;
             }
 
-            // =====================
-            // PAGE 1: HEADER
-            // =====================
+            // ===========================
+            // GATHER ALL DATA FIRST
+            // ===========================
+            const payrollName = currentJob.payrollName || currentJob.name;
+            const payrollKey = payrollName.replace(/[^a-zA-Z]/g, '');
+            const isCash = currentJob.isCash || false;
+            const weekKeys = Object.keys(allData).filter(k => k.match(/^\d{4}-\d{2}-\d{2}$/) && k !== 'jobs').sort();
+
+            // Payroll labor rows
+            const laborRows = [];
+            let payrollLaborTotal = 0;
+            weekKeys.forEach(wk => {
+                const wd = allData[wk];
+                Object.entries(wd).forEach(([dk, day]) => {
+                    if (typeof day === 'object') {
+                        Object.entries(day).forEach(([id, hrs]) => {
+                            if (id.startsWith(payrollKey + '_') && !id.includes('_eq_') && hrs > 0) {
+                                const w = id.split('_').pop();
+                                const rate = getWorkerRate(w);
+                                const cost = hrs * rate;
+                                payrollLaborTotal += cost;
+                                laborRows.push({ date: new Date(dk + 'T00:00:00').toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }), worker: w, hours: hrs, rate, cost });
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Additional labor
+            const addlLabor = currentJob.additionalLabor || [];
+            const addlLaborTotal = addlLabor.reduce((s, i) => s + (i.amount || 0), 0);
+
+            // Payroll machine rows
+            const eqPrefix = payrollKey + '_eq_';
+            const machineRows = [];
+            let payrollMachinesTotal = 0;
+            weekKeys.forEach(wk => {
+                const wd = allData[wk];
+                Object.entries(wd).forEach(([dk, day]) => {
+                    if (typeof day === 'object') {
+                        Object.entries(day).forEach(([id, hrs]) => {
+                            if (id.startsWith(eqPrefix) && hrs > 0) {
+                                const mk = id.split('_eq_')[1];
+                                const machine = machines.find(m => (m.payrollName || m.name).replace(/[^a-zA-Z0-9]/g, '') === mk);
+                                const mn = machine ? (machine.payrollName || machine.name) : mk;
+                                const rate = getMachineRate(mn);
+                                const cost = hrs * rate;
+                                payrollMachinesTotal += cost;
+                                machineRows.push({ date: new Date(dk + 'T00:00:00').toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }), machine: mn, hours: hrs, rate, cost });
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Additional machines
+            const addlMachineRows = [];
+            let addlMachinesTotal = 0;
+            machines.forEach(m => {
+                const hrs = (currentJob.equipment || {})[m.name] || 0;
+                if (hrs > 0) { const rate = getMachineRate(m.name); const cost = hrs * rate; addlMachinesTotal += cost; addlMachineRows.push({ machine: m.name, hours: hrs, rate, cost }); }
+            });
+
+            // Materials
+            const mats = currentJob.materials || [];
+            const matsTotal = mats.reduce((s, i) => s + (i.amount || 0), 0);
+
+            // Calculations
+            const subtotal1 = payrollLaborTotal + addlLaborTotal + payrollMachinesTotal + addlMachinesTotal + matsTotal;
+            const overheadPct = currentJob.overheadPercent || 18;
+            const overhead = subtotal1 * (overheadPct / 100);
+            const subtotal2 = subtotal1 + overhead;
+            const profitPct = currentJob.profitPercent || 10;
+            const profit = isCash ? 0 : subtotal2 * (profitPct / 100);
+            const subtotal3 = subtotal2 + profit;
+            const taxPct = currentJob.geTaxPercent || 4.712;
+            const tax = isCash ? 0 : subtotal3 * (taxPct / 100);
+            const total = isCash ? subtotal2 : subtotal3 + tax;
+            const totalDraws = (currentJob.draws || []).reduce((sum, d) => sum + (d.amount || 0), 0);
+            const remainingBase = (currentJob.jobType === 'contract' && (currentJob.contractAmount || 0) > 0) ? currentJob.contractAmount : total;
+            const remainingBalance = remainingBase - totalDraws;
+
+            // Notes
+            const notesForJob = [];
+            if (allData._notes) {
+                Object.keys(allData._notes).sort().forEach(wk => {
+                    const wn = allData._notes[wk]; if (!wn) return;
+                    Object.keys(wn).sort().forEach(dk => {
+                        if (wn[dk] && wn[dk][payrollKey]) {
+                            notesForJob.push({ date: new Date(dk + 'T00:00:00').toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }), text: wn[dk][payrollKey] });
+                        }
+                    });
+                });
+            }
+
+            // ===========================
+            // PAGE 1: SUMMARY & BALANCE
+            // ===========================
+
+            // Header bar
             doc.setFillColor(...orange);
             doc.rect(0, 0, pageWidth, 32, 'F');
             doc.setTextColor(255, 255, 255);
@@ -2192,7 +2286,7 @@
             doc.text(new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }), pageWidth - margin, 24, { align: 'right' });
             y = 40;
 
-            // Job info block
+            // Job name + type
             doc.setTextColor(...darkGray);
             doc.setFontSize(14);
             doc.setFont('helvetica', 'bold');
@@ -2201,11 +2295,11 @@
             doc.setFontSize(8);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(...lightGray);
-            const jobType = (currentJob.jobType || 'hourly').toUpperCase() + (currentJob.isCash ? ' • CASH' : '');
+            const jobType = (currentJob.jobType || 'hourly').toUpperCase() + (isCash ? ' • CASH' : '');
             doc.text(`${jobType} • ${formatStatus(currentJob.status || 'active')}`, margin, y);
             y += 8;
 
-            // Client / Address / Start Date
+            // Client / Address / Start Date box
             doc.setFillColor(245, 245, 245);
             doc.roundedRect(margin, y, contentWidth, 22, 2, 2, 'F');
             doc.setTextColor(...darkGray);
@@ -2223,242 +2317,37 @@
                 doc.text('START DATE', pageWidth - margin - 45, y + 6);
                 doc.setFont('helvetica', 'normal');
                 doc.setFontSize(8);
-                const startDate = new Date(currentJob.startDate + 'T00:00:00');
-                doc.text(startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), pageWidth - margin - 45, y + 15);
+                const sd = new Date(currentJob.startDate + 'T00:00:00');
+                doc.text(sd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), pageWidth - margin - 45, y + 15);
             }
             y += 30;
 
-            // =====================
-            // SECTION 1: PAYROLL LABOR (itemized)
-            // =====================
-            const payrollName = currentJob.payrollName || currentJob.name;
-            const payrollKey = payrollName.replace(/[^a-zA-Z]/g, '');
-            const laborRows = [];
-            let payrollLaborTotal = 0;
-            const weekKeys = Object.keys(allData).filter(k => k.match(/^\d{4}-\d{2}-\d{2}$/) && k !== 'jobs').sort();
-            weekKeys.forEach(weekKey => {
-                const weekData = allData[weekKey];
-                Object.entries(weekData).forEach(([dayKey, day]) => {
-                    if (typeof day === 'object') {
-                        Object.entries(day).forEach(([inputId, hours]) => {
-                            if (inputId.startsWith(payrollKey + '_') && !inputId.includes('_eq_') && hours > 0) {
-                                const workerName = inputId.split('_').pop();
-                                const rate = getWorkerRate(workerName);
-                                const cost = hours * rate;
-                                payrollLaborTotal += cost;
-                                const d = new Date(dayKey + 'T00:00:00');
-                                laborRows.push({
-                                    date: d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }),
-                                    worker: workerName,
-                                    hours: hours,
-                                    rate: rate,
-                                    cost: cost
-                                });
-                            }
-                        });
-                    }
-                });
-            });
+            // REMAINING BALANCE — big and prominent at top
+            const balColor = remainingBalance >= 0 ? green : [220, 38, 38];
+            doc.setFillColor(...(remainingBalance >= 0 ? [220, 252, 231] : [254, 226, 226]));
+            doc.roundedRect(margin, y, contentWidth, 18, 2, 2, 'F');
+            doc.setDrawColor(...balColor);
+            doc.setLineWidth(0.5);
+            doc.roundedRect(margin, y, contentWidth, 18, 2, 2, 'S');
+            doc.setTextColor(...balColor);
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'bold');
+            doc.text('BALANCE DUE', margin + 6, y + 12);
+            doc.text(fmtMoney(remainingBalance), pageWidth - margin - 6, y + 12, { align: 'right' });
+            y += 25;
 
-            if (laborRows.length > 0) {
-                sectionHeader('PAYROLL LABOR');
-                const colDate = margin + 4;
-                const colWorker = margin + 28;
-                const colHrs = pageWidth - margin - 55;
-                const colRate = pageWidth - margin - 30;
-                const colCost = pageWidth - margin - 4;
-                tableHeader([
-                    { label: 'DATE', x: colDate },
-                    { label: 'WORKER', x: colWorker },
-                    { label: 'HRS', x: colHrs, align: 'right' },
-                    { label: 'RATE', x: colRate, align: 'right' },
-                    { label: 'COST', x: colCost, align: 'right' }
-                ]);
-                laborRows.forEach(r => {
-                    tableRow([
-                        { text: r.date, x: colDate },
-                        { text: r.worker, x: colWorker },
-                        { text: r.hours.toString(), x: colHrs, align: 'right' },
-                        { text: '$' + r.rate.toFixed(0), x: colRate, align: 'right' },
-                        { text: fmtMoney(r.cost), x: colCost, align: 'right' }
-                    ]);
-                });
-                subtotalRow('Payroll Labor Total', payrollLaborTotal);
-            }
-
-            // =====================
-            // SECTION 2: ADDITIONAL LABOR
-            // =====================
-            const addlLabor = currentJob.additionalLabor || [];
-            const addlLaborTotal = addlLabor.reduce((s, i) => s + (i.amount || 0), 0);
-            if (addlLabor.length > 0 && addlLaborTotal > 0) {
-                sectionHeader('ADDITIONAL LABOR');
-                const colDesc = margin + 4;
-                const colAmt = pageWidth - margin - 4;
-                tableHeader([
-                    { label: 'DESCRIPTION', x: colDesc },
-                    { label: 'AMOUNT', x: colAmt, align: 'right' }
-                ]);
-                addlLabor.forEach(item => {
-                    if ((item.amount || 0) > 0) {
-                        tableRow([
-                            { text: item.desc || 'Labor item', x: colDesc },
-                            { text: fmtMoney(item.amount), x: colAmt, align: 'right' }
-                        ]);
-                    }
-                });
-                subtotalRow('Additional Labor Total', addlLaborTotal);
-            }
-
-            // =====================
-            // SECTION 3: PAYROLL MACHINES (itemized)
-            // =====================
-            const eqPrefix = payrollKey + '_eq_';
-            const machineRows = [];
-            let payrollMachinesTotal = 0;
-            weekKeys.forEach(weekKey => {
-                const weekData = allData[weekKey];
-                Object.entries(weekData).forEach(([dayKey, day]) => {
-                    if (typeof day === 'object') {
-                        Object.entries(day).forEach(([inputId, hours]) => {
-                            if (inputId.startsWith(eqPrefix) && hours > 0) {
-                                const machineKey = inputId.split('_eq_')[1];
-                                const machine = machines.find(m => (m.payrollName || m.name).replace(/[^a-zA-Z0-9]/g, '') === machineKey);
-                                const machineName = machine ? (machine.payrollName || machine.name) : machineKey;
-                                const rate = getMachineRate(machineName);
-                                const cost = hours * rate;
-                                payrollMachinesTotal += cost;
-                                const d = new Date(dayKey + 'T00:00:00');
-                                machineRows.push({
-                                    date: d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }),
-                                    machine: machineName,
-                                    hours: hours,
-                                    rate: rate,
-                                    cost: cost
-                                });
-                            }
-                        });
-                    }
-                });
-            });
-
-            if (machineRows.length > 0) {
-                sectionHeader('PAYROLL MACHINES');
-                const colDate = margin + 4;
-                const colMach = margin + 28;
-                const colHrs = pageWidth - margin - 55;
-                const colRate = pageWidth - margin - 30;
-                const colCost = pageWidth - margin - 4;
-                tableHeader([
-                    { label: 'DATE', x: colDate },
-                    { label: 'MACHINE', x: colMach },
-                    { label: 'HRS', x: colHrs, align: 'right' },
-                    { label: 'RATE', x: colRate, align: 'right' },
-                    { label: 'COST', x: colCost, align: 'right' }
-                ]);
-                machineRows.forEach(r => {
-                    tableRow([
-                        { text: r.date, x: colDate },
-                        { text: r.machine, x: colMach },
-                        { text: r.hours.toString(), x: colHrs, align: 'right' },
-                        { text: '$' + r.rate.toFixed(0), x: colRate, align: 'right' },
-                        { text: fmtMoney(r.cost), x: colCost, align: 'right' }
-                    ]);
-                });
-                subtotalRow('Payroll Machines Total', payrollMachinesTotal);
-            }
-
-            // =====================
-            // SECTION 4: ADDITIONAL MACHINES
-            // =====================
-            const addlMachineRows = [];
-            let addlMachinesTotal = 0;
-            machines.forEach(m => {
-                const hours = (currentJob.equipment || {})[m.name] || 0;
-                if (hours > 0) {
-                    const rate = getMachineRate(m.name);
-                    const cost = hours * rate;
-                    addlMachinesTotal += cost;
-                    addlMachineRows.push({ machine: m.name, hours, rate, cost });
-                }
-            });
-            if (addlMachineRows.length > 0) {
-                sectionHeader('ADDITIONAL MACHINES');
-                const colMach = margin + 4;
-                const colHrs = pageWidth - margin - 55;
-                const colRate = pageWidth - margin - 30;
-                const colCost = pageWidth - margin - 4;
-                tableHeader([
-                    { label: 'MACHINE', x: colMach },
-                    { label: 'HRS', x: colHrs, align: 'right' },
-                    { label: 'RATE', x: colRate, align: 'right' },
-                    { label: 'COST', x: colCost, align: 'right' }
-                ]);
-                addlMachineRows.forEach(r => {
-                    tableRow([
-                        { text: r.machine, x: colMach },
-                        { text: r.hours.toString(), x: colHrs, align: 'right' },
-                        { text: '$' + r.rate.toFixed(0) + '/hr', x: colRate, align: 'right' },
-                        { text: fmtMoney(r.cost), x: colCost, align: 'right' }
-                    ]);
-                });
-                subtotalRow('Additional Machines Total', addlMachinesTotal);
-            }
-
-            // =====================
-            // SECTION 5: MATERIALS
-            // =====================
-            const mats = currentJob.materials || [];
-            const matsTotal = mats.reduce((s, i) => s + (i.amount || 0), 0);
-            if (mats.length > 0 && matsTotal > 0) {
-                sectionHeader('MATERIALS');
-                const colDesc = margin + 4;
-                const colAmt = pageWidth - margin - 4;
-                tableHeader([
-                    { label: 'DESCRIPTION', x: colDesc },
-                    { label: 'AMOUNT', x: colAmt, align: 'right' }
-                ]);
-                mats.forEach(item => {
-                    if ((item.amount || 0) > 0) {
-                        tableRow([
-                            { text: item.desc || 'Material item', x: colDesc },
-                            { text: fmtMoney(item.amount), x: colAmt, align: 'right' }
-                        ]);
-                    }
-                });
-                subtotalRow('Materials Total', matsTotal);
-            }
-
-            // =====================
             // COST SUMMARY
-            // =====================
-            const isCash = currentJob.isCash || false;
-            const subtotal1 = payrollLaborTotal + addlLaborTotal + payrollMachinesTotal + addlMachinesTotal + matsTotal;
-            const overheadPct = currentJob.overheadPercent || 18;
-            const overhead = subtotal1 * (overheadPct / 100);
-            const subtotal2 = subtotal1 + overhead;
-            const profitPct = currentJob.profitPercent || 10;
-            const profit = isCash ? 0 : subtotal2 * (profitPct / 100);
-            const subtotal3 = subtotal2 + profit;
-            const taxPct = currentJob.geTaxPercent || 4.712;
-            const tax = isCash ? 0 : subtotal3 * (taxPct / 100);
-            const total = isCash ? subtotal2 : subtotal3 + tax;
-            const totalDraws = (currentJob.draws || []).reduce((sum, d) => sum + (d.amount || 0), 0);
-
-            checkPage(60);
-            y += 3;
             sectionHeader('COST SUMMARY');
             const colLabel = margin + 4;
             const colVal = pageWidth - margin - 4;
 
-            const summaryLines = [
+            [
                 { label: 'Payroll Labor', value: payrollLaborTotal },
                 { label: 'Additional Labor', value: addlLaborTotal },
                 { label: 'Payroll Machines', value: payrollMachinesTotal },
                 { label: 'Additional Machines', value: addlMachinesTotal },
                 { label: 'Materials', value: matsTotal },
-            ];
-            summaryLines.forEach(item => {
+            ].forEach(item => {
                 tableRow([
                     { text: item.label, x: colLabel },
                     { text: fmtMoney(item.value), x: colVal, align: 'right' }
@@ -2481,7 +2370,6 @@
             }
 
             // TOTAL DUE box
-            checkPage(20);
             y += 2;
             doc.setFillColor(...orange);
             doc.roundedRect(margin, y, contentWidth, 14, 2, 2, 'F');
@@ -2492,9 +2380,7 @@
             doc.text(fmtMoney(total), pageWidth - margin - 6, y + 9.5, { align: 'right' });
             y += 20;
 
-            // =====================
-            // DRAWS / PAYMENTS
-            // =====================
+            // PAYMENTS RECEIVED
             const draws = currentJob.draws || [];
             if (draws.length > 0 && totalDraws > 0) {
                 sectionHeader('PAYMENTS RECEIVED');
@@ -2514,27 +2400,10 @@
                 subtotalRow('Total Payments', totalDraws, [234, 179, 8]);
             }
 
-            // REMAINING BALANCE
-            checkPage(20);
-            const remainingBase = (currentJob.jobType === 'contract' && (currentJob.contractAmount || 0) > 0) ? currentJob.contractAmount : total;
-            const remainingBalance = remainingBase - totalDraws;
-            const balColor = remainingBalance >= 0 ? green : [220, 38, 38];
-            doc.setFillColor(...(remainingBalance >= 0 ? [220, 252, 231] : [254, 226, 226]));
-            doc.roundedRect(margin, y, contentWidth, 14, 2, 2, 'F');
-            doc.setDrawColor(...balColor);
-            doc.setLineWidth(0.4);
-            doc.roundedRect(margin, y, contentWidth, 14, 2, 2, 'S');
-            doc.setTextColor(...balColor);
-            doc.setFontSize(11);
-            doc.setFont('helvetica', 'bold');
-            doc.text('REMAINING BALANCE', margin + 6, y + 9.5);
-            doc.text(fmtMoney(remainingBalance), pageWidth - margin - 6, y + 9.5, { align: 'right' });
-            y += 20;
-
-            // SF + Contract Amount line
+            // SF + Contract Amount
             const sf = currentJob.squareFootage || 0;
             if (sf > 0 || (currentJob.jobType === 'contract' && !isCash)) {
-                checkPage(14);
+                y += 4;
                 if (sf > 0) {
                     doc.setTextColor(...lightGray);
                     doc.setFontSize(7);
@@ -2566,27 +2435,143 @@
                 y += 14;
             }
 
-            // =====================
-            // NOTES
-            // =====================
-            const payrollKeyPdf = payrollKey;
-            const notesForJob = [];
-            if (allData._notes) {
-                Object.keys(allData._notes).sort().forEach(wk => {
-                    const weekNotes = allData._notes[wk];
-                    if (!weekNotes) return;
-                    Object.keys(weekNotes).sort().forEach(dk => {
-                        const dayNotes = weekNotes[dk];
-                        if (dayNotes && dayNotes[payrollKeyPdf]) {
-                            const d = new Date(dk + 'T00:00:00');
-                            notesForJob.push({
-                                date: d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }),
-                                text: dayNotes[payrollKeyPdf]
-                            });
-                        }
-                    });
+            // ===========================
+            // PAGE 2+: ITEMIZED DETAIL
+            // ===========================
+            doc.addPage();
+            y = margin;
+
+            // Small repeat header
+            doc.setFillColor(...orange);
+            doc.rect(0, 0, pageWidth, 14, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.text("SPENCER'S MASONRY INC.", margin, 10);
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            doc.text((currentJob.name || 'Job') + ' — Itemized Detail', pageWidth - margin, 10, { align: 'right' });
+            y = 22;
+
+            // PAYROLL LABOR
+            if (laborRows.length > 0) {
+                sectionHeader('PAYROLL LABOR');
+                const colDate = margin + 4;
+                const colWorker = margin + 28;
+                const colHrs = pageWidth - margin - 55;
+                const colRate = pageWidth - margin - 30;
+                const colCost = pageWidth - margin - 4;
+                tableHeader([
+                    { label: 'DATE', x: colDate },
+                    { label: 'WORKER', x: colWorker },
+                    { label: 'HRS', x: colHrs, align: 'right' },
+                    { label: 'RATE', x: colRate, align: 'right' },
+                    { label: 'COST', x: colCost, align: 'right' }
+                ]);
+                laborRows.forEach(r => {
+                    tableRow([
+                        { text: r.date, x: colDate },
+                        { text: r.worker, x: colWorker },
+                        { text: r.hours.toString(), x: colHrs, align: 'right' },
+                        { text: '$' + r.rate.toFixed(0), x: colRate, align: 'right' },
+                        { text: fmtMoney(r.cost), x: colCost, align: 'right' }
+                    ]);
                 });
+                subtotalRow('Payroll Labor Total', payrollLaborTotal);
             }
+
+            // ADDITIONAL LABOR
+            if (addlLabor.length > 0 && addlLaborTotal > 0) {
+                sectionHeader('ADDITIONAL LABOR');
+                const colDesc = margin + 4;
+                const colAmt = pageWidth - margin - 4;
+                tableHeader([
+                    { label: 'DESCRIPTION', x: colDesc },
+                    { label: 'AMOUNT', x: colAmt, align: 'right' }
+                ]);
+                addlLabor.forEach(item => {
+                    if ((item.amount || 0) > 0) {
+                        tableRow([
+                            { text: item.desc || 'Labor item', x: colDesc },
+                            { text: fmtMoney(item.amount), x: colAmt, align: 'right' }
+                        ]);
+                    }
+                });
+                subtotalRow('Additional Labor Total', addlLaborTotal);
+            }
+
+            // PAYROLL MACHINES
+            if (machineRows.length > 0) {
+                sectionHeader('PAYROLL MACHINES');
+                const colDate = margin + 4;
+                const colMach = margin + 28;
+                const colHrs = pageWidth - margin - 55;
+                const colRate = pageWidth - margin - 30;
+                const colCost = pageWidth - margin - 4;
+                tableHeader([
+                    { label: 'DATE', x: colDate },
+                    { label: 'MACHINE', x: colMach },
+                    { label: 'HRS', x: colHrs, align: 'right' },
+                    { label: 'RATE', x: colRate, align: 'right' },
+                    { label: 'COST', x: colCost, align: 'right' }
+                ]);
+                machineRows.forEach(r => {
+                    tableRow([
+                        { text: r.date, x: colDate },
+                        { text: r.machine, x: colMach },
+                        { text: r.hours.toString(), x: colHrs, align: 'right' },
+                        { text: '$' + r.rate.toFixed(0), x: colRate, align: 'right' },
+                        { text: fmtMoney(r.cost), x: colCost, align: 'right' }
+                    ]);
+                });
+                subtotalRow('Payroll Machines Total', payrollMachinesTotal);
+            }
+
+            // ADDITIONAL MACHINES
+            if (addlMachineRows.length > 0) {
+                sectionHeader('ADDITIONAL MACHINES');
+                const colMach = margin + 4;
+                const colHrs = pageWidth - margin - 55;
+                const colRate = pageWidth - margin - 30;
+                const colCost = pageWidth - margin - 4;
+                tableHeader([
+                    { label: 'MACHINE', x: colMach },
+                    { label: 'HRS', x: colHrs, align: 'right' },
+                    { label: 'RATE', x: colRate, align: 'right' },
+                    { label: 'COST', x: colCost, align: 'right' }
+                ]);
+                addlMachineRows.forEach(r => {
+                    tableRow([
+                        { text: r.machine, x: colMach },
+                        { text: r.hours.toString(), x: colHrs, align: 'right' },
+                        { text: '$' + r.rate.toFixed(0) + '/hr', x: colRate, align: 'right' },
+                        { text: fmtMoney(r.cost), x: colCost, align: 'right' }
+                    ]);
+                });
+                subtotalRow('Additional Machines Total', addlMachinesTotal);
+            }
+
+            // MATERIALS
+            if (mats.length > 0 && matsTotal > 0) {
+                sectionHeader('MATERIALS');
+                const colDesc = margin + 4;
+                const colAmt = pageWidth - margin - 4;
+                tableHeader([
+                    { label: 'DESCRIPTION', x: colDesc },
+                    { label: 'AMOUNT', x: colAmt, align: 'right' }
+                ]);
+                mats.forEach(item => {
+                    if ((item.amount || 0) > 0) {
+                        tableRow([
+                            { text: item.desc || 'Material item', x: colDesc },
+                            { text: fmtMoney(item.amount), x: colAmt, align: 'right' }
+                        ]);
+                    }
+                });
+                subtotalRow('Materials Total', matsTotal);
+            }
+
+            // JOB NOTES
             if (notesForJob.length > 0) {
                 sectionHeader('JOB NOTES');
                 doc.setFontSize(8);
@@ -2604,9 +2589,9 @@
                 });
             }
 
-            // =====================
+            // ===========================
             // FOOTER on every page
-            // =====================
+            // ===========================
             const totalPages = doc.internal.getNumberOfPages();
             for (let p = 1; p <= totalPages; p++) {
                 doc.setPage(p);
