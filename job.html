@@ -2111,226 +2111,515 @@
             const doc = new jsPDF();
             const pageWidth = doc.internal.pageSize.getWidth();
             const pageHeight = doc.internal.pageSize.getHeight();
-            const margin = 20;
+            const margin = 15;
             const contentWidth = pageWidth - (margin * 2);
             const orange = [249, 115, 22];
             const darkGray = [45, 45, 45];
             const lightGray = [150, 150, 150];
             const green = [22, 163, 74];
+            const footerY = pageHeight - 12;
 
-            let y = margin;
+            let y = 0;
+
+            function checkPage(needed) {
+                if (y + needed > footerY - 5) {
+                    doc.addPage();
+                    y = margin;
+                }
+            }
+
+            function sectionHeader(title) {
+                checkPage(20);
+                doc.setFillColor(...orange);
+                doc.rect(margin, y, contentWidth, 7, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(9);
+                doc.setFont('helvetica', 'bold');
+                doc.text(title, margin + 4, y + 5.2);
+                y += 11;
+            }
+
+            function tableHeader(cols) {
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, y - 4, contentWidth, 7, 'F');
+                doc.setTextColor(...lightGray);
+                doc.setFontSize(7);
+                doc.setFont('helvetica', 'bold');
+                cols.forEach(c => {
+                    if (c.align === 'right') doc.text(c.label, c.x, y, { align: 'right' });
+                    else doc.text(c.label, c.x, y);
+                });
+                y += 5;
+            }
+
+            function tableRow(cols, bold) {
+                checkPage(7);
+                doc.setTextColor(...darkGray);
+                doc.setFontSize(8);
+                doc.setFont('helvetica', bold ? 'bold' : 'normal');
+                cols.forEach(c => {
+                    if (c.align === 'right') doc.text(c.text, c.x, y, { align: 'right' });
+                    else doc.text(c.text, c.x, y);
+                });
+                y += 5;
+            }
+
+            function subtotalRow(label, value, color) {
+                checkPage(9);
+                doc.setFillColor(245, 245, 245);
+                doc.rect(margin, y - 4, contentWidth, 7, 'F');
+                doc.setTextColor(...(color || darkGray));
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'bold');
+                doc.text(label, margin + 4, y);
+                doc.text(fmtMoney(value), pageWidth - margin - 4, y, { align: 'right' });
+                y += 8;
+            }
+
+            // =====================
+            // PAGE 1: HEADER
+            // =====================
             doc.setFillColor(...orange);
-            doc.rect(0, 0, pageWidth, 40, 'F');
+            doc.rect(0, 0, pageWidth, 32, 'F');
             doc.setTextColor(255, 255, 255);
-            doc.setFontSize(24);
-            doc.setFont('helvetica', 'bold');
-            doc.text("SPENCER'S MASONRY INC.", margin, 25);
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'normal');
-            doc.text("Job Invoice", pageWidth - margin - 30, 25);
-            y = 55;
-            doc.setTextColor(...darkGray);
             doc.setFontSize(18);
             doc.setFont('helvetica', 'bold');
-            doc.text(currentJob.name || 'Untitled Job', margin, y);
-            y += 10;
+            doc.text("SPENCER'S MASONRY INC.", margin, 15);
             doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.text("Job Invoice", margin, 24);
+            doc.setFontSize(8);
+            doc.text(new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }), pageWidth - margin, 24, { align: 'right' });
+            y = 40;
+
+            // Job info block
+            doc.setTextColor(...darkGray);
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text(currentJob.name || 'Untitled Job', margin, y);
+            y += 6;
+            doc.setFontSize(8);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(...lightGray);
             const jobType = (currentJob.jobType || 'hourly').toUpperCase() + (currentJob.isCash ? ' • CASH' : '');
             doc.text(`${jobType} • ${formatStatus(currentJob.status || 'active')}`, margin, y);
-            y += 15;
+            y += 8;
+
+            // Client / Address / Start Date
             doc.setFillColor(245, 245, 245);
-            doc.roundedRect(margin, y, contentWidth, 35, 3, 3, 'F');
+            doc.roundedRect(margin, y, contentWidth, 22, 2, 2, 'F');
             doc.setTextColor(...darkGray);
-            doc.setFontSize(9);
+            doc.setFontSize(7);
             doc.setFont('helvetica', 'bold');
-            doc.text('CLIENT', margin + 8, y + 10);
-            doc.text('ADDRESS', margin + 8, y + 25);
+            doc.text('CLIENT', margin + 4, y + 6);
+            doc.text('ADDRESS', margin + 4, y + 15);
             doc.setFont('helvetica', 'normal');
-            doc.text(currentJob.client || 'N/A', margin + 50, y + 10);
-            doc.text(currentJob.address || 'N/A', margin + 50, y + 25);
+            doc.setFontSize(8);
+            doc.text(currentJob.client || 'N/A', margin + 30, y + 6);
+            doc.text(currentJob.address || 'N/A', margin + 30, y + 15);
             if (currentJob.startDate) {
                 doc.setFont('helvetica', 'bold');
-                doc.text('START DATE', contentWidth - 30, y + 10);
+                doc.setFontSize(7);
+                doc.text('START DATE', pageWidth - margin - 45, y + 6);
                 doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8);
                 const startDate = new Date(currentJob.startDate + 'T00:00:00');
-                doc.text(startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), contentWidth - 30, y + 20);
+                doc.text(startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), pageWidth - margin - 45, y + 15);
             }
-            y += 50;
-            doc.setFillColor(...orange);
-            doc.rect(margin, y, contentWidth, 8, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'bold');
-            doc.text('COST BREAKDOWN', margin + 5, y + 6);
-            y += 15;
+            y += 30;
+
+            // =====================
+            // SECTION 1: PAYROLL LABOR (itemized)
+            // =====================
+            const payrollName = currentJob.payrollName || currentJob.name;
+            const payrollKey = payrollName.replace(/[^a-zA-Z]/g, '');
+            const laborRows = [];
+            let payrollLaborTotal = 0;
+            const weekKeys = Object.keys(allData).filter(k => k.match(/^\d{4}-\d{2}-\d{2}$/) && k !== 'jobs').sort();
+            weekKeys.forEach(weekKey => {
+                const weekData = allData[weekKey];
+                Object.entries(weekData).forEach(([dayKey, day]) => {
+                    if (typeof day === 'object') {
+                        Object.entries(day).forEach(([inputId, hours]) => {
+                            if (inputId.startsWith(payrollKey + '_') && !inputId.includes('_eq_') && hours > 0) {
+                                const workerName = inputId.split('_').pop();
+                                const rate = getWorkerRate(workerName);
+                                const cost = hours * rate;
+                                payrollLaborTotal += cost;
+                                const d = new Date(dayKey + 'T00:00:00');
+                                laborRows.push({
+                                    date: d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }),
+                                    worker: workerName,
+                                    hours: hours,
+                                    rate: rate,
+                                    cost: cost
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+            if (laborRows.length > 0) {
+                sectionHeader('PAYROLL LABOR');
+                const colDate = margin + 4;
+                const colWorker = margin + 28;
+                const colHrs = pageWidth - margin - 55;
+                const colRate = pageWidth - margin - 30;
+                const colCost = pageWidth - margin - 4;
+                tableHeader([
+                    { label: 'DATE', x: colDate },
+                    { label: 'WORKER', x: colWorker },
+                    { label: 'HRS', x: colHrs, align: 'right' },
+                    { label: 'RATE', x: colRate, align: 'right' },
+                    { label: 'COST', x: colCost, align: 'right' }
+                ]);
+                laborRows.forEach(r => {
+                    tableRow([
+                        { text: r.date, x: colDate },
+                        { text: r.worker, x: colWorker },
+                        { text: r.hours.toString(), x: colHrs, align: 'right' },
+                        { text: '$' + r.rate.toFixed(0), x: colRate, align: 'right' },
+                        { text: fmtMoney(r.cost), x: colCost, align: 'right' }
+                    ]);
+                });
+                subtotalRow('Payroll Labor Total', payrollLaborTotal);
+            }
+
+            // =====================
+            // SECTION 2: ADDITIONAL LABOR
+            // =====================
+            const addlLabor = currentJob.additionalLabor || [];
+            const addlLaborTotal = addlLabor.reduce((s, i) => s + (i.amount || 0), 0);
+            if (addlLabor.length > 0 && addlLaborTotal > 0) {
+                sectionHeader('ADDITIONAL LABOR');
+                const colDesc = margin + 4;
+                const colAmt = pageWidth - margin - 4;
+                tableHeader([
+                    { label: 'DESCRIPTION', x: colDesc },
+                    { label: 'AMOUNT', x: colAmt, align: 'right' }
+                ]);
+                addlLabor.forEach(item => {
+                    if ((item.amount || 0) > 0) {
+                        tableRow([
+                            { text: item.desc || 'Labor item', x: colDesc },
+                            { text: fmtMoney(item.amount), x: colAmt, align: 'right' }
+                        ]);
+                    }
+                });
+                subtotalRow('Additional Labor Total', addlLaborTotal);
+            }
+
+            // =====================
+            // SECTION 3: PAYROLL MACHINES (itemized)
+            // =====================
+            const eqPrefix = payrollKey + '_eq_';
+            const machineRows = [];
+            let payrollMachinesTotal = 0;
+            weekKeys.forEach(weekKey => {
+                const weekData = allData[weekKey];
+                Object.entries(weekData).forEach(([dayKey, day]) => {
+                    if (typeof day === 'object') {
+                        Object.entries(day).forEach(([inputId, hours]) => {
+                            if (inputId.startsWith(eqPrefix) && hours > 0) {
+                                const machineKey = inputId.split('_eq_')[1];
+                                const machine = machines.find(m => (m.payrollName || m.name).replace(/[^a-zA-Z0-9]/g, '') === machineKey);
+                                const machineName = machine ? (machine.payrollName || machine.name) : machineKey;
+                                const rate = getMachineRate(machineName);
+                                const cost = hours * rate;
+                                payrollMachinesTotal += cost;
+                                const d = new Date(dayKey + 'T00:00:00');
+                                machineRows.push({
+                                    date: d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }),
+                                    machine: machineName,
+                                    hours: hours,
+                                    rate: rate,
+                                    cost: cost
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+            if (machineRows.length > 0) {
+                sectionHeader('PAYROLL MACHINES');
+                const colDate = margin + 4;
+                const colMach = margin + 28;
+                const colHrs = pageWidth - margin - 55;
+                const colRate = pageWidth - margin - 30;
+                const colCost = pageWidth - margin - 4;
+                tableHeader([
+                    { label: 'DATE', x: colDate },
+                    { label: 'MACHINE', x: colMach },
+                    { label: 'HRS', x: colHrs, align: 'right' },
+                    { label: 'RATE', x: colRate, align: 'right' },
+                    { label: 'COST', x: colCost, align: 'right' }
+                ]);
+                machineRows.forEach(r => {
+                    tableRow([
+                        { text: r.date, x: colDate },
+                        { text: r.machine, x: colMach },
+                        { text: r.hours.toString(), x: colHrs, align: 'right' },
+                        { text: '$' + r.rate.toFixed(0), x: colRate, align: 'right' },
+                        { text: fmtMoney(r.cost), x: colCost, align: 'right' }
+                    ]);
+                });
+                subtotalRow('Payroll Machines Total', payrollMachinesTotal);
+            }
+
+            // =====================
+            // SECTION 4: ADDITIONAL MACHINES
+            // =====================
+            const addlMachineRows = [];
+            let addlMachinesTotal = 0;
+            machines.forEach(m => {
+                const hours = (currentJob.equipment || {})[m.name] || 0;
+                if (hours > 0) {
+                    const rate = getMachineRate(m.name);
+                    const cost = hours * rate;
+                    addlMachinesTotal += cost;
+                    addlMachineRows.push({ machine: m.name, hours, rate, cost });
+                }
+            });
+            if (addlMachineRows.length > 0) {
+                sectionHeader('ADDITIONAL MACHINES');
+                const colMach = margin + 4;
+                const colHrs = pageWidth - margin - 55;
+                const colRate = pageWidth - margin - 30;
+                const colCost = pageWidth - margin - 4;
+                tableHeader([
+                    { label: 'MACHINE', x: colMach },
+                    { label: 'HRS', x: colHrs, align: 'right' },
+                    { label: 'RATE', x: colRate, align: 'right' },
+                    { label: 'COST', x: colCost, align: 'right' }
+                ]);
+                addlMachineRows.forEach(r => {
+                    tableRow([
+                        { text: r.machine, x: colMach },
+                        { text: r.hours.toString(), x: colHrs, align: 'right' },
+                        { text: '$' + r.rate.toFixed(0) + '/hr', x: colRate, align: 'right' },
+                        { text: fmtMoney(r.cost), x: colCost, align: 'right' }
+                    ]);
+                });
+                subtotalRow('Additional Machines Total', addlMachinesTotal);
+            }
+
+            // =====================
+            // SECTION 5: MATERIALS
+            // =====================
+            const mats = currentJob.materials || [];
+            const matsTotal = mats.reduce((s, i) => s + (i.amount || 0), 0);
+            if (mats.length > 0 && matsTotal > 0) {
+                sectionHeader('MATERIALS');
+                const colDesc = margin + 4;
+                const colAmt = pageWidth - margin - 4;
+                tableHeader([
+                    { label: 'DESCRIPTION', x: colDesc },
+                    { label: 'AMOUNT', x: colAmt, align: 'right' }
+                ]);
+                mats.forEach(item => {
+                    if ((item.amount || 0) > 0) {
+                        tableRow([
+                            { text: item.desc || 'Material item', x: colDesc },
+                            { text: fmtMoney(item.amount), x: colAmt, align: 'right' }
+                        ]);
+                    }
+                });
+                subtotalRow('Materials Total', matsTotal);
+            }
+
+            // =====================
+            // COST SUMMARY
+            // =====================
             const isCash = currentJob.isCash || false;
-            const payrollLabor = calculatePayrollLabor();
-            const additionalLabor = (currentJob.additionalLabor || []).reduce((sum, i) => sum + (i.amount || 0), 0);
-            const payrollMachinesTotal = calculatePayrollMachines();
-            const additionalMachinesTotal = calculateEquipmentTotal();
-            const materialsTotal = (currentJob.materials || []).reduce((sum, i) => sum + (i.amount || 0), 0);
-            const subtotal1 = payrollLabor + additionalLabor + payrollMachinesTotal + additionalMachinesTotal + materialsTotal;
-            const overhead = subtotal1 * ((currentJob.overheadPercent || 18) / 100);
+            const subtotal1 = payrollLaborTotal + addlLaborTotal + payrollMachinesTotal + addlMachinesTotal + matsTotal;
+            const overheadPct = currentJob.overheadPercent || 18;
+            const overhead = subtotal1 * (overheadPct / 100);
             const subtotal2 = subtotal1 + overhead;
-            const profit = isCash ? 0 : subtotal2 * ((currentJob.profitPercent || 10) / 100);
+            const profitPct = currentJob.profitPercent || 10;
+            const profit = isCash ? 0 : subtotal2 * (profitPct / 100);
             const subtotal3 = subtotal2 + profit;
-            const tax = isCash ? 0 : subtotal3 * ((currentJob.geTaxPercent || 4.712) / 100);
+            const taxPct = currentJob.geTaxPercent || 4.712;
+            const tax = isCash ? 0 : subtotal3 * (taxPct / 100);
             const total = isCash ? subtotal2 : subtotal3 + tax;
             const totalDraws = (currentJob.draws || []).reduce((sum, d) => sum + (d.amount || 0), 0);
-            const lineItems = [
-                { label: 'Payroll Labor', value: payrollLabor },
-                { label: 'Additional Labor', value: additionalLabor },
+
+            checkPage(60);
+            y += 3;
+            sectionHeader('COST SUMMARY');
+            const colLabel = margin + 4;
+            const colVal = pageWidth - margin - 4;
+
+            const summaryLines = [
+                { label: 'Payroll Labor', value: payrollLaborTotal },
+                { label: 'Additional Labor', value: addlLaborTotal },
                 { label: 'Payroll Machines', value: payrollMachinesTotal },
-                { label: 'Additional Machines', value: additionalMachinesTotal },
-                { label: 'Materials', value: materialsTotal },
-                { label: 'Subtotal', value: subtotal1, bold: true },
-                { label: `Overhead (${currentJob.overheadPercent || 18}%)`, value: overhead },
+                { label: 'Additional Machines', value: addlMachinesTotal },
+                { label: 'Materials', value: matsTotal },
             ];
-            if (!isCash) {
-                lineItems.push({ label: `Profit (${currentJob.profitPercent || 10}%)`, value: profit });
-                lineItems.push({ label: `GE Tax (${currentJob.geTaxPercent || 4.712}%)`, value: tax });
-            }
-            doc.setTextColor(...darkGray);
-            lineItems.forEach(item => {
-                if (item.bold) {
-                    doc.setFillColor(240, 240, 240);
-                    doc.rect(margin, y - 4, contentWidth, 8, 'F');
-                    doc.setFont('helvetica', 'bold');
-                } else {
-                    doc.setFont('helvetica', 'normal');
-                }
-                doc.setFontSize(10);
-                doc.text(item.label, margin + 5, y);
-                doc.text(fmtMoney(item.value), pageWidth - margin - 5, y, { align: 'right' });
-                y += 8;
+            summaryLines.forEach(item => {
+                tableRow([
+                    { text: item.label, x: colLabel },
+                    { text: fmtMoney(item.value), x: colVal, align: 'right' }
+                ]);
             });
-            y += 5;
+            subtotalRow('Subtotal', subtotal1);
+            tableRow([
+                { text: `Overhead (${overheadPct}%)`, x: colLabel },
+                { text: fmtMoney(overhead), x: colVal, align: 'right' }
+            ]);
+            if (!isCash) {
+                tableRow([
+                    { text: `Profit (${profitPct}%)`, x: colLabel },
+                    { text: fmtMoney(profit), x: colVal, align: 'right' }
+                ]);
+                tableRow([
+                    { text: `GE Tax (${taxPct}%)`, x: colLabel },
+                    { text: fmtMoney(tax), x: colVal, align: 'right' }
+                ]);
+            }
+
+            // TOTAL DUE box
+            checkPage(20);
+            y += 2;
             doc.setFillColor(...orange);
-            doc.roundedRect(margin, y, contentWidth, 18, 3, 3, 'F');
+            doc.roundedRect(margin, y, contentWidth, 14, 2, 2, 'F');
             doc.setTextColor(255, 255, 255);
-            doc.setFontSize(14);
+            doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
-            doc.text('TOTAL DUE', margin + 8, y + 12);
-            doc.text(fmtMoney(total), pageWidth - margin - 8, y + 12, { align: 'right' });
-            y += 25;
-            doc.setFillColor(245, 245, 245);
-            doc.roundedRect(margin, y, contentWidth, 14, 3, 3, 'F');
-            doc.setTextColor(...darkGray);
-            doc.setFontSize(11);
-            doc.setFont('helvetica', 'normal');
-            doc.text('Payments Made', margin + 8, y + 10);
-            doc.setTextColor(234, 179, 8);
-            doc.setFont('helvetica', 'bold');
-            doc.text(fmtMoney(totalDraws), pageWidth - margin - 8, y + 10, { align: 'right' });
-            y += 18;
+            doc.text('TOTAL DUE', margin + 6, y + 9.5);
+            doc.text(fmtMoney(total), pageWidth - margin - 6, y + 9.5, { align: 'right' });
+            y += 20;
+
+            // =====================
+            // DRAWS / PAYMENTS
+            // =====================
+            const draws = currentJob.draws || [];
+            if (draws.length > 0 && totalDraws > 0) {
+                sectionHeader('PAYMENTS RECEIVED');
+                const colDate = margin + 4;
+                const colAmt = pageWidth - margin - 4;
+                tableHeader([
+                    { label: 'DATE', x: colDate },
+                    { label: 'AMOUNT', x: colAmt, align: 'right' }
+                ]);
+                draws.filter(d => (d.amount || 0) > 0).sort((a, b) => (a.date || '').localeCompare(b.date || '')).forEach(d => {
+                    const dt = d.date ? new Date(d.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }) : 'N/A';
+                    tableRow([
+                        { text: dt, x: colDate },
+                        { text: fmtMoney(d.amount), x: colAmt, align: 'right' }
+                    ]);
+                });
+                subtotalRow('Total Payments', totalDraws, [234, 179, 8]);
+            }
+
+            // REMAINING BALANCE
+            checkPage(20);
             const remainingBase = (currentJob.jobType === 'contract' && (currentJob.contractAmount || 0) > 0) ? currentJob.contractAmount : total;
             const remainingBalance = remainingBase - totalDraws;
-            const balColor = remainingBalance >= 0 ? [22, 163, 74] : [220, 38, 38];
+            const balColor = remainingBalance >= 0 ? green : [220, 38, 38];
             doc.setFillColor(...(remainingBalance >= 0 ? [220, 252, 231] : [254, 226, 226]));
-            doc.roundedRect(margin, y, contentWidth, 18, 3, 3, 'F');
+            doc.roundedRect(margin, y, contentWidth, 14, 2, 2, 'F');
             doc.setDrawColor(...balColor);
-            doc.setLineWidth(0.5);
-            doc.roundedRect(margin, y, contentWidth, 18, 3, 3, 'S');
+            doc.setLineWidth(0.4);
+            doc.roundedRect(margin, y, contentWidth, 14, 2, 2, 'S');
             doc.setTextColor(...balColor);
-            doc.setFontSize(13);
+            doc.setFontSize(11);
             doc.setFont('helvetica', 'bold');
-            doc.text('REMAINING BALANCE', margin + 8, y + 12);
-            doc.text(fmtMoney(remainingBalance), pageWidth - margin - 8, y + 12, { align: 'right' });
-            y += 25;
+            doc.text('REMAINING BALANCE', margin + 6, y + 9.5);
+            doc.text(fmtMoney(remainingBalance), pageWidth - margin - 6, y + 9.5, { align: 'right' });
+            y += 20;
+
+            // SF + Contract Amount line
             const sf = currentJob.squareFootage || 0;
-            if (sf > 0) {
-                doc.setTextColor(...lightGray);
-                doc.setFontSize(8);
-                doc.setFont('helvetica', 'normal');
-                doc.text('SQUARE FOOTAGE', margin, y);
-                doc.setTextColor(...darkGray);
-                doc.setFontSize(12);
-                doc.setFont('helvetica', 'bold');
-                doc.text(sf.toLocaleString() + ' SF', margin, y + 8);
-                doc.setTextColor(...lightGray);
-                doc.setFontSize(8);
-                doc.setFont('helvetica', 'normal');
-                doc.text('COST PER SF', margin + 60, y);
-                doc.setTextColor(...green);
-                doc.setFontSize(12);
-                doc.setFont('helvetica', 'bold');
-                doc.text('$' + (total / sf).toFixed(2), margin + 60, y + 8);
+            if (sf > 0 || (currentJob.jobType === 'contract' && !isCash)) {
+                checkPage(14);
+                if (sf > 0) {
+                    doc.setTextColor(...lightGray);
+                    doc.setFontSize(7);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text('SQUARE FOOTAGE', margin, y);
+                    doc.setTextColor(...darkGray);
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(sf.toLocaleString() + ' SF', margin, y + 6);
+                    doc.setTextColor(...lightGray);
+                    doc.setFontSize(7);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text('COST PER SF', margin + 50, y);
+                    doc.setTextColor(...green);
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('$' + (total / sf).toFixed(2), margin + 50, y + 6);
+                }
+                if (currentJob.jobType === 'contract' && !isCash) {
+                    doc.setTextColor(...lightGray);
+                    doc.setFontSize(7);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text('CONTRACT AMOUNT', pageWidth - margin - 50, y);
+                    doc.setTextColor(167, 139, 250);
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(fmtMoney(currentJob.contractAmount || 0), pageWidth - margin - 50, y + 6);
+                }
+                y += 14;
             }
-            if (currentJob.jobType === 'contract' && !isCash) {
-                doc.setTextColor(...lightGray);
-                doc.setFontSize(8);
-                doc.setFont('helvetica', 'normal');
-                doc.text('CONTRACT AMOUNT', pageWidth - margin - 60, y);
-                doc.setTextColor(167, 139, 250);
-                doc.setFontSize(12);
-                doc.setFont('helvetica', 'bold');
-                doc.text(fmtMoney(currentJob.contractAmount || 0), pageWidth - margin - 60, y + 8);
-            }
-            // === NOTES SECTION ===
-            const payrollNamePdf = currentJob.payrollName || currentJob.name;
-            const payrollKeyPdf = payrollNamePdf.replace(/[^a-zA-Z]/g, '');
+
+            // =====================
+            // NOTES
+            // =====================
+            const payrollKeyPdf = payrollKey;
             const notesForJob = [];
             if (allData._notes) {
-                const weekKeys = Object.keys(allData._notes).sort();
-                weekKeys.forEach(weekKey => {
-                    const weekNotes = allData._notes[weekKey];
+                Object.keys(allData._notes).sort().forEach(wk => {
+                    const weekNotes = allData._notes[wk];
                     if (!weekNotes) return;
-                    const dayKeys = Object.keys(weekNotes).sort();
-                    dayKeys.forEach(dayKey => {
-                        const dayNotes = weekNotes[dayKey];
+                    Object.keys(weekNotes).sort().forEach(dk => {
+                        const dayNotes = weekNotes[dk];
                         if (dayNotes && dayNotes[payrollKeyPdf]) {
-                            const d = new Date(dayKey + 'T00:00:00');
-                            const dateStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-                            notesForJob.push({ date: dateStr, text: dayNotes[payrollKeyPdf] });
+                            const d = new Date(dk + 'T00:00:00');
+                            notesForJob.push({
+                                date: d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }),
+                                text: dayNotes[payrollKeyPdf]
+                            });
                         }
                     });
                 });
             }
             if (notesForJob.length > 0) {
-                y += 5;
-                // Check if we need a new page
-                if (y + 25 + (notesForJob.length * 14) > pageHeight - 25) {
-                    doc.addPage();
-                    y = margin;
-                }
-                doc.setFillColor(...orange);
-                doc.rect(margin, y, contentWidth, 8, 'F');
-                doc.setTextColor(255, 255, 255);
-                doc.setFontSize(10);
-                doc.setFont('helvetica', 'bold');
-                doc.text('JOB NOTES', margin + 5, y + 6);
-                y += 15;
-                doc.setFontSize(9);
+                sectionHeader('JOB NOTES');
+                doc.setFontSize(8);
                 notesForJob.forEach(note => {
-                    // Check for page overflow per note
-                    const noteLines = doc.splitTextToSize(note.text, contentWidth - 70);
-                    const noteHeight = noteLines.length * 5 + 6;
-                    if (y + noteHeight > pageHeight - 25) {
-                        doc.addPage();
-                        y = margin;
-                    }
+                    const noteLines = doc.splitTextToSize(note.text, contentWidth - 35);
+                    const noteHeight = noteLines.length * 4.5 + 4;
+                    checkPage(noteHeight);
                     doc.setTextColor(...orange);
                     doc.setFont('helvetica', 'bold');
-                    doc.text(note.date, margin + 5, y);
+                    doc.text(note.date, margin + 4, y);
                     doc.setTextColor(...darkGray);
                     doc.setFont('helvetica', 'normal');
-                    doc.text(noteLines, margin + 55, y);
+                    doc.text(noteLines, margin + 30, y);
                     y += noteHeight;
                 });
             }
 
-            // === FOOTER ===
+            // =====================
+            // FOOTER on every page
+            // =====================
             const totalPages = doc.internal.getNumberOfPages();
             for (let p = 1; p <= totalPages; p++) {
                 doc.setPage(p);
+                doc.setDrawColor(220, 220, 220);
+                doc.setLineWidth(0.3);
+                doc.line(margin, footerY - 3, pageWidth - margin, footerY - 3);
                 doc.setTextColor(...lightGray);
-                doc.setFontSize(8);
+                doc.setFontSize(7);
                 doc.setFont('helvetica', 'normal');
-                doc.text('Generated on ' + new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }), margin, pageHeight - 15);
-                doc.text(`Page ${p} of ${totalPages}`, pageWidth - margin, pageHeight - 15, { align: 'right' });
+                doc.text("Spencer's Masonry Inc.", margin, footerY);
+                doc.text(`Page ${p} of ${totalPages}`, pageWidth - margin, footerY, { align: 'right' });
             }
+
             const fileName = (currentJob.name || 'job').replace(/[^a-zA-Z0-9]/g, '_') + '_invoice.pdf';
             doc.save(fileName);
             showToast('Invoice created!');
