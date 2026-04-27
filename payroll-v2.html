@@ -433,6 +433,15 @@
         }
         .ts-table thead th .rate.hidden { display: none; }
 
+        /* Pour / Absent status on employee column headers */
+        .ts-table thead th.emp-col { cursor: pointer; user-select: none; transition: background 0.15s, color 0.15s; position: relative; }
+        .ts-table thead th.emp-col:hover { background: var(--bg-secondary); }
+        .ts-table thead th.emp-col .status-dot { display: none; width: 7px; height: 7px; border-radius: 50%; margin: 3px auto 0; }
+        .ts-table thead th.emp-col.pour { color: #3b82f6; }
+        .ts-table thead th.emp-col.pour .status-dot { display: block; background: #3b82f6; }
+        .ts-table thead th.emp-col.absent { color: #ef4444; }
+        .ts-table thead th.emp-col.absent .status-dot { display: block; background: #ef4444; }
+
         /* All job-name cells — sticky left */
         .ts-table tbody td.job-cell {
             position: sticky;
@@ -1283,6 +1292,78 @@
         }
 
         // ============================================
+        // EMPLOYEE STATUS (Pour / Absent) per day
+        // ============================================
+        // Stored in allData._empStatus[weekKey][dayKey] = { 'Dave': 'pour', 'Ian': 'absent' }
+        function getEmpStatusMap() {
+            const weekKey = getWeekKey(currentWeekStart);
+            const days = getWeekDays(currentWeekStart);
+            const day = days[selectedDayIndex];
+            if (allData._empStatus && allData._empStatus[weekKey] && allData._empStatus[weekKey][day.key]) {
+                return allData._empStatus[weekKey][day.key];
+            }
+            return {};
+        }
+
+        function cycleEmpStatus(empName) {
+            const weekKey = getWeekKey(currentWeekStart);
+            const days = getWeekDays(currentWeekStart);
+            const day = days[selectedDayIndex];
+
+            if (!allData._empStatus) allData._empStatus = {};
+            if (!allData._empStatus[weekKey]) allData._empStatus[weekKey] = {};
+            if (!allData._empStatus[weekKey][day.key]) allData._empStatus[weekKey][day.key] = {};
+
+            const current = allData._empStatus[weekKey][day.key][empName] || 'normal';
+            let next;
+            if (current === 'normal') next = 'pour';
+            else if (current === 'pour') next = 'absent';
+            else next = 'normal';
+
+            if (next === 'normal') {
+                delete allData._empStatus[weekKey][day.key][empName];
+            } else {
+                allData._empStatus[weekKey][day.key][empName] = next;
+            }
+
+            applyEmpStatusStyles();
+            updateEmployeeSummary();
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => saveAllData(), 500);
+        }
+
+        function applyEmpStatusStyles() {
+            const statusMap = getEmpStatusMap();
+            document.querySelectorAll('.ts-table thead th.emp-col').forEach(th => {
+                // Extract employee name from the th text (first text node)
+                const empName = th.childNodes[0].textContent.trim();
+                th.classList.remove('pour', 'absent');
+                if (statusMap[empName] === 'pour') th.classList.add('pour');
+                else if (statusMap[empName] === 'absent') th.classList.add('absent');
+            });
+        }
+
+        function countPourDays(empName) {
+            const weekKey = getWeekKey(currentWeekStart);
+            const weekStatus = (allData._empStatus && allData._empStatus[weekKey]) || {};
+            let count = 0;
+            Object.values(weekStatus).forEach(dayStatus => {
+                if (dayStatus && dayStatus[empName] === 'pour') count++;
+            });
+            return count;
+        }
+
+        function countAbsentDays(empName) {
+            const weekKey = getWeekKey(currentWeekStart);
+            const weekStatus = (allData._empStatus && allData._empStatus[weekKey]) || {};
+            let count = 0;
+            Object.values(weekStatus).forEach(dayStatus => {
+                if (dayStatus && dayStatus[empName] === 'absent') count++;
+            });
+            return count;
+        }
+
+        // ============================================
         // GRID MODE SWITCHING
         // ============================================
         function switchGridMode(mode) {
@@ -1310,7 +1391,11 @@
             // HEADER ROW
             let headHtml = '<tr><th class="job-col">Job Site</th>';
             columns.forEach(col => {
-                headHtml += `<th>${col.name}<span class="rate ${showRates ? '' : 'hidden'}">$${col.rate}/hr</span></th>`;
+                if (gridMode === 'employees') {
+                    headHtml += `<th class="emp-col" onclick="cycleEmpStatus('${col.name}')" title="Click to cycle: normal → pour → absent">${col.name}<span class="rate ${showRates ? '' : 'hidden'}">$${col.rate}/hr</span><div class="status-dot"></div></th>`;
+                } else {
+                    headHtml += `<th>${col.name}<span class="rate ${showRates ? '' : 'hidden'}">$${col.rate}/hr</span></th>`;
+                }
             });
             headHtml += '</tr>';
             thead.innerHTML = headHtml;
@@ -1427,7 +1512,12 @@
                 const hours = employeeHours[w.name];
                 if (hours > 0) {
                     hasAnyEmp = true;
-                    empHtml += `<div class="employee-line"><span class="employee-name">${w.name}:</span><span class="employee-hours">${hours} hrs</span></div>`;
+                    const pourCount = countPourDays(w.name);
+                    const absentCount = countAbsentDays(w.name);
+                    let suffix = '';
+                    if (pourCount > 0) suffix += ' <span style="color:#3b82f6;font-weight:700;" title="' + pourCount + ' pour day(s)">' + '*'.repeat(pourCount) + '</span>';
+                    if (absentCount > 0) suffix += ' <span style="color:#ef4444;font-size:0.75rem;" title="' + absentCount + ' absent day(s)">(' + absentCount + ' out)</span>';
+                    empHtml += `<div class="employee-line"><span class="employee-name">${w.name}:</span><span class="employee-hours">${hours} hrs${suffix}</span></div>`;
                 }
             });
             if (!hasAnyEmp) {
@@ -1515,7 +1605,15 @@
             let text = `EMPLOYEE HOURS\nWeek of ${formatDate(currentWeekStart)} - ${formatDate(weekEnd)}, ${currentWeekStart.getFullYear()}\n\n`;
             workers.forEach(w => {
                 const hours = employeeHours[w.name];
-                if (hours > 0) { text += `${w.name}: ${hours} hrs\n`; totalHours += hours; }
+                if (hours > 0) {
+                    const pourCount = countPourDays(w.name);
+                    const absentCount = countAbsentDays(w.name);
+                    let suffix = '';
+                    if (pourCount > 0) suffix += ' ' + '*'.repeat(pourCount);
+                    if (absentCount > 0) suffix += ' (' + absentCount + ' out)';
+                    text += `${w.name}: ${hours} hrs${suffix}\n`;
+                    totalHours += hours;
+                }
             });
             if (totalHours > 0) text += `\nTOTAL: ${totalHours} hrs`;
             return text;
@@ -1836,6 +1934,7 @@
             calculateWeekTotal();
             updateEmployeeSummary();
             updateNoteIndicators();
+            applyEmpStatusStyles();
 
             document.getElementById('loadingOverlay').classList.add('hidden');
         });
@@ -1929,13 +2028,13 @@
         function prevWeek() {
             currentWeekStart.setDate(currentWeekStart.getDate() - 7);
             selectedDayIndex = 0;
-            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal(); updateEmployeeSummary(); updateNoteIndicators();
+            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal(); updateEmployeeSummary(); updateNoteIndicators(); applyEmpStatusStyles();
         }
 
         function nextWeek() {
             currentWeekStart.setDate(currentWeekStart.getDate() + 7);
             selectedDayIndex = 0;
-            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal(); updateEmployeeSummary(); updateNoteIndicators();
+            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal(); updateEmployeeSummary(); updateNoteIndicators(); applyEmpStatusStyles();
         }
 
         // ============================================
@@ -1957,6 +2056,7 @@
             document.querySelectorAll('.day-tab').forEach((tab, i) => tab.classList.toggle('active', i === index));
             loadDayData();
             updateNoteIndicators();
+            applyEmpStatusStyles();
         }
 
         // ============================================
@@ -2155,7 +2255,7 @@
             currentWeekStart = new Date(weekKey + 'T00:00:00');
             selectedDayIndex = 0;
             switchTab('timesheet');
-            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal(); updateEmployeeSummary(); updateNoteIndicators();
+            updateWeekDisplay(); buildDayTabs(); loadDayData(); calculateWeekTotal(); updateEmployeeSummary(); updateNoteIndicators(); applyEmpStatusStyles();
         }
 
         // ============================================
