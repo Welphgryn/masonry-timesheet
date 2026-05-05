@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spencer's Masonry - Data Manager</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #404040;
+            --text-primary: #ffffff;
+            --text-secondary: #999999;
+            --border-color: #3d3d3d;
+            --accent: #f97316;
+            --accent-hover: #ea580c;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #eab308;
+        }
+        [data-theme="light"] {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e5e5e5;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --border-color: #e0e0e0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary); color: var(--text-primary);
+            min-height: 100vh; transition: background 0.3s, color 0.3s;
+        }
+        .header {
+            background: var(--accent); padding: 12px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .header h1 { color: white; font-size: 1.2rem; }
+        .header a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.9rem; }
+        .header a:hover { color: white; }
+        .container { max-width: 900px; margin: 0 auto; padding: 24px; }
+
+        .section {
+            background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 24px; margin-bottom: 24px;
+        }
+        .section h2 { font-size: 1.1rem; margin-bottom: 8px; color: var(--accent); }
+        .section p { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px; line-height: 1.5; }
+
+        .status-bar {
+            background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 20px 24px; margin-bottom: 24px;
+            display: flex; gap: 32px; flex-wrap: wrap;
+        }
+        .status-item { text-align: center; }
+        .status-item .num { font-size: 1.8rem; font-weight: 700; color: var(--accent); }
+        .status-item .label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+
+        textarea {
+            width: 100%; min-height: 200px; padding: 12px; border-radius: 8px;
+            border: 2px solid var(--border-color); background: var(--bg-primary);
+            color: var(--text-primary); font-family: 'Courier New', monospace; font-size: 0.85rem;
+            resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: var(--accent); }
+
+        .btn {
+            padding: 10px 20px; border: none; border-radius: 8px;
+            font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #15803d; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-outline {
+            background: transparent; color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+
+        .log {
+            margin-top: 16px; padding: 12px; background: var(--bg-primary);
+            border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.8rem;
+            max-height: 300px; overflow-y: auto; white-space: pre-wrap;
+            border: 1px solid var(--border-color); display: none;
+        }
+        .log.show { display: block; }
+        .log .info { color: var(--text-secondary); }
+        .log .success { color: var(--success); }
+        .log .error { color: var(--danger); }
+        .log .warn { color: var(--warning); }
+
+        .tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+        .tab {
+            padding: 8px 16px; border-radius: 8px 8px 0 0; cursor: pointer;
+            background: var(--bg-tertiary); color: var(--text-secondary);
+            font-size: 0.85rem; font-weight: 500; border: 1px solid var(--border-color);
+            border-bottom: none;
+        }
+        .tab.active { background: var(--bg-secondary); color: var(--accent); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .warning-box {
+            background: rgba(234, 179, 8, 0.1); border: 1px solid var(--warning);
+            border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
+            font-size: 0.85rem; color: var(--warning);
+        }
+
+        .preview-table {
+            width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.8rem;
+        }
+        .preview-table th {
+            text-align: left; padding: 8px; border-bottom: 2px solid var(--border-color);
+            color: var(--text-secondary); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px;
+        }
+        .preview-table td { padding: 8px; border-bottom: 1px solid var(--border-color); }
+        .preview-table tr:hover td { background: var(--bg-tertiary); }
+
+        .badge {
+            display: inline-block; padding: 2px 8px; border-radius: 4px;
+            font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+        }
+        .badge-active { background: rgba(22,163,74,0.2); color: var(--success); }
+        .badge-completed { background: rgba(59,130,246,0.2); color: #3b82f6; }
+        .badge-hourly { background: rgba(249,115,22,0.2); color: var(--accent); }
+        .badge-contract { background: rgba(168,85,247,0.2); color: #a855f7; }
+
+        @media (max-width: 600px) {
+            .container { padding: 12px; }
+            .section { padding: 16px; }
+            .status-bar { gap: 16px; }
+            .status-item .num { font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧱 Data Manager</h1>
+        <a href="index.html">← Back to App</a>
+    </div>
+
+    <div class="container">
+        <!-- Current Status -->
+        <div class="status-bar" id="statusBar">
+            <div class="status-item"><div class="num" id="statJobs">-</div><div class="label">Jobs</div></div>
+            <div class="status-item"><div class="num" id="statEmployees">-</div><div class="label">Employees</div></div>
+            <div class="status-item"><div class="num" id="statMachines">-</div><div class="label">Machines</div></div>
+            <div class="status-item"><div class="num" id="statWeeks">-</div><div class="label">Payroll Weeks</div></div>
+            <div class="status-item"><div class="num" id="statSize">-</div><div class="label">Data Size (KB)</div></div>
+        </div>
+
+        <!-- Export -->
+        <div class="section">
+            <h2>📤 Export / Backup</h2>
+            <p>Download a full backup of your current data. Do this regularly.</p>
+            <div class="btn-row">
+                <button class="btn btn-primary" onclick="exportData()">Download Full Backup</button>
+                <button class="btn btn-outline" onclick="copyData()">Copy to Clipboard</button>
+            </div>
+        </div>
+
+        <!-- Import -->
+        <div class="section">
+            <h2>📥 Import / Restore</h2>
+            <p>Paste a full JSON backup to restore your data. This will replace everything currently in the database.</p>
+
+            <div class="warning-box">
+                ⚠️ This will OVERWRITE all current data. Make sure you export a backup first if you have anything worth keeping.
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('full')">Full Restore</div>
+                <div class="tab" onclick="switchTab('merge')">Merge (Add Missing)</div>
+            </div>
+
+            <div class="tab-content active" id="fullTab">
+                <p>Paste a complete JSON backup. This replaces the entire database.</p>
+                <textarea id="importFull" placeholder='Paste full JSON backup here...
+{
+  "jobs": { ... },
+  "employees": { ... },
+  "machines": { ... },
+  "2026-01-06": { ... },
+  ...
+}'></textarea>
+                <div class="btn-row">
+                    <button class="btn btn-primary" onclick="previewImport('full')">Preview</button>
+                    <button class="btn btn-danger" onclick="executeImport('full')" id="btnImportFull" disabled>Import & Replace All</button>
+                </div>
+            </div>
+
+            <div class="tab-content" id="mergeTab">
+                <p>Paste JSON data to merge. Existing records are kept; only missing jobs, employees, machines, and payroll weeks are added.</p>
+                <textarea id="importMerge" placeholder='Paste JSON to merge...
+{
+  "jobs": { "new-job": { ... } },
+  "2026-03-10": { ... }
+}'></textarea>
+                <div class="btn-row">
+                    <button class="btn btn-primary" onclick="previewImport('merge')">Preview</button>
+                    <button class="btn btn-success" onclick="executeImport('merge')" id="btnImportMerge" disabled>Merge Data</button>
+                </div>
+            </div>
+
+            <div id="preview"></div>
+            <div class="log" id="importLog"></div>
+        </div>
+
+        <!-- Quick Add Job -->
+        <div class="section">
+            <h2>➕ Quick Add Job</h2>
+            <p>Manually add a job without going through the Jobs page.</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div>
+                    <label style="font-size:0.8rem;color:var(--text-secondary);">Job Name *</label>
+                    <input type="text" id="qaJobName" placeholder="e.g. KR1 Tent Slab" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);margin-top:4px;">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem;color:var(--text-secondary);">Payroll Name</label>
+                    <input type="text" id="qaPayrollName" placeholder="(defaults to job name)" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);margin-top:4px;">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem;color:var(--text-secondary);">Client</label>
+                    <input type="text" id="qaClient" placeholder="e.g. Karl Richardson" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);margin-top:4px;">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem;color:var(--text-secondary);">Status</label>
+                    <select id="qaStatus" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);margin-top:4px;">
+                        <option value="active">Active</option>
+                        <option value="completed">Completed</option>
+                        <option value="on-hold">On Hold</option>
+                        <option value="bidding">Bidding</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:0.8rem;color:var(--text-secondary);">Job Type</label>
+                    <select id="qaJobType" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);margin-top:4px;">
+                        <option value="hourly">Hourly</option>
+                        <option value="contract">Contract</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:0.8rem;color:var(--text-secondary);">Contract Amount</label>
+                    <input type="number" id="qaContractAmt" placeholder="0" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);margin-top:4px;">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem;color:var(--text-secondary);">Square Footage</label>
+                    <input type="number" id="qaSF" placeholder="0" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);margin-top:4px;">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem;color:var(--text-secondary);">Start Date</label>
+                    <input type="date" id="qaStartDate" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);margin-top:4px;">
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-success" onclick="quickAddJob()">Add Job</button>
+            </div>
+            <div class="log" id="qaLog"></div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="section" style="border-color: var(--danger);">
+            <h2 style="color: var(--danger);">⚠️ Danger Zone</h2>
+            <p>Nuclear options. Think twice.</p>
+            <div class="btn-row">
+                <button class="btn btn-danger" onclick="resetToSeed()">Reset to Seed Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const JSONBIN_BIN_ID = '697a7070d0ea881f408e6063';
+        const JSONBIN_API_KEY = '$2a$10$vgUvy.chZeKckQe2eTD36uOX/mfrhx8GKudyoZqZsjWkbtaam8/Nm';
+        let allData = {};
+        let pendingImport = null;
+
+        // ==================== LOAD ====================
+        async function loadAllData() {
+            try {
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+                    headers: { 'X-Access-Key': JSONBIN_API_KEY }
+                });
+                const raw = await response.text();
+                const data = JSON.parse(raw);
+                allData = data.record || {};
+                updateStatus();
+                return true;
+            } catch (e) {
+                console.error('Load failed:', e);
+                return false;
+            }
+        }
+
+        // ==================== SAFE SAVE ====================
+        async function saveAllData() {
+            try {
+                await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Access-Key': JSONBIN_API_KEY,
+                        'X-Bin-Versioning': 'true'
+                    },
+                    body: JSON.stringify(allData)
+                });
+                return true;
+            } catch (e) {
+                console.error('Save failed:', e);
+                return false;
+            }
+        }
+
+        // ==================== STATUS ====================
+        function updateStatus() {
+            const keys = Object.keys(allData);
+            const dateKeys = keys.filter(k => k.match(/^\d{4}-\d{2}-\d{2}$/));
+            document.getElementById('statJobs').textContent = Object.keys(allData.jobs || {}).length;
+            document.getElementById('statEmployees').textContent = Object.keys(allData.employees || {}).length;
+            document.getElementById('statMachines').textContent = Object.keys(allData.machines || {}).length;
+            document.getElementById('statWeeks').textContent = dateKeys.length;
+            document.getElementById('statSize').textContent = (JSON.stringify(allData).length / 1024).toFixed(1);
+        }
+
+        // ==================== EXPORT ====================
+        function exportData() {
+            const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `spencers-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function copyData() {
+            navigator.clipboard.writeText(JSON.stringify(allData, null, 2))
+                .then(() => alert('Copied to clipboard!'))
+                .catch(() => alert('Copy failed - try the download button instead.'));
+        }
+
+        // ==================== IMPORT ====================
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab-content#${tab}Tab`).classList.add('active');
+            event.target.classList.add('active');
+            document.getElementById('preview').innerHTML = '';
+            document.getElementById('importLog').classList.remove('show');
+            pendingImport = null;
+            document.getElementById('btnImportFull').disabled = true;
+            document.getElementById('btnImportMerge').disabled = true;
+        }
+
+        function previewImport(mode) {
+            const textarea = document.getElementById(mode === 'full' ? 'importFull' : 'importMerge');
+            const previewEl = document.getElementById('preview');
+            const logEl = document.getElementById('importLog');
+            logEl.classList.remove('show');
+
+            let data;
+            try {
+                data = JSON.parse(textarea.value.trim());
+            } catch (e) {
+                previewEl.innerHTML = `<div class="warning-box" style="border-color:var(--danger);color:var(--danger);">❌ Invalid JSON: ${e.message}</div>`;
+                return;
+            }
+
+            // Handle if they pasted the full JSONbin response (with record wrapper)
+            if (data.record) data = data.record;
+
+            pendingImport = { mode, data };
+
+            const keys = Object.keys(data);
+            const dateKeys = keys.filter(k => k.match(/^\d{4}-\d{2}-\d{2}$/));
+            const jobs = data.jobs || {};
+            const employees = data.employees || {};
+            const machines = data.machines || {};
+
+            let html = '<h3 style="margin:16px 0 8px;font-size:0.95rem;">Preview</h3>';
+            html += `<div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:16px;">`;
+            html += `<div><strong style="color:var(--accent)">${Object.keys(jobs).length}</strong> jobs</div>`;
+            html += `<div><strong style="color:var(--accent)">${Object.keys(employees).length}</strong> employees</div>`;
+            html += `<div><strong style="color:var(--accent)">${Object.keys(machines).length}</strong> machines</div>`;
+            html += `<div><strong style="color:var(--accent)">${dateKeys.length}</strong> payroll weeks</div>`;
+            html += `<div><strong style="color:var(--accent)">${(JSON.stringify(data).length / 1024).toFixed(1)}</strong> KB</div>`;
+            html += `</div>`;
+
+            if (Object.keys(jobs).length > 0) {
+                html += `<table class="preview-table"><thead><tr><th>Job</th><th>Type</th><th>Status</th><th>Client</th><th>Contract</th></tr></thead><tbody>`;
+                Object.values(jobs).forEach(j => {
+                    html += `<tr>
+                        <td>${j.name || j.id || 'Unknown'}</td>
+                        <td><span class="badge badge-${j.jobType || 'hourly'}">${(j.jobType || 'hourly')}</span></td>
+                        <td><span class="badge badge-${j.status || 'active'}">${j.status || 'active'}</span></td>
+                        <td>${j.client || '-'}</td>
+                        <td>${j.contractAmount ? '$' + Number(j.contractAmount).toLocaleString() : '-'}</td>
+                    </tr>`;
+                });
+                html += `</tbody></table>`;
+            }
+
+            if (mode === 'merge') {
+                let newJobs = 0, newWeeks = 0;
+                Object.keys(jobs).forEach(k => { if (!allData.jobs || !allData.jobs[k]) newJobs++; });
+                dateKeys.forEach(k => { if (!allData[k]) newWeeks++; });
+                html += `<div style="margin-top:12px;padding:12px;background:rgba(22,163,74,0.1);border-radius:8px;font-size:0.85rem;color:var(--success);">
+                    Merge will add: <strong>${newJobs}</strong> new jobs, <strong>${newWeeks}</strong> new payroll weeks. Existing data is untouched.
+                </div>`;
+            }
+
+            previewEl.innerHTML = html;
+            document.getElementById(mode === 'full' ? 'btnImportFull' : 'btnImportMerge').disabled = false;
+        }
+
+        async function executeImport(mode) {
+            if (!pendingImport) return;
+            const btn = document.getElementById(mode === 'full' ? 'btnImportFull' : 'btnImportMerge');
+            const logEl = document.getElementById('importLog');
+
+            if (mode === 'full') {
+                if (!confirm('⚠️ This will REPLACE ALL data in the database. Are you absolutely sure?')) return;
+                if (!confirm('Final confirmation: ALL current data will be permanently overwritten. Continue?')) return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Importing...';
+            logEl.classList.add('show');
+            logEl.innerHTML = '';
+
+            const log = (msg, cls = 'info') => {
+                logEl.innerHTML += `<div class="${cls}">${new Date().toLocaleTimeString()} - ${msg}</div>`;
+                logEl.scrollTop = logEl.scrollHeight;
+            };
+
+            try {
+                const data = pendingImport.data;
+
+                if (mode === 'full') {
+                    log('Starting full restore...');
+                    allData = data;
+                    log(`Loaded ${Object.keys(data.jobs || {}).length} jobs`, 'success');
+                    log(`Loaded ${Object.keys(data.employees || {}).length} employees`, 'success');
+                    log(`Loaded ${Object.keys(data.machines || {}).length} machines`, 'success');
+                    const dateKeys = Object.keys(data).filter(k => k.match(/^\d{4}-\d{2}-\d{2}$/));
+                    log(`Loaded ${dateKeys.length} payroll weeks`, 'success');
+                } else {
+                    log('Starting merge...');
+                    // Merge jobs
+                    if (data.jobs) {
+                        if (!allData.jobs) allData.jobs = {};
+                        let added = 0;
+                        Object.entries(data.jobs).forEach(([k, v]) => {
+                            if (!allData.jobs[k]) { allData.jobs[k] = v; added++; }
+                        });
+                        log(`Jobs: ${added} added, ${Object.keys(data.jobs).length - added} already existed`, 'success');
+                    }
+                    // Merge employees
+                    if (data.employees) {
+                        if (!allData.employees) allData.employees = {};
+                        let added = 0;
+                        Object.entries(data.employees).forEach(([k, v]) => {
+                            if (!allData.employees[k]) { allData.employees[k] = v; added++; }
+                        });
+                        log(`Employees: ${added} added`, 'success');
+                    }
+                    // Merge machines
+                    if (data.machines) {
+                        if (!allData.machines) allData.machines = {};
+                        let added = 0;
+                        Object.entries(data.machines).forEach(([k, v]) => {
+                            if (!allData.machines[k]) { allData.machines[k] = v; added++; }
+                        });
+                        log(`Machines: ${added} added`, 'success');
+                    }
+                    // Merge payroll weeks
+                    const dateKeys = Object.keys(data).filter(k => k.match(/^\d{4}-\d{2}-\d{2}$/));
+                    let addedWeeks = 0;
+                    dateKeys.forEach(k => {
+                        if (!allData[k]) { allData[k] = data[k]; addedWeeks++; }
+                    });
+                    log(`Payroll weeks: ${addedWeeks} added`, 'success');
+                }
+
+                log('Saving to JSONbin with versioning enabled...');
+                const saved = await saveAllData();
+                if (saved) {
+                    log('✅ Data saved successfully!', 'success');
+                    updateStatus();
+                } else {
+                    log('❌ Save failed!', 'error');
+                }
+            } catch (e) {
+                log(`❌ Error: ${e.message}`, 'error');
+            }
+
+            btn.textContent = mode === 'full' ? 'Import & Replace All' : 'Merge Data';
+            btn.disabled = false;
+        }
+
+        // ==================== QUICK ADD JOB ====================
+        function quickAddJob() {
+            const name = document.getElementById('qaJobName').value.trim();
+            if (!name) { alert('Job name is required'); return; }
+
+            const logEl = document.getElementById('qaLog');
+            const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            const payrollName = document.getElementById('qaPayrollName').value.trim() || name;
+            const now = new Date().toISOString();
+
+            if (!allData.jobs) allData.jobs = {};
+            if (allData.jobs[id]) {
+                logEl.classList.add('show');
+                logEl.innerHTML = `<div class="error">Job "${name}" (id: ${id}) already exists!</div>`;
+                return;
+            }
+
+            const job = {
+                id, name, payrollName,
+                client: document.getElementById('qaClient').value.trim() || '',
+                status: document.getElementById('qaStatus').value,
+                jobType: document.getElementById('qaJobType').value,
+                startDate: document.getElementById('qaStartDate').value || '',
+                squareFootage: parseInt(document.getElementById('qaSF').value) || 0,
+                overheadPercent: 18, profitPercent: 10, geTaxPercent: 4.712,
+                created: now, modified: now
+            };
+
+            const contractAmt = parseFloat(document.getElementById('qaContractAmt').value);
+            if (contractAmt > 0) job.contractAmount = contractAmt;
+
+            allData.jobs[id] = job;
+
+            saveAllData().then(ok => {
+                logEl.classList.add('show');
+                if (ok) {
+                    logEl.innerHTML = `<div class="success">✅ Added job: ${name}</div>`;
+                    updateStatus();
+                    // Clear form
+                    document.getElementById('qaJobName').value = '';
+                    document.getElementById('qaPayrollName').value = '';
+                    document.getElementById('qaClient').value = '';
+                    document.getElementById('qaContractAmt').value = '';
+                    document.getElementById('qaSF').value = '';
+                    document.getElementById('qaStartDate').value = '';
+                } else {
+                    logEl.innerHTML = `<div class="error">❌ Save failed!</div>`;
+                }
+            });
+        }
+
+        // ==================== RESET ====================
+        function resetToSeed() {
+            if (!confirm('This will DELETE ALL DATA and reset to the 9 default jobs. Are you sure?')) return;
+            if (!confirm('FINAL WARNING: All jobs, payroll hours, everything will be erased. Type OK to continue.')) return;
+            // Let seed function handle it from payroll page
+            alert('Go to the Payroll page to trigger a fresh seed. This button is intentionally limited.');
+        }
+
+        // ==================== THEME ====================
+        (function(){
+            const s = localStorage.getItem('spencers-theme');
+            if (s) document.documentElement.setAttribute('data-theme', s);
+        })();
+
+        // ==================== INIT ====================
+        loadAllData();
+    </script>
+</body>
+</html>
