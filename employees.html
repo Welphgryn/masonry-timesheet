@@ -643,6 +643,8 @@
         });
 
         // Storage
+        let loadedKeyCount = 0;
+
         async function loadAllData() {
             try {
                 const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
@@ -650,6 +652,7 @@
                 });
                 const data = await response.json();
                 allData = data.record || {};
+                loadedKeyCount = Object.keys(allData).length;
                 if (!allData.employees) allData.employees = {};
                 if (!allData.jobs) allData.jobs = {};
                 
@@ -665,10 +668,20 @@
         }
 
         async function saveAllData() {
+            const currentKeys = Object.keys(allData).length;
+            if (loadedKeyCount > 5 && currentKeys < loadedKeyCount * 0.5) {
+                console.error('SAVE BLOCKED: Data appears truncated.');
+                alert('Save blocked: data appears incomplete. Refresh and try again.');
+                return false;
+            }
             try {
                 await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'X-Access-Key': JSONBIN_API_KEY },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Access-Key': JSONBIN_API_KEY,
+                        'X-Bin-Versioning': 'true'
+                    },
                     body: JSON.stringify(allData)
                 });
                 return true;
