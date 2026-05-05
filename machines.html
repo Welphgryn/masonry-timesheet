@@ -192,12 +192,15 @@
             document.getElementById('loadingOverlay').classList.add('hidden');
         });
 
+        let loadedKeyCount = 0;
+
         async function loadAllData() {
             updateSaveStatus('loading');
             try {
                 const r = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, { headers: { 'X-Access-Key': JSONBIN_API_KEY } });
                 const d = await r.json();
                 allData = d.record || {};
+                loadedKeyCount = Object.keys(allData).length;
                 if (!allData.machines) allData.machines = {};
                 updateSaveStatus('saved');
             } catch (e) {
@@ -208,11 +211,22 @@
         }
 
         async function saveAllData() {
+            const currentKeys = Object.keys(allData).length;
+            if (loadedKeyCount > 5 && currentKeys < loadedKeyCount * 0.5) {
+                console.error('SAVE BLOCKED: Data appears truncated.');
+                updateSaveStatus('error');
+                alert('Save blocked: data appears incomplete. Refresh and try again.');
+                return false;
+            }
             updateSaveStatus('saving');
             try {
                 await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'X-Access-Key': JSONBIN_API_KEY },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Access-Key': JSONBIN_API_KEY,
+                        'X-Bin-Versioning': 'true'
+                    },
                     body: JSON.stringify(allData)
                 });
                 updateSaveStatus('saved');
