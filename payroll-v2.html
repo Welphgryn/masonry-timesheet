@@ -985,21 +985,25 @@
         };
 
         async function checkAndSeedData() {
-            let needsSave = false;
+            let needsSeed = false;
             if (!allData.employees || Object.keys(allData.employees).length === 0) {
                 allData.employees = seedEmployees;
-                needsSave = true;
+                needsSeed = true;
             }
             if (!allData.jobs || Object.keys(allData.jobs).length === 0 ||
                 (Object.keys(allData.jobs).length === 1 && allData.jobs['test2'])) {
                 allData.jobs = seedJobs;
-                needsSave = true;
+                needsSeed = true;
             }
             if (!allData.machines || Object.keys(allData.machines).length === 0) {
                 allData.machines = seedMachines;
-                needsSave = true;
+                needsSeed = true;
             }
-            if (needsSave) await saveAllData();
+            // SAFETY: Do NOT auto-save seed data. Seeding into memory only.
+            // This prevents a partial load from triggering a seed that overwrites real data.
+            if (needsSeed) {
+                console.warn('Seed data applied to memory only — NOT saved. Use Data Manager (import.html) to restore data if needed.');
+            }
         }
 
         function buildMachinesList() {
@@ -1951,6 +1955,7 @@
                 });
                 const data = await response.json();
                 allData = data.record || {};
+                loadedKeyCount = Object.keys(allData).length;
                 if (!allData.jobs) allData.jobs = {};
                 if (!allData.employees) allData.employees = {};
                 updateSaveStatus('saved');
@@ -1961,18 +1966,36 @@
             }
         }
 
+        // Safety: track how many keys were loaded to prevent partial-load overwrites
+        let loadedKeyCount = 0;
+
         async function saveAllData() {
+            // SAFETY CHECK: if we loaded very few keys but are about to save,
+            // something went wrong with the load — block the save to prevent data loss
+            const currentKeys = Object.keys(allData).length;
+            if (loadedKeyCount > 5 && currentKeys < loadedKeyCount * 0.5) {
+                console.error('SAVE BLOCKED: Data appears truncated. Loaded ' + loadedKeyCount + ' keys but only ' + currentKeys + ' now. Refusing to overwrite.');
+                updateSaveStatus('error');
+                alert('Save blocked: data appears incomplete. Refresh and try again. If this persists, use the Data Manager (import.html) to check your data.');
+                return false;
+            }
             updateSaveStatus('saving');
             try {
                 await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'X-Access-Key': JSONBIN_API_KEY },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Access-Key': JSONBIN_API_KEY,
+                        'X-Bin-Versioning': 'true'
+                    },
                     body: JSON.stringify(allData)
                 });
                 updateSaveStatus('saved');
+                return true;
             } catch (e) {
                 console.error('Save failed:', e);
                 updateSaveStatus('error');
+                return false;
             }
         }
 
